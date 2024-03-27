@@ -1,0 +1,39 @@
+mail:
+    debug: true
+recaptcha:
+    secret: 6LeWk28pAAAAAGq0gsC5B7ZzWFQFShhFG3ntLzrs
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/englishByHeart
+        username: myuser
+        password: secret
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: true
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+        hibernate:
+            ddl-auto: create
+    mail:
+        host: smtp.gmail.com
+        password: tqzv phll gjxs kzol
+        port: 465
+        protocol: smtps
+        username: k.s.klimkov@gmail.com
+    session:
+        jdbc:
+            initialize-schema: always
+            table-name: SPRING_SESSION
+    freemarker:
+        expose-request-attributes: true
+        expose-session-attributes: true
+        suffix: .ftl
+upload:
+    path: /home/kklimkov/Desktop/EnglishByHeart/pictures
+
+springdoc:
+    api-docs:
+        path: /api-docs

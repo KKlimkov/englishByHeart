@@ -1,0 +1,36 @@
+mail:
+    debug: false
+recaptcha:
+    secret: 6LeWk28pAAAAAGq0gsC5B7ZzWFQFShhFG3ntLzrs
+spring:
+    datasource:
+        url: jdbc:postgresql://dpg-cn8r3amv3ddc73d4qmjg-a.frankfurt-postgres.render.com/myproject
+        username: myuser
+        password: tVKFw3GMKu1Do73cycWhFPrZ4DXFMEUp
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: true
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+        hibernate:
+            ddl-auto: validate
+        show-sql: false
+    mail:
+        host: smtp.gmail.com
+        password: tqzv phll gjxs kzol
+        port: 465
+        protocol: smtps
+        username: k.s.klimkov@gmail.com
+    session:
+        jdbc:
+            initialize-schema: always
+            table-name: SPRING_SESSION
+    freemarker:
+        expose-request-attributes: true
+        expose-session-attributes: true
+        suffix: .ftl
+upload:
+    path: /var/data/pictures
