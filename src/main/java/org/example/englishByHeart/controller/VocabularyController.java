@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/vocabulary")
@@ -24,29 +26,29 @@ public class VocabularyController {
     private VocabularyService vocabularyService;
 
     @PostMapping("/add/sentence")
-    public ResponseEntity<String> addSentence(@RequestBody VocabularyRequest request) throws JsonProcessingException {
+    public ResponseEntity<CustomResponse<Long>> addSentence(@RequestBody VocabularyRequest request) throws JsonProcessingException {
         ResponseEntity<String> sentenceResponse = vocabularyService.callExternalControllerForSentence(request);
         if (sentenceResponse.getStatusCode() != HttpStatus.CREATED) {
-            return sentenceResponse; // Return if sentence creation fails
+            return ResponseEntity.status(sentenceResponse.getStatusCode())
+                    .body(new CustomResponse<>(false, "Sentence creation failed", null));
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode responseBodyJson = objectMapper.readTree(sentenceResponse.getBody());
         Long newSentenceId = responseBodyJson.get("data").get("sentenceId").asLong();
-        // Extract the new sentenceId from the response body
 
-        // Iterate over each translation in the request
+        List<ResponseEntity<String>> responses = new ArrayList<>();
         for (TranslationRequestForAdd translation : request.getTranslations()) {
-            // Call the external controller's post method for each translation
-            ResponseEntity<String> translationResponse = vocabularyService.callExternalControllerForTranslations(translation, newSentenceId);
-            // Check if the translation response indicates success, and handle errors if necessary
-            if (translationResponse.getStatusCode() != HttpStatus.CREATED) {
-                return translationResponse;
+            ResponseEntity<String> translationResponse = vocabularyService.callExternalControllerForTranslations(Collections.singletonList(translation), newSentenceId);
+            responses.add(translationResponse);
+
+            if (translationResponse.getStatusCode() != HttpStatus.OK) {
+                System.err.println("Controller: Translation request failed: " + translationResponse.getBody());
             }
         }
 
-        // If all translations were successful, return a success response
-        return ResponseEntity.ok("All translations added successfully.");
+        CustomResponse<Long> customResponse = new CustomResponse<>(true, null, newSentenceId);
+        return ResponseEntity.ok().body(customResponse);
     }
 
 }

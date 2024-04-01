@@ -8,6 +8,11 @@ public class CustomResponse<T> {
 
     // Constructors, getters, and setters
 
+    public CustomResponse(boolean success, String errorMessage, T data) {
+        this.success = success;
+        this.errorMessage = errorMessage;
+        this.data = data;
+    }
 
     public boolean isSuccess() {
         return success;

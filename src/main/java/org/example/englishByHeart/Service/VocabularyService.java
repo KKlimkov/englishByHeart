@@ -36,30 +36,30 @@ public class VocabularyService {
         return response;
     }
 
-    public ResponseEntity<String> callExternalControllerForTranslations(TranslationRequestForAdd translations, Long newSentenceId) {
-        // Create a new list to hold TranslationRequest objects
+    public ResponseEntity<String> callExternalControllerForTranslations(List<TranslationRequestForAdd> translations, Long newSentenceId) {
+        List<ResponseEntity<String>> responses = new ArrayList<>();
 
-        // Populate the new list with translations and set the sentenceId
-        TranslationRequest translation = new TranslationRequest();
+        for (TranslationRequestForAdd translation : translations) {
+            TranslationRequest translationRequest = new TranslationRequest();
+            translationRequest.setTranslation(translation.getTranslation());
+            translationRequest.setRuleIds(translation.getRuleIds());
+            translationRequest.setSentenceId(newSentenceId);
 
-        translation.setTranslation(translations.getTranslation());
-        translation.setRuleIds(translations.getRuleIds());
-        translation.setSentenceId(newSentenceId); // Set the sentenceId
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
+            HttpEntity<TranslationRequest> requestEntity = new HttpEntity<>(translationRequest, headers);
 
-        System.out.println("I transformed" + translation);
+            ResponseEntity<String> response = restTemplate.exchange(TRANSLATION_API_URL, HttpMethod.POST, requestEntity, String.class);
+            responses.add(response);
 
-        logger.info("Translation requests: {}", translations);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                System.err.println("Service: Translation request failed: " + response.getBody());
+                return response;
+            }
+        }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the request entity with the updated translations
-        HttpEntity<TranslationRequest> requestEntity = new HttpEntity<>(translation, headers);
-
-        // Make the HTTP POST request to the translation endpoint
-        ResponseEntity<String> response = restTemplate.exchange(TRANSLATION_API_URL, HttpMethod.POST, requestEntity, String.class);
-
-        return response;
+        // If all requests were successful, return a success response
+        return ResponseEntity.ok().build();
     }
 }

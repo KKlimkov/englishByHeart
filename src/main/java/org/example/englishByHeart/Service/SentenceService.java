@@ -27,7 +27,8 @@ public class SentenceService {
     }
 
     public CustomResponse<SentenceIdResponse> createSentence(Sentence sentence) {
-        CustomResponse<SentenceIdResponse> response = new CustomResponse<>();
+
+        CustomResponse<SentenceIdResponse> response; // Specify type argument here
 
         try {
             // Save the sentence and get the sentenceId
@@ -36,20 +37,14 @@ public class SentenceService {
             Long sentenceId = createdSentence.getSentenceId();
 
             // Populate the response
-            response.setSuccess(true);
-            response.setErrorMessage("");
+            response = new CustomResponse<>(true, "", new SentenceIdResponse(sentenceId));
 
-            SentenceIdResponse sentenceIdResponse = new SentenceIdResponse();
-            sentenceIdResponse.setSentenceId(sentenceId);
-            response.setData(sentenceIdResponse);
-
-            return response;
         } catch (Exception e) {
             // If there's an error, populate the error message and set success to false
-            response.setSuccess(false);
-            response.setErrorMessage("Failed to create sentence: " + e.getMessage());
-            return response;
+            response = new CustomResponse<>(false, "Failed to create sentence: " + e.getMessage(), null);
         }
+
+        return response;
     }
 
     public ResponseEntity<Sentence> updateSentence(Long id, Sentence updatedSentence) {
