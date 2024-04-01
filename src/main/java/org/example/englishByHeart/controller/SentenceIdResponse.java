@@ -1,13 +1,13 @@
 package org.example.englishByHeart.controller;
 
 public class SentenceIdResponse {
-    private Integer sentenceId;
+    private Long sentenceId;
 
-    public Integer getSentenceId() {
+    public Long getSentenceId() {
         return sentenceId;
     }
 
-    public void setSentenceId(Integer sentenceId) {
+    public void setSentenceId(Long sentenceId) {
         this.sentenceId = sentenceId;
     }
 }

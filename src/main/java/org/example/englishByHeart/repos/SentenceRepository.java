@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SentenceRepository extends JpaRepository<Sentence, Integer> {
+public interface SentenceRepository extends JpaRepository<Sentence, Long> {
     // Add custom query methods if needed
 }

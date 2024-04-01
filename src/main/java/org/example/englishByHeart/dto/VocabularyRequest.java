@@ -1,29 +1,15 @@
-package org.example.englishByHeart.domain;
+package org.example.englishByHeart.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import java.util.UUID;
+import java.util.List;
 
-@Entity
-public class Sentence {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(hidden = true)
-    private Long sentenceId;
+public class VocabularyRequest {
 
     private Long userId;
     private String learningSentence;
     private String comment;
     private Long userLink;
     private Long topicId;
-
-    public Long getSentenceId() {
-        return sentenceId;
-    }
-
-    public void setSentenceId(Long sentenceId) {
-        this.sentenceId = sentenceId;
-    }
+    private List<TranslationRequestForAdd> translations;
 
     public Long getUserId() {
         return userId;
@@ -63,5 +49,14 @@ public class Sentence {
 
     public void setTopicId(Long topicId) {
         this.topicId = topicId;
+    }
+
+
+    public List<TranslationRequestForAdd> getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(List<TranslationRequestForAdd> translations) {
+        this.translations = translations;
     }
 }

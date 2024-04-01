@@ -1,48 +1,36 @@
 package org.example.englishByHeart.domain;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Entity
+@Table(name = "translations")
 public class Translation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(hidden = true)
-    private Integer translationId;
+    private Long translateId;
 
-    private Integer sentenceId;
-
-    private Integer wordId;
-
-    @NotBlank(message = "Translation is mandatory")
     private String translation;
+    private Long sentenceId;
 
-    public Integer getTranslationId() {
-        return translationId;
+    @OneToMany(mappedBy = "translation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<TranslationRuleLink> translationRuleLinks = new ArrayList<>();
+
+    // Constructors, getters, setters
+
+
+    public Long getTranslateId() {
+        return translateId;
     }
 
-    public void setTranslationId(Integer translationId) {
-        this.translationId = translationId;
-    }
-
-    public Integer getSentenceId() {
-        return sentenceId;
-    }
-
-    public void setSentenceId(Integer sentenceId) {
-        this.sentenceId = sentenceId;
-    }
-
-    public Integer getWordId() {
-        return wordId;
-    }
-
-    public void setWordId(Integer wordId) {
-        this.wordId = wordId;
+    public void setTranslateId(Long translateId) {
+        this.translateId = translateId;
     }
 
     public String getTranslation() {
@@ -53,5 +41,19 @@ public class Translation {
         this.translation = translation;
     }
 
-    // Constructors, getters, and setters
+    public Long getSentenceId() {
+        return sentenceId;
+    }
+
+    public void setSentenceId(Long sentenceId) {
+        this.sentenceId = sentenceId;
+    }
+
+    public List<TranslationRuleLink> getTranslationRuleLinks() {
+        return translationRuleLinks;
+    }
+
+    public void setTranslationRuleLinks(List<TranslationRuleLink> translationRuleLinks) {
+        this.translationRuleLinks = translationRuleLinks;
+    }
 }
