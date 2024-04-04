@@ -2,6 +2,7 @@ package org.example.englishByHeart.controller;
 
 import org.example.englishByHeart.Service.SentenceService;
 import org.example.englishByHeart.domain.Sentence;
+import org.example.englishByHeart.dto.SentenceDTO;
 import org.example.englishByHeart.repos.SentenceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,12 +31,12 @@ public class SentenceController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-        @PostMapping
-        public ResponseEntity<CustomResponse<SentenceIdResponse>> createSentence(@RequestBody Sentence sentence) {
-            CustomResponse<SentenceIdResponse> response = sentenceService.createSentence(sentence);
-            HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
-            return ResponseEntity.status(status).body(response);
-        }
+    @PostMapping
+    public ResponseEntity<CustomResponse<SentenceIdResponse>> createSentence(@RequestBody SentenceDTO sentence) {
+        CustomResponse<SentenceIdResponse> response = sentenceService.createSentence(sentence);
+        HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+        return ResponseEntity.status(status).body(response);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Sentence> updateSentence(@PathVariable Long id, @RequestBody Sentence updatedSentence) {

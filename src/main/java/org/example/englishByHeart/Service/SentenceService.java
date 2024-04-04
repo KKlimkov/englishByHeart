@@ -2,21 +2,26 @@ package org.example.englishByHeart.Service;
 
 import org.example.englishByHeart.controller.CustomResponse;
 import org.example.englishByHeart.controller.SentenceIdResponse;
-import org.example.englishByHeart.domain.Sentence;
+import org.example.englishByHeart.domain.*;
+import org.example.englishByHeart.dto.SentenceDTO;
+import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.SentenceRepository;
+import org.example.englishByHeart.repos.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SentenceService {
 
     @Autowired
     private SentenceRepository sentenceRepository;
+
+    @Autowired
+    private TopicRepository topicRepository;
 
     public List<Sentence> getAllSentences() {
         return sentenceRepository.findAll();
@@ -26,13 +31,33 @@ public class SentenceService {
         return sentenceRepository.findById(id);
     }
 
-    public CustomResponse<SentenceIdResponse> createSentence(Sentence sentence) {
+    public CustomResponse<SentenceIdResponse> createSentence(SentenceDTO sentenceDTO) {
 
         CustomResponse<SentenceIdResponse> response; // Specify type argument here
 
         try {
+            Sentence sentence = new Sentence();
+            sentence.setLearningSentence(sentenceDTO.getLearningSentence());
+            sentence.setComment(sentenceDTO.getComment());
+            sentence.setUserLink(sentenceDTO.getUserLink());
+            sentence.setUserId(sentenceDTO.getUserId());
+
             // Save the sentence and get the sentenceId
-            sentence.setSentenceId(null);
+            //sentence.setSentenceId(null);
+
+            List<SentenceTopic> sentenceTopics = new ArrayList<>();
+
+            for (Long topicsId : sentenceDTO.getTopicsIds()) {
+                Topic topic = topicRepository.findById(topicsId)
+                        .orElseThrow(() -> new RuntimeException("Topic not found with id: " + topicsId));
+                SentenceTopic sentenceTopic = new SentenceTopic();
+                sentenceTopic.setSentence(sentence);
+                sentenceTopic.setTopic(topic);
+                sentenceTopics.add(sentenceTopic);
+            }
+
+            sentence.setSentenceTopics(sentenceTopics);
+
             Sentence createdSentence = sentenceRepository.save(sentence);
             Long sentenceId = createdSentence.getSentenceId();
 

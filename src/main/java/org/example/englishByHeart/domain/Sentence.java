@@ -2,7 +2,8 @@ package org.example.englishByHeart.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import java.util.UUID;
+
+import java.util.*;
 
 @Entity
 public class Sentence {
@@ -15,7 +16,9 @@ public class Sentence {
     private String learningSentence;
     private String comment;
     private Long userLink;
-    private Long topicId;
+
+    @OneToMany(mappedBy = "sentence",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SentenceTopic> sentenceTopics = new ArrayList<>();
 
     public Long getSentenceId() {
         return sentenceId;
@@ -57,11 +60,11 @@ public class Sentence {
         this.userLink = userLink;
     }
 
-    public Long getTopicId() {
-        return topicId;
+    public List<SentenceTopic> getSentenceTopics() {
+        return sentenceTopics;
     }
 
-    public void setTopicId(Long topicId) {
-        this.topicId = topicId;
+    public void setSentenceTopics(List<SentenceTopic> sentenceTopics) {
+        this.sentenceTopics = sentenceTopics;
     }
 }

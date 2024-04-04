@@ -4,6 +4,7 @@ public class SentenceIdResponse {
     private Long sentenceId;
 
     public SentenceIdResponse(Long sentenceId) {
+        this.sentenceId = sentenceId;
     }
 
     public Long getSentenceId() {

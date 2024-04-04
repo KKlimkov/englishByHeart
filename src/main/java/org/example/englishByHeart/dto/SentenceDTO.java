@@ -2,15 +2,14 @@ package org.example.englishByHeart.dto;
 
 import java.util.List;
 
-public class VocabularyRequest {
+public class SentenceDTO {
 
     private Long userId;
     private String learningSentence;
     private String comment;
     private Long userLink;
-    private List<Long> topicsIds;
 
-    private List<TranslationRequestForAdd> translations;
+    private List<Long> topicsIds;
 
     public Long getUserId() {
         return userId;
@@ -50,13 +49,5 @@ public class VocabularyRequest {
 
     public void setTopicsIds(List<Long> topicsIds) {
         this.topicsIds = topicsIds;
-    }
-
-    public List<TranslationRequestForAdd> getTranslations() {
-        return translations;
-    }
-
-    public void setTranslations(List<TranslationRequestForAdd> translations) {
-        this.translations = translations;
     }
 }
