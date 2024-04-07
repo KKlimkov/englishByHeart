@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TranslationService {
@@ -40,5 +42,12 @@ public class TranslationService {
         translation.setTranslationRuleLinks(translationRuleLinks);
 
         return translationRepository.save(translation);
+    }
+
+    public Set<Long> getSentenceIdsByTranslationIds(Set<Long> translationIds) {
+        return translationRepository.findByTranslateIdIn(translationIds)
+                .stream()
+                .map(Translation::getSentenceId)
+                .collect(Collectors.toSet());
     }
 }

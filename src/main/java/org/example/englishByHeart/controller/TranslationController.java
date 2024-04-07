@@ -4,10 +4,10 @@ import org.example.englishByHeart.Service.TranslationService;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.dto.TranslationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/translations")
@@ -19,5 +19,10 @@ public class TranslationController {
     @PostMapping
     public Translation createTranslation(@RequestBody TranslationRequest translationRequest) {
         return translationService.createTranslation(translationRequest);
+    }
+
+    @GetMapping("/sentenceIds")
+    public Set<Long> getSentenceIdsByTranslationIds(@RequestParam Set<Long> translationIds) {
+        return translationService.getSentenceIdsByTranslationIds(translationIds);
     }
 }

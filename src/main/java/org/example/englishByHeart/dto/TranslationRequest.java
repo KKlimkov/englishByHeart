@@ -15,7 +15,6 @@ public class TranslationRequest {
 
     // Constructors, getters, setters
 
-
     public String getTranslation() {
         return translation;
     }

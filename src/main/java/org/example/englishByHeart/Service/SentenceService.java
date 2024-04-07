@@ -82,4 +82,29 @@ public class SentenceService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    public List<Sentence> searchSentences(Long userId, Set<Long> sentenceIds, List<Long> sentenceTopics) {
+        if (userId != null && sentenceIds != null && !sentenceIds.isEmpty() && sentenceTopics != null && !sentenceTopics.isEmpty()) {
+            // Search by userId, sentenceIds, and sentenceTopics
+            return sentenceRepository.findByUserIdAndSentenceIdInAndSentenceTopics(userId, sentenceIds, sentenceTopics);
+        } else if (userId != null && sentenceIds != null && !sentenceIds.isEmpty()) {
+            // Search by userId and sentenceIds
+            return sentenceRepository.findByUserIdAndSentenceIdIn(userId, sentenceIds);
+        } else if (userId != null && sentenceTopics != null && !sentenceTopics.isEmpty()) {
+            // Search by userId and sentenceTopics
+            return sentenceRepository.findByUserIdAndSentenceTopicsIn(userId, sentenceTopics);
+        } else if (userId != null) {
+            // Search by userId
+            return sentenceRepository.findByUserId(userId);
+        } else if (sentenceIds != null && !sentenceIds.isEmpty()) {
+            // Search by sentenceIds
+            return sentenceRepository.findBySentenceIdIn(sentenceIds);
+        } else if (sentenceTopics != null && !sentenceTopics.isEmpty()) {
+            // Search by sentenceTopics
+            return sentenceRepository.findBySentenceTopicsIn(sentenceTopics);
+        } else {
+            // No search criteria provided, return empty list
+            return Collections.emptyList();
+        }
+    }
 }
