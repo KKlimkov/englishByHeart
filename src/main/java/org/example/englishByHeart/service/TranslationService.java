@@ -1,8 +1,8 @@
-package org.example.englishByHeart.Service;
+package org.example.englishByHeart.service;
 
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Translation;
-import org.example.englishByHeart.domain.TranslationRuleLink;
+import org.example.englishByHeart.domain.TranslationRule;
 import org.example.englishByHeart.dto.TranslationRequest;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.TranslationRepository;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,11 +28,11 @@ public class TranslationService {
         translation.setTranslation(translationRequest.getTranslation());
         translation.setSentenceId(translationRequest.getSentenceId());
 
-        List<TranslationRuleLink> translationRuleLinks = new ArrayList<>();
+        List<TranslationRule> translationRuleLinks = new ArrayList<>();
         for (Long ruleId : translationRequest.getRuleIds()) {
             Rule rule = ruleRepository.findById(ruleId)
                     .orElseThrow(() -> new RuntimeException("Rule not found with id: " + ruleId));
-            TranslationRuleLink translationRuleLink = new TranslationRuleLink();
+            TranslationRule translationRuleLink = new TranslationRule();
             translationRuleLink.setTranslation(translation);
             translationRuleLink.setRule(rule);
             translationRuleLinks.add(translationRuleLink);
@@ -44,10 +43,7 @@ public class TranslationService {
         return translationRepository.save(translation);
     }
 
-    public Set<Long> getSentenceIdsByTranslationIds(Set<Long> translationIds) {
-        return translationRepository.findByTranslateIdIn(translationIds)
-                .stream()
-                .map(Translation::getSentenceId)
-                .collect(Collectors.toSet());
+    public List<Translation> getTranslationsBySentenceIds(List<Long> sentenceIds) {
+        return translationRepository.findBySentenceIdIn(sentenceIds);
     }
 }

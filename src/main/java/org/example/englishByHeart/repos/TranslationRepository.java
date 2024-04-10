@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Set;
 
 public interface TranslationRepository extends JpaRepository<Translation, Integer> {
-    List<Translation> findByTranslateIdIn(Set<Long> translationIds);
+    List<Translation> findBySentenceIdIn(List<Long> sentenceIds);
 }

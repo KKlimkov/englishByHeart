@@ -1,8 +1,9 @@
-package org.example.englishByHeart.Service;
+package org.example.englishByHeart.service;
 
 import org.example.englishByHeart.domain.Rule;
+import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.domain.Translation;
-import org.example.englishByHeart.domain.TranslationRuleLink;
+import org.example.englishByHeart.domain.TranslationRule;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,17 @@ public class RuleService {
         return ruleRepository.findAllById(ruleIds);
     }
 
+    public List<Rule> getAllRulesByUser(Long userId) {
+        List<Rule> rules = ruleRepository.findByUserId(userId);
+        return rules;
+    }
 
     public Set<Long> getTranslationIdsForRules(List<Rule> rules) {
-        TranslationRuleLink translationRuleLink = new TranslationRuleLink();
+        TranslationRule translationRuleLink = new TranslationRule();
         Translation  translation = new Translation();
         return rules.stream()
-                .flatMap(rule -> rule.getTranslationRuleLinks().stream()
-                        .map(TranslationRuleLink::getTranslation)
+                .flatMap(rule -> rule.getTranslationRule().stream()
+                        .map(TranslationRule::getTranslation)
                         .map(Translation::getTranslateId))
                 .collect(Collectors.toSet());
     }

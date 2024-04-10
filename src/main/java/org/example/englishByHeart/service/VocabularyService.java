@@ -1,5 +1,6 @@
-package org.example.englishByHeart.Service;
+package org.example.englishByHeart.service;
 
+import org.example.englishByHeart.dto.SentenceDTO;
 import org.example.englishByHeart.dto.TranslationRequest;
 import org.example.englishByHeart.dto.VocabularyRequest;
 import org.example.englishByHeart.dto.TranslationRequestForAdd;
@@ -12,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,68 +32,6 @@ public class VocabularyService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseEntity<String> getTranslationsByRulesIds(List<Long> request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<List<Long>> requestEntity = new HttpEntity<>(request, headers);
-
-        // Convert list of ruleIds to a comma-separated string
-        String ruleIdsString = request.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining("&ruleIds=", "?ruleIds=", ""));
-
-        // Construct the URL with the ruleIds query parameter
-        String url = RULE_API_URL + ruleIdsString;
-
-        System.out.println(url);
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-
-        return response;
-    }
-
-    public ResponseEntity<String> getSentencesIdsByTranslationsIds(List<Long> request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<List<Long>> requestEntity = new HttpEntity<>(request, headers);
-
-        // Convert list of ruleIds to a comma-separated string
-        String translationIds = request.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining("&translationIds=", "?translationIds=", ""));
-
-        // Construct the URL with the ruleIds query parameter
-        String url = TRANSLATIONS_API_URL + translationIds;
-
-        System.out.println(url);
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-
-        return response;
-    }
-
-    public ResponseEntity<String> getSentencesBySentenceIds(List<Long> request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<List<Long>> requestEntity = new HttpEntity<>(request, headers);
-
-        // Convert list of ruleIds to a comma-separated string
-        String sentenceIds = request.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining("&sentenceIds=", "?sentenceIds=", ""));
-
-        // Construct the URL with the ruleIds query parameter
-        String url = SENTENCES_API_URL + sentenceIds;
-
-        System.out.println(url);
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-
-        return response;
-    }
 
     public ResponseEntity<String> getSentencesByRulesIds(List<Long> request) {
         HttpHeaders headers = new HttpHeaders();
@@ -117,7 +58,31 @@ public class VocabularyService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<VocabularyRequest> requestEntity = new HttpEntity<>(request, headers);
+        SentenceDTO sentenceDTO = new SentenceDTO();
+        sentenceDTO.setUserLink(request.getUserLink());
+        sentenceDTO.setLearningSentence(request.getLearningSentence());
+        sentenceDTO.setComment(request.getComment());
+        sentenceDTO.setUserId(request.getUserId());
+        sentenceDTO.setTopicsIds(request.getTopicsIds());
+
+        List<Long> rulesIds = new ArrayList<>();
+        Set<Long> setRulesIds = new HashSet<>();
+
+        List<TranslationRequestForAdd> translations = request.getTranslations();
+        if (translations != null) {
+            for (TranslationRequestForAdd translation : translations) {
+                // Extract ruleIds from each TranslationRequestForAdd and add them to setRulesIds
+                List<Long> ruleIds = translation.getRuleIds();
+                if (ruleIds != null) {
+                    setRulesIds.addAll(ruleIds);
+                }
+            }
+        }
+
+        rulesIds.addAll(setRulesIds);
+        sentenceDTO.setRulesIds(rulesIds);
+
+        HttpEntity<SentenceDTO> requestEntity = new HttpEntity<>(sentenceDTO, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(SENTENCE_API_URL, HttpMethod.POST, requestEntity, String.class);
 

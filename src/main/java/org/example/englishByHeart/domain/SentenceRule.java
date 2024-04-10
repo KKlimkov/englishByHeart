@@ -3,20 +3,23 @@ package org.example.englishByHeart.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "translation_rule_link")
-public class TranslationRuleLink {
+@Table(name = "sentence_rule")
+public class SentenceRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "translate_id")
-    private Translation translation;
+    @JoinColumn(name = "sentence_id")
+    private Sentence sentence;
 
     @ManyToOne
     @JoinColumn(name = "rule_id")
     private Rule rule;
+
+    // Constructors, getters, and setters
+
 
     public Long getId() {
         return id;
@@ -26,13 +29,14 @@ public class TranslationRuleLink {
         this.id = id;
     }
 
-    public Translation getTranslation() {
-        return translation;
+    public Sentence getSentence() {
+        return sentence;
     }
 
-    public void setTranslation(Translation translation) {
-        this.translation = translation;
+    public void setSentence(Sentence sentence) {
+        this.sentence = sentence;
     }
+
 
     public Rule getRule() {
         return rule;
@@ -41,6 +45,4 @@ public class TranslationRuleLink {
     public void setRule(Rule rule) {
         this.rule = rule;
     }
-
-    // Constructors, getters, setters
 }

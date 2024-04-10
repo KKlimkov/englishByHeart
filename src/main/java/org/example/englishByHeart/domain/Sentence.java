@@ -16,11 +16,15 @@ public class Sentence {
     private Long userId;
     private String learningSentence;
     private String comment;
-    private Long userLink;
+    private String userLink;
 
     @OneToMany(mappedBy = "sentence",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<SentenceTopic> sentenceTopics = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sentence",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SentenceRule> sentenceRules = new ArrayList<>();
 
     public Long getSentenceId() {
         return sentenceId;
@@ -54,11 +58,11 @@ public class Sentence {
         this.comment = comment;
     }
 
-    public Long getUserLink() {
+    public String getUserLink() {
         return userLink;
     }
 
-    public void setUserLink(Long userLink) {
+    public void setUserLink(String userLink) {
         this.userLink = userLink;
     }
 
@@ -68,5 +72,13 @@ public class Sentence {
 
     public void setSentenceTopics(List<SentenceTopic> sentenceTopics) {
         this.sentenceTopics = sentenceTopics;
+    }
+
+    public List<SentenceRule> getSentenceRules() {
+        return sentenceRules;
+    }
+
+    public void setSentenceRules(List<SentenceRule> sentenceRules) {
+        this.sentenceRules = sentenceRules;
     }
 }

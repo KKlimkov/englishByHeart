@@ -7,7 +7,7 @@ public class VocabularyRequest {
     private Long userId;
     private String learningSentence;
     private String comment;
-    private Long userLink;
+    private String userLink;
     private List<Long> topicsIds;
 
     private List<TranslationRequestForAdd> translations;
@@ -36,11 +36,11 @@ public class VocabularyRequest {
         this.comment = comment;
     }
 
-    public Long getUserLink() {
+    public String getUserLink() {
         return userLink;
     }
 
-    public void setUserLink(Long userLink) {
+    public void setUserLink(String userLink) {
         this.userLink = userLink;
     }
 

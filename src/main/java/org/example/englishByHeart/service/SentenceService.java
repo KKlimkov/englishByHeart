@@ -1,7 +1,7 @@
-package org.example.englishByHeart.Service;
+package org.example.englishByHeart.service;
 
 import org.example.englishByHeart.controller.CustomResponse;
-import org.example.englishByHeart.controller.SentenceIdResponse;
+import org.example.englishByHeart.dto.SentenceIdResponse;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.SentenceDTO;
 import org.example.englishByHeart.repos.RuleRepository;
@@ -23,6 +23,9 @@ public class SentenceService {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private RuleRepository ruleRepository;
+
     public List<Sentence> getAllSentences() {
         return sentenceRepository.findAll();
     }
@@ -42,9 +45,6 @@ public class SentenceService {
             sentence.setUserLink(sentenceDTO.getUserLink());
             sentence.setUserId(sentenceDTO.getUserId());
 
-            // Save the sentence and get the sentenceId
-            //sentence.setSentenceId(null);
-
             List<SentenceTopic> sentenceTopics = new ArrayList<>();
 
             for (Long topicsId : sentenceDTO.getTopicsIds()) {
@@ -55,8 +55,19 @@ public class SentenceService {
                 sentenceTopic.setTopic(topic);
                 sentenceTopics.add(sentenceTopic);
             }
-
             sentence.setSentenceTopics(sentenceTopics);
+
+            List<SentenceRule> sentenceRules= new ArrayList<>();
+
+            for (Long rulesId : sentenceDTO.getRulesIds()) {
+                Rule rule = ruleRepository.findById(rulesId)
+                        .orElseThrow(() -> new RuntimeException("Rule not found with id: " + rulesId));
+                SentenceRule sentenceRule= new SentenceRule();
+                sentenceRule.setSentence(sentence);
+                sentenceRule.setRule(rule);
+                sentenceRules.add(sentenceRule);
+            }
+            sentence.setSentenceRules(sentenceRules);
 
             Sentence createdSentence = sentenceRepository.save(sentence);
             Long sentenceId = createdSentence.getSentenceId();
@@ -83,6 +94,22 @@ public class SentenceService {
         }
     }
 
+    public List<Sentence> getSentencesByRule(Long ruleId) {
+        return sentenceRepository.findByRuleId(ruleId);
+    }
+
+    public List<Sentence> getSentencesByRules(List<Long> ruleIds) {
+        return sentenceRepository.findByRuleIds(ruleIds);
+    }
+
+    public List<Sentence> getSentencesByTopicId(Long topicId) {
+        return sentenceRepository.findByTopicId(topicId);
+    }
+
+    public List<Sentence> getSentencesByTopicIds(List<Long> topicIds) {
+        return sentenceRepository.findByTopicIds(topicIds);
+    }
+
     public List<Sentence> searchSentences(Long userId, Set<Long> sentenceIds, List<Long> sentenceTopics) {
         if (userId != null && sentenceIds != null && !sentenceIds.isEmpty() && sentenceTopics != null && !sentenceTopics.isEmpty()) {
             // Search by userId, sentenceIds, and sentenceTopics
@@ -107,4 +134,6 @@ public class SentenceService {
             return Collections.emptyList();
         }
     }
+
+
 }

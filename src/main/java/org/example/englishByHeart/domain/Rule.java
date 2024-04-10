@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "rules")
@@ -20,12 +19,23 @@ public class Rule {
     private String rule;
     private String link;
 
+    private Long userId;
+
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<TranslationRuleLink> translationRuleLinks = new ArrayList<>();
+    private List<TranslationRule> translationRule = new ArrayList<>();
 
-    // Constructors, getters, setters
+    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SentenceRule> sentenceRules = new ArrayList<>();
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public Long getRuleId() {
         return ruleId;
@@ -51,11 +61,20 @@ public class Rule {
         this.link = link;
     }
 
-    public List<TranslationRuleLink> getTranslationRuleLinks() {
-        return translationRuleLinks;
+    public List<SentenceRule> getSentenceRules() {
+        return sentenceRules;
     }
 
-    public void setTranslationRuleLinks(List<TranslationRuleLink> translationRuleLinks) {
-        this.translationRuleLinks = translationRuleLinks;
+    public void setSentenceRules(List<SentenceRule> sentenceRules) {
+        this.sentenceRules = sentenceRules;
     }
+
+    public List<TranslationRule> getTranslationRule() {
+        return translationRule;
+    }
+
+    public void setTranslationRule(List<TranslationRule> translationRule) {
+        this.translationRule = translationRule;
+    }
+
 }

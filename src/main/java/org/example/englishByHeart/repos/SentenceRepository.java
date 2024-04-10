@@ -3,6 +3,7 @@ package org.example.englishByHeart.repos;
 import org.example.englishByHeart.domain.Sentence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,4 +24,16 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     @Query("SELECT s FROM Sentence s WHERE s.userId = :userId AND s.sentenceId IN :sentenceIds AND s.sentenceTopics IN :sentenceTopics")
     List<Sentence> findByUserIdAndSentenceIdInAndSentenceTopics(Long userId, Set<Long> sentenceIds, List<Long> sentenceTopics);
+
+    @Query("SELECT sr.sentence FROM SentenceRule sr WHERE sr.rule.ruleId = :ruleId")
+    List<Sentence> findByRuleId(@Param("ruleId") Long ruleId);
+
+    @Query("SELECT DISTINCT s FROM Sentence s JOIN s.sentenceRules sr WHERE sr.rule.ruleId IN :ruleIds")
+    List<Sentence> findByRuleIds(@Param("ruleIds") List<Long> ruleIds);
+
+    @Query("SELECT DISTINCT s FROM Sentence s JOIN s.sentenceTopics st WHERE st.topic.topicId = :topicId")
+    List<Sentence> findByTopicId(@Param("topicId") Long topicId);
+
+    @Query("SELECT DISTINCT s FROM Sentence s JOIN s.sentenceTopics st WHERE st.topic.topicId IN :topicIds")
+    List<Sentence> findByTopicIds(@Param("topicIds") List<Long> topicIds);
 }

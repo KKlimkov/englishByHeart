@@ -7,9 +7,11 @@ public class SentenceDTO {
     private Long userId;
     private String learningSentence;
     private String comment;
-    private Long userLink;
+    private String userLink;
 
     private List<Long> topicsIds;
+
+    private List<Long> rulesIds;
 
     public Long getUserId() {
         return userId;
@@ -35,11 +37,11 @@ public class SentenceDTO {
         this.comment = comment;
     }
 
-    public Long getUserLink() {
+    public String getUserLink() {
         return userLink;
     }
 
-    public void setUserLink(Long userLink) {
+    public void setUserLink(String userLink) {
         this.userLink = userLink;
     }
 
@@ -49,5 +51,13 @@ public class SentenceDTO {
 
     public void setTopicsIds(List<Long> topicsIds) {
         this.topicsIds = topicsIds;
+    }
+
+    public List<Long> getRulesIds() {
+        return rulesIds;
+    }
+
+    public void setRulesIds(List<Long> rulesIds) {
+        this.rulesIds = rulesIds;
     }
 }

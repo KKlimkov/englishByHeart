@@ -1,6 +1,7 @@
 package org.example.englishByHeart.controller;
 
-import org.example.englishByHeart.Service.RuleService;
+import org.example.englishByHeart.domain.Topic;
+import org.example.englishByHeart.service.RuleService;
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.dto.RuleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,18 @@ public class RuleController {
         Rule rule = new Rule();
         rule.setRule(ruleDTO.getRule());
         rule.setLink(ruleDTO.getLink());
+        rule.setUserId(ruleDTO.getUserId());
         return ruleService.createRule(rule);
     }
 
     @GetMapping("/rules")
     public List<Rule> getAllRules() {
         return ruleService.getAllRules();
+    }
+
+    @GetMapping("/rulesByUserId")
+    public List<Rule> getAllRulessByUser(Long userId) {
+        return ruleService.getAllRulesByUser(userId);
     }
 
     @GetMapping("/getRuleById/{ruleId}")

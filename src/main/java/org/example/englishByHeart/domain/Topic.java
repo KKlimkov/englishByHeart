@@ -1,5 +1,6 @@
 package org.example.englishByHeart.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
@@ -19,6 +20,7 @@ public class Topic {
     private String topicName;
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<SentenceTopic> sentenceTopics = new ArrayList<>();
 
     public Long getTopicId() {

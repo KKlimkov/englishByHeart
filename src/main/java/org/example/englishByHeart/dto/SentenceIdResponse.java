@@ -1,4 +1,4 @@
-package org.example.englishByHeart.controller;
+package org.example.englishByHeart.dto;
 
 public class SentenceIdResponse {
     private Long sentenceId;

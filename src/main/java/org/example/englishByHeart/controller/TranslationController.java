@@ -1,6 +1,6 @@
 package org.example.englishByHeart.controller;
 
-import org.example.englishByHeart.Service.TranslationService;
+import org.example.englishByHeart.service.TranslationService;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.dto.TranslationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,8 @@ public class TranslationController {
         return translationService.createTranslation(translationRequest);
     }
 
-    @GetMapping("/sentenceIds")
-    public Set<Long> getSentenceIdsByTranslationIds(@RequestParam Set<Long> translationIds) {
-        return translationService.getSentenceIdsByTranslationIds(translationIds);
+    @GetMapping("/translations")
+    public List<Translation> getTranslationsBySentenceIds(@RequestParam List<Long> sentenceIds) {
+        return translationService.getTranslationsBySentenceIds(sentenceIds);
     }
 }

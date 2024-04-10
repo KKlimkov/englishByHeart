@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "translations")
@@ -20,7 +19,7 @@ public class Translation {
 
     @OneToMany(mappedBy = "translation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<TranslationRuleLink> translationRuleLinks = new ArrayList<>();
+    private List<TranslationRule> translationRuleLinks = new ArrayList<>();
 
     // Constructors, getters, setters
 
@@ -49,11 +48,11 @@ public class Translation {
         this.sentenceId = sentenceId;
     }
 
-    public List<TranslationRuleLink> getTranslationRuleLinks() {
+    public List<TranslationRule> getTranslationRuleLinks() {
         return translationRuleLinks;
     }
 
-    public void setTranslationRuleLinks(List<TranslationRuleLink> translationRuleLinks) {
+    public void setTranslationRuleLinks(List<TranslationRule> translationRuleLinks) {
         this.translationRuleLinks = translationRuleLinks;
     }
 }
