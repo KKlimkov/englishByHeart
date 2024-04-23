@@ -1,5 +1,6 @@
 package org.example.englishByHeart.controller;
 
+import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.service.TranslationService;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.dto.TranslationRequest;
@@ -22,7 +23,7 @@ public class TranslationController {
     }
 
     @GetMapping("/translations")
-    public List<Translation> getTranslationsBySentenceIds(@RequestParam List<Long> sentenceIds) {
+    public List<TranslationWithRuleDTO> getTranslationsBySentenceIds(@RequestParam List<Long> sentenceIds) {
         return translationService.getTranslationsBySentenceIds(sentenceIds);
     }
 }

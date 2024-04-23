@@ -3,7 +3,9 @@ package org.example.englishByHeart.service;
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.domain.TranslationRule;
+import org.example.englishByHeart.dto.RulesAndLinks;
 import org.example.englishByHeart.dto.TranslationRequest;
+import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.TranslationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,32 @@ public class TranslationService {
         return translationRepository.save(translation);
     }
 
-    public List<Translation> getTranslationsBySentenceIds(List<Long> sentenceIds) {
-        return translationRepository.findBySentenceIdIn(sentenceIds);
+    public List<TranslationWithRuleDTO> getTranslationsBySentenceIds(List<Long> sentenceIds) {
+        List<Translation> translations = translationRepository.findBySentenceIdIn(sentenceIds);
+        return mapTranslationsToDTO(translations);
+    }
+
+    private List<TranslationWithRuleDTO> mapTranslationsToDTO(List<Translation> translations) {
+        List<TranslationWithRuleDTO> dtos = new ArrayList<>();
+        for (Translation translation : translations) {
+            TranslationWithRuleDTO dto = new TranslationWithRuleDTO();
+            dto.setTranslateId(translation.getTranslateId());
+            dto.setTranslation(translation.getTranslation());
+            dto.setSentenceId(translation.getSentenceId());
+
+            List<Rule> rules = ruleRepository.findRulesBySentenceId(translation.getSentenceId());
+            List<RulesAndLinks> rulesAndLinks = new ArrayList<>();
+
+            for (Rule rule : rules) {
+                RulesAndLinks ruleAndLink = new RulesAndLinks();
+                ruleAndLink.setRule(rule.getRule());
+                ruleAndLink.setLink(rule.getLink());
+                rulesAndLinks.add(ruleAndLink);
+            }
+
+            dto.setRulesAndLinks(rulesAndLinks);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }

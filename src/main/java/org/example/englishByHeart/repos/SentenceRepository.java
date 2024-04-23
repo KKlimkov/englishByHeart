@@ -7,10 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
     List<Sentence> findByUserId(Long userId);
+
+    Optional<Sentence> findBySentenceId(Long sentenceId);
 
     List<Sentence> findBySentenceIdIn(Set<Long> sentenceIds);
 
@@ -36,4 +39,29 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     @Query("SELECT DISTINCT s FROM Sentence s JOIN s.sentenceTopics st WHERE st.topic.topicId IN :topicIds")
     List<Sentence> findByTopicIds(@Param("topicIds") List<Long> topicIds);
+
+
+    @Query("SELECT DISTINCT s FROM Sentence s " +
+            "JOIN s.sentenceTopics st " +
+            "JOIN s.sentenceRules sr " +
+            "WHERE st.topic.topicId IN :topicIds AND sr.rule.ruleId IN :ruleIds")
+    List<Sentence> findByTopicsAndRules(@Param("topicIds") List<Long> topicIds, @Param("ruleIds") List<Long> ruleIds);
+
+
+    @Query("SELECT DISTINCT s.sentenceId FROM Sentence s " +
+            "JOIN s.sentenceTopics st " +
+            "JOIN s.sentenceRules sr " +
+            "WHERE st.topic.topicId IN :topicIds AND sr.rule.ruleId IN :ruleIds")
+    Set<Long> findSentenceIdsByTopicsAndRules(@Param("topicIds") List<Long> topicIds, @Param("ruleIds") List<Long> ruleIds);
+
+    @Query("SELECT DISTINCT s.sentenceId FROM Sentence s " +
+            "JOIN s.sentenceTopics st " +
+            "WHERE st.topic.topicId IN :topicIds")
+    Set<Long> findSentenceIdsByTopicIds(@Param("topicIds") List<Long> topicIds);
+
+    @Query("SELECT DISTINCT s.sentenceId FROM Sentence s " +
+            "JOIN s.sentenceRules sr " +
+            "WHERE sr.rule.ruleId IN :ruleIds")
+    Set<Long> findSentenceIdsByRuleIds(@Param("ruleIds") List<Long> ruleIds);
+
 }

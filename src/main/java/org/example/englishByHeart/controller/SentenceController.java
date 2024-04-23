@@ -54,4 +54,38 @@ public class SentenceController {
         return sentenceService.getSentencesByTopicIds(topicIds);
     }
 
+    @GetMapping("/sentencesByTopicsAndRules")
+    public List<Sentence> getSentencesByTopicsAndRules(
+            @RequestParam(required = false) List<Long> topicIds,
+            @RequestParam(required = false) List<Long> ruleIds) {
+
+        if (topicIds != null && ruleIds == null) {
+            // Handle case where only topicIds are provided
+            return sentenceService.getSentencesByTopicIds(topicIds);
+        }
+
+        if (topicIds == null && ruleIds != null) {
+            // Handle case where only ruleIds are provided
+            return sentenceService.getSentencesByRules(ruleIds);
+        }
+
+        // Handle case where both topicIds and ruleIds are provided
+        return sentenceService.getSentencesByTopicsAndRules(topicIds, ruleIds);
+    }
+
+
+    @GetMapping("/sentencesIdsByTopicsAndRules")
+    public Set<Long> getSentenceIdsByTopicsAndRules(
+            @RequestParam(required = false) List<Long> topicIds,
+            @RequestParam(required = false) List<Long> ruleIds) {
+
+        return sentenceService.getSentenceIdsByTopicsAndRules(topicIds, ruleIds);
+    }
+
+
+    @GetMapping("/sentenceById/{sentenceId}")
+    public Sentence getSentenceBySentenceId(@PathVariable Long sentenceId) {
+        return sentenceService.getSentenceBySentenceId(sentenceId);
+    }
+
 }

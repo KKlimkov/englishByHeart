@@ -98,6 +98,11 @@ public class SentenceService {
         return sentenceRepository.findByRuleId(ruleId);
     }
 
+    public Sentence getSentenceBySentenceId(Long sentenceId) {
+        Optional<Sentence> optionalSentence = sentenceRepository.findBySentenceId(sentenceId);
+        return optionalSentence.orElseThrow(() -> new NoSuchElementException("Sentence not found with id: " + sentenceId));
+    }
+
     public List<Sentence> getSentencesByRules(List<Long> ruleIds) {
         return sentenceRepository.findByRuleIds(ruleIds);
     }
@@ -108,6 +113,25 @@ public class SentenceService {
 
     public List<Sentence> getSentencesByTopicIds(List<Long> topicIds) {
         return sentenceRepository.findByTopicIds(topicIds);
+    }
+
+    public List<Sentence> getSentencesByTopicsAndRules(List<Long> topicIds, List<Long> ruleIds) {
+        return sentenceRepository.findByTopicsAndRules(topicIds, ruleIds);
+    }
+
+    public Set<Long> getSentenceIdsByTopicsAndRules(List<Long> topicIds, List<Long> ruleIds) {
+        if (topicIds != null && ruleIds == null) {
+            // Handle case where only topicIds are provided
+            return new HashSet<>(sentenceRepository.findSentenceIdsByTopicIds(topicIds));
+        }
+
+        if (topicIds == null && ruleIds != null) {
+            // Handle case where only ruleIds are provided
+            return new HashSet<>(sentenceRepository.findSentenceIdsByRuleIds(ruleIds));
+        }
+
+        // Handle case where both topicIds and ruleIds are provided
+        return new HashSet<>(sentenceRepository.findSentenceIdsByTopicsAndRules(topicIds, ruleIds));
     }
 
     public List<Sentence> searchSentences(Long userId, Set<Long> sentenceIds, List<Long> sentenceTopics) {
