@@ -10,10 +10,10 @@
                     <a class="nav-link" href="/rules-form">Rules</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Topics</a>
+                    <a class="nav-link" href="/topics-form">Topics</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Sentences</a>
+                    <a class="nav-link" href="/sentences-form">Sentences</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Exercises</a>

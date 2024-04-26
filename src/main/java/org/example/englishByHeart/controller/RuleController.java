@@ -5,6 +5,7 @@ import org.example.englishByHeart.service.RuleService;
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.dto.RuleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,12 +17,13 @@ public class RuleController {
     @Autowired
     private RuleService ruleService;
 
-    @PostMapping("/rules")
+    @PostMapping(value = "/rules", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Rule createRule(@RequestBody RuleDTO ruleDTO) {
         Rule rule = new Rule();
         rule.setRule(ruleDTO.getRule());
         rule.setLink(ruleDTO.getLink());
-        rule.setUserId(ruleDTO.getUserId());
+        rule.setUserId(1L);//hardcore
+        //rule.setUserId(ruleDTO.getUserId());
         return ruleService.createRule(rule);
     }
 

@@ -1,15 +1,11 @@
 <#include "common.ftl">
 
 <div class="container mt-4">
-    <h1>Create Rule</h1>
+    <h1>Create Topic</h1>
     <form id="ruleForm">
         <div class="mb-3">
-            <label for="ruleInput" class="form-label">Rule:</label>
-            <input type="text" class="form-control" id="ruleInput" name="rule" required>
-        </div>
-        <div class="mb-3">
-            <label for="linkInput" class="form-label">Link:</label>
-            <input type="text" class="form-control" id="linkInput" name="link" required>
+            <label for="topicInput" class="form-label">Topic:</label>
+            <input type="text" class="form-control" id="topicInput" name="topic" required>
         </div>
         <button type="button" id="submitButton" class="btn btn-primary">Create Rule</button>
     </form>
@@ -19,16 +15,14 @@
 
 <script>
     document.getElementById('submitButton').addEventListener('click', function() {
-        var ruleInput = document.getElementById('ruleInput').value;
-        var linkInput = document.getElementById('linkInput').value;
-
+        var topicInput = document.getElementById('topicInput').value;
         var requestData = {
-            rule: ruleInput,
-            link: linkInput
+            userId: 1, // Assuming the user ID is fixed or you can obtain it dynamically
+            topicName: topicInput
         };
 
         // Send AJAX request with JSON data
-        fetch('/rules', {
+        fetch('/topics', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +34,7 @@
             if (response.ok) {
                 var message = document.createElement('div');
                 message.classList.add('alert', 'alert-success');
-                message.textContent = 'Rule has been added successfully';
+                message.textContent = 'Topic has been added successfully';
                 messageContainer.innerHTML = '';
                 messageContainer.appendChild(message);
                 clearForm(); // Clear form fields after successful submission
@@ -60,7 +54,6 @@
 
     // Function to clear form fields
     function clearForm() {
-        document.getElementById('ruleInput').value = '';
-        document.getElementById('linkInput').value = '';
+        document.getElementById('topicInput').value = '';
     }
 </script>

@@ -16,5 +16,15 @@ public class webController {
         return "rules-form"; // Assuming the template is named "rules-form.ftl"
     }
 
+    @GetMapping("/topics-form")
+    public String showTopicForm() {
+        return "topics-form"; // Assuming the template is named "rules-form.ftl"
+    }
+
+    @GetMapping("/sentences-form")
+    public String showSentencesForm() {
+        return "sentences-form"; // Assuming the template is named "rules-form.ftl"
+    }
+
     // Add mappings for Rules, Topics, Sentences, and Exercises as needed
 }
