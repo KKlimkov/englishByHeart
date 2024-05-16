@@ -19,21 +19,14 @@
 
         <div id="topicContainer" class="mb-3">
             <label for="topicInput" class="form-label">Topic:</label>
-            <div class="custom-dropdown">
+            <div class="custom-dropdown topic-container">
                 <input type="text" class="form-control dropdown-input" id="topicInput" name="topicInput" placeholder="Type to search">
-                <div id="dropdownMenu" class="dropdown-menu scroll-container" role="menu">
-                    <!-- Dropdown menu items will be populated dynamically -->
-                </div>
+                <div id="dropdownMenu" class="dropdown-menu scroll-container" role="menu"></div>
             </div>
             <input type="hidden" id="topicIds" name="topicIds">
         </div>
 
-        <div class="mb-3">
-            <label for="topicInput" class="form-label">Topic:</label>
-            <div id="additionalTopics" class="dropdown">
-                <!-- New topic containers will be appended here -->
-            </div>
-        </div>
+        <div id="additionalTopics"></div>
 
         <button type="button" class="btn btn-secondary mb-3" onclick="addTopicContainer()">Add Another Topic</button>
 
@@ -43,9 +36,7 @@
             <button type="button" class="btn btn-secondary mb-3" onclick="addTranslation()">Add Translation</button>
         </div>
 
-        <div>
-            <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
-        </div>
+        <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
 
         <div id="messageContainer" class="container mt-4"></div>
 
@@ -53,74 +44,116 @@
 </div>
 
 <script>
-    const topicIdsInput = document.getElementById('topicIds');
+    document.addEventListener('DOMContentLoaded', function() {
+    let allTopics = [];
 
-    document.addEventListener('click', function(event) {
+    const topicInput = document.getElementById('topicInput');
+    const dropdownMenu = document.getElementById('dropdownMenu');
 
+    fetch('/topics?userId=1')
+        .then(response => response.json())
+        .then(topics => {
+            allTopics = topics;
+            filterTopics('');
+        })
+        .catch(error => console.error('Error fetching topics:', error));
 
-        async function addTopicContainer() {
-        try {
-            // Fetch topics data from the server
-            const response = await fetch('/topics?userId=1');
-            if (!response.ok) {
-                throw new Error('Failed to fetch topics');
-            }
-            const topics = await response.json();
-
-            const additionalTopicsDiv = document.getElementById('additionalTopics');
-
-            // Create a new topic container
-            const topicContainer = await createTopicContainer(topics);
-
-            // Append the new topic container to the additionalTopicsDiv
-            additionalTopicsDiv.appendChild(topicContainer);
-
-            // Check if the topicContainer exists and has the topicInput element
-            const topicInput = topicContainer.querySelector('.dropdown-input');
-            if (topicInput) {
-                const dropdownMenu = topicContainer.querySelector('.dropdown-menu');
-                topicInput.addEventListener('click', function() {
-                    dropdownMenu.style.display = 'block';
-                });
-
-                document.addEventListener('click', function(event) {
-                    // Check if the click occurred outside of the dropdown menu and the input field
-                    if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
-                        dropdownMenu.style.display = 'none';
-                    }
-                });
-            } else {
-                console.error('Topic input element not found in the topic container.');
-            }
-        } catch (error) {
-            console.error('Error fetching topics:', error);
-        }
-    }
-        const addTopicButton = document.getElementById('addTopicButton');
-        addTopicButton.addEventListener('click', addTopicContainer);
-
+    topicInput.addEventListener('input', function(event) {
+        const inputValue = event.target.value.trim().toLowerCase();
+        filterTopics(inputValue);
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const topicInput = document.getElementById('topicInput');
-        const dropdownMenu = document.getElementById('dropdownMenu');
+    topicInput.addEventListener('click', function() {
+        dropdownMenu.style.display = 'block';
+    });
 
-       document.addEventListener('click', function(event) {
-        // Check if the click occurred outside of the dropdown menu and input field
-        if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
+    topicInput.addEventListener('blur', function() {
+        setTimeout(() => {
+            const inputValue = topicInput.value.trim().toLowerCase();
+            const matchingTopic = allTopics.find(topic => topic.topicName.toLowerCase() === inputValue);
+            if (!matchingTopic) {
+                topicInput.value = '';
+            }
+            dropdownMenu.style.display = 'none';
+        }, 100);
+    });
+
+    dropdownMenu.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.classList.contains('dropdown-item')) {
+            topicInput.value = target.textContent;
             dropdownMenu.style.display = 'none';
         }
     });
 
-        let allTopics = [];
+    function filterTopics(inputValue) {
+        dropdownMenu.innerHTML = '';
+        if (inputValue.length >= 2) {
+            const filteredTopics = allTopics.filter(topic => topic.topicName.toLowerCase().includes(inputValue));
+            filteredTopics.forEach(topic => {
+                const option = document.createElement('a');
+                option.classList.add('dropdown-item');
+                option.href = '#';
+                option.textContent = topic.topicName;
+                dropdownMenu.appendChild(option);
+            });
+        }
+    }
+
+    window.addTopicContainer = async function() {
+        try {
+            const response = await fetch('/topics?userId=1');
+            if (!response.ok) throw new Error('Failed to fetch topics');
+            const topics = await response.json();
+            const additionalTopicsDiv = document.getElementById('additionalTopics');
+            const topicContainer = await createTopicContainer(topics);
+            additionalTopicsDiv.appendChild(topicContainer);
+        } catch (error) {
+            console.error('Error fetching topics:', error);
+        }
+    }
+
+    async function createTopicContainer(topics) {
+        const topicContainer = document.createElement('div');
+        topicContainer.classList.add('topic-container', 'mb-3');
+
+        const topicInput = document.createElement('input');
+        topicInput.type = 'text';
+        topicInput.classList.add('form-control', 'dropdown-input');
+        topicInput.placeholder = 'Type to search';
+        topicContainer.appendChild(topicInput);
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove Topic';
+        removeButton.classList.add('btn', 'btn-danger');
+        removeButton.style.marginLeft = '10px';
+        removeButton.onclick = function() {
+            topicContainer.remove();
+        };
+        topicContainer.appendChild(removeButton);
+
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.classList.add('dropdown-menu', 'scroll-container');
+        topicContainer.appendChild(dropdownMenu);
 
         topicInput.addEventListener('input', function(event) {
             const inputValue = event.target.value.trim().toLowerCase();
-            filterTopics(inputValue);
+            filterTopicsForContainer(inputValue, dropdownMenu, topics);
         });
 
         topicInput.addEventListener('click', function() {
             dropdownMenu.style.display = 'block';
+        });
+
+        topicInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                const inputValue = topicInput.value.trim().toLowerCase();
+                const matchingTopic = topics.find(topic => topic.topicName.toLowerCase() === inputValue);
+                if (!matchingTopic) {
+                    topicInput.value = '';
+                }
+                dropdownMenu.style.display = 'none';
+            }, 100);
         });
 
         dropdownMenu.addEventListener('click', function(event) {
@@ -131,121 +164,23 @@
             }
         });
 
-        document.addEventListener('click', function(event) {
-            if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
-                dropdownMenu.style.display = 'none';
-            }
-        });
-
-        fetch('/topics?userId=1')
-            .then(response => response.json())
-            .then(topics => {
-                allTopics = topics;
-                filterTopics('');
-            })
-            .catch(error => console.error('Error fetching topics:', error));
-
-        function filterTopics(inputValue) {
-            dropdownMenu.innerHTML = '';
-            if (inputValue.length >= 2) {
-                const filteredTopics = allTopics.filter(topic => topic.topicName.toLowerCase().includes(inputValue));
-                filteredTopics.forEach(topic => {
-                    const option = document.createElement('a');
-                    option.classList.add('dropdown-item');
-                    option.href = '#';
-                    option.textContent = topic.topicName;
-                    dropdownMenu.appendChild(option);
-                });
-            }
-        }
-
-        window.addTopicContainer = async function() {
-            try {
-                const response = await fetch('/topics?userId=1');
-                if (!response.ok) throw new Error('Failed to fetch topics');
-                const topics = await response.json();
-                const additionalTopicsDiv = document.getElementById('additionalTopics');
-                const topicContainer = await createTopicContainer(topics);
-                additionalTopicsDiv.appendChild(topicContainer);
-            } catch (error) {
-                console.error('Error fetching topics:', error);
-            }
-        }
-
-        async function createTopicContainer(topics) {
-            const topicContainer = document.createElement('div');
-            topicContainer.classList.add('topic-container', 'mb-3');
-            topicContainer.style.border = '1px solid #ccc';
-            topicContainer.style.padding = '10px';
-            topicContainer.style.borderRadius = '5px';
-
-            const topicInput = document.createElement('input');
-            topicInput.type = 'text';
-            topicInput.classList.add('form-control', 'dropdown-input');
-            topicInput.placeholder = 'Type to search';
-            topicContainer.appendChild(topicInput);
-
-            const removeButton = document.createElement('button');
-            removeButton.textContent = 'Remove Topic';
-            removeButton.classList.add('btn', 'btn-danger');
-            removeButton.style.marginLeft = '10px';
-            removeButton.onclick = function() {
-                topicContainer.remove();
-            };
-            topicContainer.appendChild(removeButton);
-
-            const dropdownMenu = document.createElement('div');
-            dropdownMenu.classList.add('dropdown-menu', 'scroll-container');
-            dropdownMenu.style.display = 'none';
-            topicContainer.appendChild(dropdownMenu);
-
-            topicInput.addEventListener('input', function(event) {
-                const inputValue = event.target.value.trim().toLowerCase();
-                filterTopicsForContainer(inputValue, dropdownMenu, topics);
-            });
-
-            topicInput.addEventListener('click', function() {
-                dropdownMenu.style.display = 'block';
-            });
-
-            dropdownMenu.addEventListener('click', function(event) {
-                const target = event.target;
-                if (target.classList.contains('dropdown-item')) {
-                    topicInput.value = target.textContent;
-                    dropdownMenu.style.display = 'none';
-                }
-            });
-
-            document.addEventListener('click', function(event) {
-                if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
-                    dropdownMenu.style.display = 'none';
-                }
-            });
-
-            return topicContainer;
-        }
-
-        function filterTopicsForContainer(inputValue, dropdownMenu, topics) {
-            dropdownMenu.innerHTML = '';
-            if (inputValue.length >= 2) {
-                const filteredTopics = topics.filter(topic => topic.topicName.toLowerCase().includes(inputValue));
-                filteredTopics.forEach(topic => {
-                    const option = document.createElement('a');
-                    option.classList.add('dropdown-item');
-                    option.href = '#';
-                    option.textContent = topic.topicName;
-                    dropdownMenu.appendChild(option);
-                });
-            }
-        }
-    });
-
-    function addTranslation() {
-        const translationsDiv = document.getElementById('translations');
-        const translationInput = document.createElement('input');
-        translationInput.type = 'text';
-        translationInput.classList.add('form-control', 'mb-2');
-        translationsDiv.appendChild(translationInput);
+        return topicContainer;
     }
+
+    function filterTopicsForContainer(inputValue, dropdownMenu, topics) {
+        dropdownMenu.innerHTML = '';
+        if (inputValue.length >= 2) {
+            const filteredTopics = topics.filter(topic => topic.topicName.toLowerCase().includes(inputValue));
+            filteredTopics.forEach(topic => {
+                const option = document.createElement('a');
+                option.classList.add('dropdown-item');
+                option.href = '#';
+                option.textContent = topic.topicName;
+                dropdownMenu.appendChild(option);
+            });
+        }
+    }
+});
+
 
 </script>
