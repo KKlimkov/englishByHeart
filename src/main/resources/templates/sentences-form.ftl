@@ -55,67 +55,7 @@
 <script>
     const topicIdsInput = document.getElementById('topicIds');
 
-    topicInput.addEventListener('click', function() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        dropdownMenu.style.display = 'block';
-    });
-
-
     document.addEventListener('click', function(event) {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const topicInput = document.getElementById('topicInput');
-        const topicButton = document.getElementById('topicButton');
-
-        // Check if the click occurred outside of the dropdown menu and the input field
-        if (dropdownMenu && !dropdownMenu.contains(event.target) && event.target !== topicInput && event.target !== topicButton) {
-            dropdownMenu.style.display = 'none';
-        }
-    });
-
-
-    function toggleDropdown() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const isMenuVisible = dropdownMenu.style.display === 'block';
-        dropdownMenu.style.display = isMenuVisible ? 'none' : 'block';
-    }
-
-    function addTopicDropdown() {
-        // Fetch topics data from the server
-        fetch('/topics?userId=1')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch topics');
-                }
-                return response.json();
-            })
-            .then(topics => {
-                const dropdownMenu = document.getElementById('dropdownMenu');
-                dropdownMenu.innerHTML = ''; // Clear existing options
-
-                // Populate dropdown with topics
-                topics.forEach(topic => {
-                    const option = document.createElement('a');
-                    option.classList.add('dropdown-item');
-                    option.href = '#'; // Set the href attribute as needed
-                    option.textContent = topic.topicName;
-                    dropdownMenu.appendChild(option);
-                });
-
-                // Show the dropdown menu
-                dropdownMenu.style.display = 'block';
-            })
-            .catch(error => console.error('Error fetching topics:', error));
-    }
-
-    document.addEventListener('click', function(event) {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const topicInput = document.getElementById('topicInput');
-        const topicButton = document.getElementById('topicButton');
-
-        // Check if the click occurred outside of the dropdown menu, input field, and button
-        if (!dropdownMenu.contains(event.target) && event.target !== topicInput && event.target !== topicButton) {
-            dropdownMenu.style.display = 'none';
-        }
 
 
         async function addTopicContainer() {
@@ -136,16 +76,14 @@
             additionalTopicsDiv.appendChild(topicContainer);
 
             // Check if the topicContainer exists and has the topicInput element
-            if (topicContainer && topicContainer.querySelector('.dropdown-input')) {
-                const topicInput = topicContainer.querySelector('.dropdown-input');
+            const topicInput = topicContainer.querySelector('.dropdown-input');
+            if (topicInput) {
+                const dropdownMenu = topicContainer.querySelector('.dropdown-menu');
                 topicInput.addEventListener('click', function() {
-                    const dropdownMenu = topicContainer.querySelector('.dropdown-menu');
                     dropdownMenu.style.display = 'block';
                 });
 
                 document.addEventListener('click', function(event) {
-                    const dropdownMenu = topicContainer.querySelector('.dropdown-menu');
-
                     // Check if the click occurred outside of the dropdown menu and the input field
                     if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
                         dropdownMenu.style.display = 'none';
@@ -158,15 +96,22 @@
             console.error('Error fetching topics:', error);
         }
     }
-
         const addTopicButton = document.getElementById('addTopicButton');
         addTopicButton.addEventListener('click', addTopicContainer);
 
     });
 
     document.addEventListener('DOMContentLoaded', function() {
- const topicInput = document.getElementById('topicInput');
+        const topicInput = document.getElementById('topicInput');
         const dropdownMenu = document.getElementById('dropdownMenu');
+
+       document.addEventListener('click', function(event) {
+        // Check if the click occurred outside of the dropdown menu and input field
+        if (!dropdownMenu.contains(event.target) && event.target !== topicInput) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+
         let allTopics = [];
 
         topicInput.addEventListener('input', function(event) {
@@ -239,11 +184,6 @@
             topicInput.classList.add('form-control', 'dropdown-input');
             topicInput.placeholder = 'Type to search';
             topicContainer.appendChild(topicInput);
-
-            const addButton = document.createElement('button');
-            addButton.textContent = 'Add Topic';
-            addButton.classList.add('btn', 'btn-primary', 'mb-2');
-            topicContainer.appendChild(addButton);
 
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove Topic';
