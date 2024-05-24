@@ -9,21 +9,20 @@
     <!-- Custom CSS -->
     <style>
         .topic-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    position: relative; /* Ensure dropdown is positioned relative to the container */
-    overflow: visible; /* Allow the dropdown to overflow */
-}
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
 
         .topic-container .form-control {
             flex-grow: 1;
-            color: #000; /* Set the text color to black */
-            position: relative; /* Ensure proper positioning */
-            z-index: 1; /* Ensure input field stays above dropdown */
+            color: #000;
+            position: relative;
+            z-index: 1;
         }
 
         .topic-container .btn-danger {
@@ -31,24 +30,29 @@
             flex-shrink: 0;
         }
 
-     .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%; /* Position the dropdown below the input field */
-    left: 0;
-    z-index: 1000; /* Ensure the dropdown is above other elements */
-    width: 100%; /* Adjust width to match input field */
-    max-height: 200px; /* Adjust as needed */
-    overflow-y: auto;
-    background-color: #fff; /* Ensure the dropdown has a white background */
-    border: 1px solid #ccc; /* Add border to match the input */
-    border-top: none; /* Remove top border to blend with the input */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
-}
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            z-index: 1000;
+            width: calc(100% - 20px);
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
         .scroll-container {
             max-height: 200px;
             overflow-y: auto;
+            z-index: 10;
+        }
+
+        .container-below-dropdown {
+            padding-top: 220px;
         }
 
         .dropdown-item {
@@ -71,6 +75,37 @@
             color: #16181b;
             text-decoration: none;
             background-color: #f8f9fa;
+        }
+
+        .translation-container {
+            position: relative;
+        }
+
+        .rule-wrapper {
+            position: relative;
+        }
+
+        .dropdown-menu.scroll-container {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            z-index: 1000;
+            display: none;
+            float: left;
+            min-width: 160px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+        }
+
+        .dropdown-menu.scroll-container.show {
+            display: block;
         }
     </style>
 </head>
