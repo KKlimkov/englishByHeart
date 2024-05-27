@@ -107,6 +107,9 @@
         .dropdown-menu.scroll-container.show {
             display: block;
         }
+        .error {
+        border-color: red !important;
+    }
     </style>
 </head>
 
