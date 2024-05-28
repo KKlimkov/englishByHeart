@@ -5,7 +5,7 @@
     <form id="sentenceForm">
         <div class="mb-3">
             <label for="learningSentence" class="form-label">Learning Sentence:</label>
-            <input type="text" class="form-control" id="learningSentence" name="learningSentence" required>
+            <input type="text" class="form-control" id="learningSentence" name="learningSentence">
         </div>
         <div class="mb-3">
             <label for="comment" class="form-label">Comment:</label>
@@ -264,12 +264,17 @@
             return ruleWrapper;
         };
 
-      const createTranslationContainer = async (initial = false) => {
+     const createTranslationContainer = async (initial = false) => {
     const translationContainer = document.createElement('div');
     translationContainer.classList.add('translation-container', 'mb-3');
     translationContainer.style.border = '1px solid #ccc';
     translationContainer.style.padding = '10px';
     translationContainer.style.borderRadius = '5px';
+
+    const translationLabel = document.createElement('label');
+    translationLabel.textContent = 'Translation:';
+    translationLabel.classList.add('form-label');
+    translationContainer.appendChild(translationLabel);
 
     const translationInput = document.createElement('input');
     translationInput.type = 'text';
@@ -277,13 +282,18 @@
     translationInput.placeholder = 'Translation';
     translationContainer.appendChild(translationInput);
 
+    const rulesLabel = document.createElement('label');
+    rulesLabel.textContent = 'Rules:';
+    rulesLabel.classList.add('form-label', 'mt-3');
+    translationContainer.appendChild(rulesLabel);
+
     const rulesList = document.createElement('div');
     rulesList.classList.add('rules-list', 'mb-3');
     translationContainer.appendChild(rulesList);
 
     const addRuleButton = document.createElement('button');
     addRuleButton.type = 'button';
-    addRuleButton.classList.add('btn', 'btn-primary', 'mb-3'); // Change to mb-3 to ensure margin
+    addRuleButton.classList.add('btn', 'btn-primary', 'mb-3');
     addRuleButton.textContent = 'Add Rule';
     addRuleButton.onclick = function() {
         const ruleWrapper = createRuleInput();
@@ -294,7 +304,7 @@
     if (!initial) {
         const removeTranslationButton = document.createElement('button');
         removeTranslationButton.type = 'button';
-        removeTranslationButton.classList.add('btn', 'btn-danger', 'd-block', 'mt-2'); // Added d-block and mt-2 for styling
+        removeTranslationButton.classList.add('btn', 'btn-danger', 'd-block', 'mt-2');
         removeTranslationButton.textContent = 'Remove Translation';
         removeTranslationButton.onclick = function() {
             translationContainer.remove();
@@ -302,8 +312,13 @@
         translationContainer.appendChild(removeTranslationButton);
     }
 
+    // Add one initial rule
+    const initialRuleWrapper = createRuleInput();
+    rulesList.appendChild(initialRuleWrapper);
+
     return translationContainer;
 };
+
 
 
 
@@ -313,6 +328,56 @@
             const translationContainer = await createTranslationContainer();
             translationsDiv.appendChild(translationContainer);
         };
+
+
+       const validateForm = () => {
+    let isValid = true;
+
+    // Get the input fields
+    const learningSentenceInput = document.getElementById('learningSentence');
+    const commentInput = document.getElementById('comment');
+    const userLinkInput = document.getElementById('userLink');
+    const topicInputs = document.querySelectorAll('.dropdown-input');
+    const translationContainers = document.querySelectorAll('.translation-container');
+
+    // Validate individual fields
+    [learningSentenceInput, commentInput, userLinkInput, ...topicInputs].forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid'); // Add class to make border red
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid'); // Remove red border if valid
+        }
+    });
+
+    // Validate translation containers
+    translationContainers.forEach((container, index) => {
+        const translationInput = container.querySelector('input[type="text"]');
+        const ruleInputs = container.querySelectorAll('.rule-wrapper input[type="text"]');
+        const allInputs = [translationInput, ...ruleInputs];
+
+        allInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid'); // Add class to make border red
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid'); // Remove red border if valid
+            }
+        });
+
+        // Add red border to the translation field and the first rule field
+        if (index === 0) {
+            translationInput.classList.add('is-invalid');
+            const firstRuleInput = container.querySelector('.rule-wrapper input[type="text"]');
+            if (firstRuleInput) {
+                firstRuleInput.classList.add('is-invalid');
+            }
+        }
+    });
+
+    return isValid;
+};
+
 
         document.getElementById('sentenceForm').addEventListener('submit', async function(event) {
             event.preventDefault();
