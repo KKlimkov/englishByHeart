@@ -35,16 +35,17 @@
             <button type="button" class="btn btn-secondary mb-3" onclick="addTranslationContainer()">Add Translation</button>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-
-        <div id="messageContainer" class="container mt-4" style="display: none;">
-            <#if errorMessage??>
-            <div class="alert alert-danger">${errorMessage}</div>
-            <#elseif responseData??>
-            <div class="alert alert-danger">An unexpected error occurred.</div>
-            <#else>
-            <div class="alert alert-danger">No response data received.</div>
-        </#if>
+        <div class="d-flex align-items-baseline">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <div id="messageContainer" class="mt-4" style="display: none;">
+                <#if errorMessage??>
+                <div class="alert alert-danger">${errorMessage}</div>
+                <#elseif responseData??>
+                <div class="alert alert-danger">An unexpected error occurred.</div>
+                <#else>
+                <div class="alert alert-danger">No response data received.</div>
+            </#if>
+        </div>
 </div>
 </form>
 </div>
@@ -88,16 +89,19 @@
             });
 
             topicInput.addEventListener('blur', function() {
-                setTimeout(() => {
-                    dropdownMenu.style.display = 'none';
-                    // Clear input if the value is not in the dropdown
-                    const selectedTopic = Array.from(dropdownMenu.children).find(child => child.textContent === topicInput.value);
-                    if (!selectedTopic) {
-                        topicInput.value = '';
-                        topicInput.dataset.topicId = '';
-                    }
-                }, 100);
-            });
+    setTimeout(() => {
+        dropdownMenu.style.display = 'none';
+        // Clear input if the value is not in the dropdown
+        const selectedTopic = Array.from(dropdownMenu.children).find(child => child.textContent === topicInput.value);
+        if (!selectedTopic) {
+            topicInput.value = '';
+            topicInput.dataset.topicId = '';
+        } else {
+            // Update data-topic-id with the selected topic's ID
+            topicInput.dataset.topicId = selectedTopic.dataset.topicId;
+        }
+    }, 100);
+});
 
             topicInput.addEventListener('click', function() {
                 if (dropdownMenu.innerHTML.trim() !== '') {
@@ -229,42 +233,43 @@
         };
 
         const createRuleInput = (addRemoveButton = true) => {
-            const ruleWrapper = document.createElement('div');
-            ruleWrapper.classList.add('rule-wrapper', 'mb-3');
+    const ruleWrapper = document.createElement('div');
+    ruleWrapper.classList.add('rule-wrapper', 'mb-3');
 
-            const ruleInputWrapper = document.createElement('div');
-            ruleInputWrapper.classList.add('d-flex', 'align-items-center');
+    const ruleInputWrapper = document.createElement('div');
+    ruleInputWrapper.classList.add('d-flex', 'align-items-center');
 
-            const ruleInput = document.createElement('input');
-            ruleInput.type = 'text';
-            ruleInput.classList.add('form-control', 'dropdown-input', 'mb-2', 'mr-2');
-            ruleInput.placeholder = 'Type to search rule';
+    const ruleInput = document.createElement('input');
+    ruleInput.type = 'text';
+    ruleInput.classList.add('form-control', 'dropdown-input', 'mb-2', 'mr-2');
+    ruleInput.placeholder = 'Type to search rule';
 
-            const ruleDropdownMenu = document.createElement('div');
-            ruleDropdownMenu.classList.add('dropdown-menu', 'scroll-container');
+    const ruleDropdownMenu = document.createElement('div');
+    ruleDropdownMenu.classList.add('dropdown-menu', 'scroll-container');
 
-            setupRuleInput(ruleInput, ruleDropdownMenu);
+    setupRuleInput(ruleInput, ruleDropdownMenu);
 
-            ruleInputWrapper.appendChild(ruleInput);
+    ruleInputWrapper.appendChild(ruleInput);
 
-            if (addRemoveButton) {
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove Rule';
-                removeButton.classList.add('btn', 'btn-danger', 'ml-auto');
-                removeButton.style.width = '150px';
-                removeButton.onclick = function() {
-                    ruleWrapper.remove();
-                };
-                ruleInputWrapper.appendChild(removeButton);
-            }
-
-            ruleWrapper.appendChild(ruleInputWrapper);
-            ruleWrapper.appendChild(ruleDropdownMenu);
-
-            return ruleWrapper;
+    if (addRemoveButton) {
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove Rule';
+        removeButton.classList.add('btn', 'btn-danger', 'ml-auto');
+        removeButton.style.width = '150px';
+        removeButton.onclick = function() {
+            ruleWrapper.remove();
         };
+        ruleInputWrapper.appendChild(removeButton);
+    }
 
-     const createTranslationContainer = async (initial = false) => {
+    ruleWrapper.appendChild(ruleInputWrapper);
+    ruleWrapper.appendChild(ruleDropdownMenu);
+
+    return ruleWrapper;
+};
+
+
+    const createTranslationContainer = async (initial = false) => {
     const translationContainer = document.createElement('div');
     translationContainer.classList.add('translation-container', 'mb-3');
     translationContainer.style.border = '1px solid #ccc';
@@ -296,7 +301,7 @@
     addRuleButton.classList.add('btn', 'btn-primary', 'mb-3');
     addRuleButton.textContent = 'Add Rule';
     addRuleButton.onclick = function() {
-        const ruleWrapper = createRuleInput();
+        const ruleWrapper = createRuleInput(true);
         rulesList.appendChild(ruleWrapper);
     };
     translationContainer.appendChild(addRuleButton);
@@ -313,12 +318,11 @@
     }
 
     // Add one initial rule
-    const initialRuleWrapper = createRuleInput();
+    const initialRuleWrapper = createRuleInput(false);
     rulesList.appendChild(initialRuleWrapper);
 
     return translationContainer;
 };
-
 
 
 
@@ -329,8 +333,7 @@
             translationsDiv.appendChild(translationContainer);
         };
 
-
-       const validateForm = () => {
+const validateForm = () => {
     let isValid = true;
 
     // Get the input fields
@@ -351,12 +354,18 @@
     });
 
     // Validate translation containers
-    translationContainers.forEach((container, index) => {
+    translationContainers.forEach(container => {
         const translationInput = container.querySelector('input[type="text"]');
         const ruleInputs = container.querySelectorAll('.rule-wrapper input[type="text"]');
-        const allInputs = [translationInput, ...ruleInputs];
 
-        allInputs.forEach(input => {
+        if (!translationInput.value.trim()) {
+            translationInput.classList.add('is-invalid'); // Add class to make border red
+            isValid = false;
+        } else {
+            translationInput.classList.remove('is-invalid'); // Remove red border if valid
+        }
+
+        ruleInputs.forEach(input => {
             if (!input.value.trim()) {
                 input.classList.add('is-invalid'); // Add class to make border red
                 isValid = false;
@@ -364,114 +373,142 @@
                 input.classList.remove('is-invalid'); // Remove red border if valid
             }
         });
-
-        // Add red border to the translation field and the first rule field
-        if (index === 0) {
-            translationInput.classList.add('is-invalid');
-            const firstRuleInput = container.querySelector('.rule-wrapper input[type="text"]');
-            if (firstRuleInput) {
-                firstRuleInput.classList.add('is-invalid');
-            }
-        }
     });
 
     return isValid;
 };
 
 
-        document.getElementById('sentenceForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+     document.getElementById('sentenceForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-            const learningSentence = document.getElementById('learningSentence').value.trim();
-            const mainTopicInput = document.querySelector('.topic-container input[type="text"]');
+    // Function to validate form fields
+    const validateForm = () => {
+        let isValid = true;
+        const requiredFields = ['learningSentence']; // Only validate learningSentence for red border
+        const mainTopicInput = document.querySelector('.topic-container input[type="text"]');
+        const translationContainers = document.querySelectorAll('.translation-container');
 
-            if (learningSentence === '' || mainTopicInput === '') {
-                // Show error message or handle empty fields as needed
-                console.error('Learning sentence and topic are required.');
-                return;
-            }
-
-            const topicsIds = [];
-
-            // Collect the main topic ID
-            const mainTopicId = parseInt(mainTopicInput.dataset.topicId);
-            if (!isNaN(mainTopicId) && !topicsIds.includes(mainTopicId)) {
-                topicsIds.push(mainTopicId);
-            }
-
-            // Collect additional topic IDs
-            const additionalTopicInputs = document.querySelectorAll('#additionalTopics .topic-container input[type="text"]');
-            additionalTopicInputs.forEach(input => {
-                const topicId = parseInt(input.dataset.topicId);
-                if (!isNaN(topicId) && !topicsIds.includes(topicId)) {
-                    topicsIds.push(topicId);
-                }
-            });
-
-            const translations = [];
-            const translationContainers = document.querySelectorAll('.translation-container');
-            translationContainers.forEach(container => {
-                const translation = container.querySelector('input[type="text"]').value;
-                const ruleIds = [];
-                container.querySelectorAll('.rules-list .dropdown-input').forEach(ruleInput => {
-                    const ruleId = parseInt(ruleInput.dataset.ruleId);
-                    if (!isNaN(ruleId)) {
-                        ruleIds.push(ruleId);
-                    }
-                });
-                translations.push({
-                    translation,
-                    ruleIds
-                });
-            });
-
-            const data = {
-                userId: 1,
-                learningSentence: document.getElementById('learningSentence').value,
-                comment: document.getElementById('comment').value,
-                userLink: document.getElementById('userLink').value,
-                topicsIds: topicsIds,
-                translations: translations
-            };
-
-            try {
-                const response = await fetch('http://localhost:8080/vocabulary/add/sentence', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'accept': '*/*'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    console.log('Form submitted successfully');
-                    const messageContainer = document.getElementById('messageContainer');
-                    messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
-                    messageContainer.style.display = 'block'; // Show the message container
-                } else {
-                    console.error('Error submitting form:', response.statusText);
-                    messageContainer.style.display = 'block'; // Show the message container
-                }
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                messageContainer.style.display = 'block'; // Show the message container
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && field.value.trim() === '') {
+                field.classList.add('is-invalid'); // Apply red border
+                isValid = false;
+            } else if (field) {
+                field.classList.remove('is-invalid'); // Remove red border if field is not empty
             }
         });
 
-document.getElementById('sentenceForm').addEventListener('submit', function(event) {
-            const requiredFields = ['learningSentence', 'topicInput']; // Add other required field IDs here
-            const form = document.getElementById('sentenceForm');
+        if (mainTopicInput && mainTopicInput.value.trim() === '') {
+            mainTopicInput.classList.add('is-invalid'); // Apply red border
+            isValid = false;
+        } else if (mainTopicInput) {
+            mainTopicInput.classList.remove('is-invalid'); // Remove red border if field is not empty
+        }
 
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field.value.trim() === '') {
-                    field.classList.add('error'); // Apply red border
-                } else {
-                    field.classList.remove('error'); // Remove red border if field is not empty
+        translationContainers.forEach(container => {
+            const translationInput = container.querySelector('input[type="text"]');
+            const ruleInputs = container.querySelectorAll('.rule-wrapper input[type="text"]');
+
+            if (translationInput && translationInput.value.trim() === '') {
+                translationInput.classList.add('is-invalid'); // Apply red border
+                isValid = false;
+            } else if (translationInput) {
+                translationInput.classList.remove('is-invalid'); // Remove red border if field is not empty
+            }
+
+            ruleInputs.forEach(input => {
+                if (input && input.value.trim() === '') {
+                    input.classList.add('is-invalid'); // Apply red border
+                    isValid = false;
+                } else if (input) {
+                    input.classList.remove('is-invalid'); // Remove red border if field is not empty
                 }
             });
         });
+
+        return isValid;
+    };
+
+    if (!validateForm()) {
+        console.error('Form validation failed.');
+        return;
+    }
+
+    const learningSentence = document.getElementById('learningSentence').value.trim();
+    const mainTopicInput = document.querySelector('.topic-container input[type="text"]');
+    const topicsIds = [];
+
+    // Collect the main topic ID
+    const mainTopicId = parseInt(mainTopicInput.dataset.topicId);
+    if (!isNaN(mainTopicId) && !topicsIds.includes(mainTopicId)) {
+        topicsIds.push(mainTopicId);
+    }
+
+    // Collect additional topic IDs
+    const additionalTopicInputs = document.querySelectorAll('#additionalTopics .topic-container input[type="text"]');
+    additionalTopicInputs.forEach(input => {
+        const topicId = parseInt(input.dataset.topicId);
+        if (!isNaN(topicId) && !topicsIds.includes(topicId)) {
+            topicsIds.push(topicId);
+        }
+    });
+
+    const translations = [];
+    const translationContainers = document.querySelectorAll('.translation-container');
+    translationContainers.forEach(container => {
+        const translation = container.querySelector('input[type="text"]').value;
+        const ruleIds = [];
+        container.querySelectorAll('.rules-list .dropdown-input').forEach(ruleInput => {
+            const ruleId = parseInt(ruleInput.dataset.ruleId);
+            if (!isNaN(ruleId)) {
+                ruleIds.push(ruleId);
+            }
+        });
+        translations.push({
+            translation,
+            ruleIds
+        });
+    });
+
+    const data = {
+        userId: 1,
+        learningSentence: document.getElementById('learningSentence').value,
+        comment: document.getElementById('comment').value,
+        userLink: document.getElementById('userLink').value,
+        topicsIds: topicsIds,
+        translations: translations
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/vocabulary/add/sentence', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': '*/*'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const messageContainer = document.getElementById('messageContainer');
+        if (response.ok) {
+            console.log('Form submitted successfully');
+            messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
+        } else {
+            console.error('Error submitting form:', response.statusText);
+            messageContainer.innerHTML = '<div class="alert alert-danger">Error submitting form</div>';
+        }
+        messageContainer.style.display = 'block'; // Show the message container
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.innerHTML = '<div class="alert alert-danger">Error submitting form</div>';
+        messageContainer.style.display = 'block'; // Show the message container
+    }
+    document.getElementById('learningSentence').value = '';
+});
+
+
 
         // Add the initial translation container
         const initialTranslationContainer = await createTranslationContainer(true);

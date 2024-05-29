@@ -110,8 +110,8 @@
         .error {
         border-color: red !important;
     }
-        .is-invalid {
-    border: 2px solid red;
+     .is-invalid {
+    border-color: red;
 }
     </style>
 </head>
