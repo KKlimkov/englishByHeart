@@ -2,6 +2,7 @@ package org.example.englishByHeart.controller;
 
 import org.example.englishByHeart.domain.Exercise;
 import org.example.englishByHeart.domain.Sentence;
+import org.example.englishByHeart.dto.CreateExercisePayload;
 import org.example.englishByHeart.dto.CreateExerciseRequest;
 import org.example.englishByHeart.dto.ExercisesStartDTO;
 import org.example.englishByHeart.dto.TranslationWithRuleDTO;
@@ -65,9 +66,16 @@ public class ExerciseController {
         return ResponseEntity.ok(updatedExercises);
     }
 
-    @PostMapping("/start")
-    public ResponseEntity<ExercisesStartDTO> getExerciseIdsByTopicsAndRules(@RequestParam Long userId, @RequestParam List<Long> topicIds, @RequestParam List<Long> ruleIds) {
+    @PostMapping("/createExercise")
+    public ResponseEntity<Void> getExerciseIdsByTopicsAndRules(@RequestBody CreateExercisePayload payload) {
 
+        // Extracting data from payload
+        Long userId = payload.getUserId();
+        String sentenceName = payload.getSentenceName();
+        List<Long> topicIds = payload.getTopicIds();
+        List<Long> ruleIds = payload.getRuleIds();
+
+        // Service call to get sentence IDs
         ResponseEntity<List<Long>> responseIds = exerciseService.getSentencesIdsByTopicsAndRules(topicIds, ruleIds);
 
         if (responseIds.getStatusCode() != HttpStatus.OK) {
@@ -75,26 +83,14 @@ public class ExerciseController {
             return ResponseEntity.status(responseIds.getStatusCode()).body(null);
         }
 
+        // Creating exercise request
         CreateExerciseRequest createExerciseRequest = new CreateExerciseRequest();
         createExerciseRequest.setUserId(userId);
+        createExerciseRequest.setSentenceName(sentenceName);
         createExerciseRequest.setCurrentSentencesId(responseIds.getBody());
 
+        // Creating the exercise
         Exercise createdExercise = exerciseService.createExercise(createExerciseRequest);
-
-        ExerciseService.PickedElementResponse pickedElementResponse = exerciseService.removeRandomElement(responseIds.getBody());
-
-        List<Exercise> updatedExercises = exerciseService.updateExercisesByUserId(userId, pickedElementResponse.getModifiedArray());
-
-        ResponseEntity<Sentence> sentence = exerciseService.getSentenceById(pickedElementResponse.getPickedElement());
-
-        ResponseEntity<List<TranslationWithRuleDTO>> translationWithRuleDTOResponse = exerciseService.getTranslationsById(pickedElementResponse.getPickedElement());
-
-        ExercisesStartDTO exercisesStartDTO = new ExercisesStartDTO();
-
-        exercisesStartDTO.setLearningSentence(sentence.getBody().getLearningSentence());
-        exercisesStartDTO.setComment(sentence.getBody().getComment());
-        exercisesStartDTO.setTranslations(translationWithRuleDTOResponse.getBody());
-
-        return ResponseEntity.ok(exercisesStartDTO);
+        return ResponseEntity.ok().build();
     }
 }

@@ -2,11 +2,13 @@ package org.example.englishByHeart.dto;
 
 import java.util.List;
 
-public class CreateExerciseRequest {
+public class CreateExercisePayload {
     private Long userId;
     private String sentenceName;
-    private List<Long> currentSentencesId;
+    private List<Long> topicIds;
+    private List<Long> ruleIds;
 
+    // Getters and setters
     public Long getUserId() {
         return userId;
     }
@@ -15,12 +17,20 @@ public class CreateExerciseRequest {
         this.userId = userId;
     }
 
-    public List<Long> getCurrentSentencesId() {
-        return currentSentencesId;
+    public List<Long> getTopicIds() {
+        return topicIds;
     }
 
-    public void setCurrentSentencesId(List<Long> currentSentencesId) {
-        this.currentSentencesId = currentSentencesId;
+    public void setTopicIds(List<Long> topicIds) {
+        this.topicIds = topicIds;
+    }
+
+    public List<Long> getRuleIds() {
+        return ruleIds;
+    }
+
+    public void setRuleIds(List<Long> ruleIds) {
+        this.ruleIds = ruleIds;
     }
 
     public String getSentenceName() {
@@ -31,3 +41,4 @@ public class CreateExerciseRequest {
         this.sentenceName = sentenceName;
     }
 }
+

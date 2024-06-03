@@ -16,7 +16,7 @@
                     <a class="nav-link" href="/sentences-form">Sentences</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Exercises</a>
+                    <a class="nav-link" href="/exercises-form">Exercises</a>
                 </li>
             </ul>
         </div>

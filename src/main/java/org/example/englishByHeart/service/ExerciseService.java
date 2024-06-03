@@ -70,6 +70,7 @@ public class ExerciseService {
     public Exercise createExercise(CreateExerciseRequest request) {
         Exercise exercise = new Exercise();
         exercise.setUserId(request.getUserId());
+        exercise.setSentenceName(request.getSentenceName());
         // Convert List<Long> to String[] for currentSentencesId
         String[] sentencesIdArray = request.getCurrentSentencesId().stream()
                 .map(String::valueOf)

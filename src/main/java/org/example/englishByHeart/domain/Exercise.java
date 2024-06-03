@@ -3,14 +3,6 @@ package org.example.englishByHeart.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "exercise")
@@ -21,6 +13,8 @@ public class Exercise {
     private Long exerciseId;
 
     private Long userId;
+
+    private String sentenceName;
 
     @Column(columnDefinition = "text[]")
     private String[] currentSentencesId;
@@ -51,5 +45,11 @@ public class Exercise {
         this.currentSentencesId = currentSentencesId;
     }
 
+    public String getSentenceName() {
+        return sentenceName;
+    }
 
+    public void setSentenceName(String sentenceName) {
+        this.sentenceName = sentenceName;
+    }
 }

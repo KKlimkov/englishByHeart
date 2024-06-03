@@ -112,6 +112,35 @@
     }
      .is-invalid {
     border-color: red;
+
+     .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 1rem);
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 600px; /* Adjust the max-width to make the modal larger */
+            margin: auto;
+        }
+
+        .suggestions-box {
+        border: 1px solid #ccc;
+        max-height: 100px;
+        overflow-y: auto;
+        position: absolute;
+        z-index: 1000;
+        background-color: white;
+        width: 100%;
+    }
+    .suggestions-box div {
+        padding: 8px;
+        cursor: pointer;
+    }
+    .suggestions-box div:hover {
+        background-color: #f0f0f0;
+    }
 }
     </style>
 </head>
