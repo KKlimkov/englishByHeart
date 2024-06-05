@@ -71,12 +71,16 @@ public class ExerciseService {
         Exercise exercise = new Exercise();
         exercise.setUserId(request.getUserId());
         exercise.setSentenceName(request.getSentenceName());
-        // Convert List<Long> to String[] for currentSentencesId
-        String[] sentencesIdArray = request.getCurrentSentencesId().stream()
+        exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
+        exercise.setCurrentTopicsIds(convertListToStringArray(request.getCurrentTopicsIds()));
+        exercise.setCurrentRulesIds(convertListToStringArray(request.getCurrentRulesIds()));
+        return exerciseRepository.save(exercise);
+    }
+
+    private String[] convertListToStringArray(List<Long> list) {
+        return list.stream()
                 .map(String::valueOf)
                 .toArray(String[]::new);
-        exercise.setCurrentSentencesId(sentencesIdArray);
-        return exerciseRepository.save(exercise);
     }
 
     public List<Exercise> updateExercisesByUserId(Long userId, List<Long> currentSentences) {

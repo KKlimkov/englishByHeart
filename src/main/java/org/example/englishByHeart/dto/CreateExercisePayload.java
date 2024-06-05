@@ -1,14 +1,23 @@
 package org.example.englishByHeart.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class CreateExercisePayload {
+    @NotNull(message = "userId is missing or invalid")
     private Long userId;
+
+    @NotEmpty(message = "sentenceName is missing")
     private String sentenceName;
+
     private List<Long> topicIds;
+
     private List<Long> ruleIds;
 
     // Getters and setters
+
     public Long getUserId() {
         return userId;
     }

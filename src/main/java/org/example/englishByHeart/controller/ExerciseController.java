@@ -1,5 +1,6 @@
 package org.example.englishByHeart.controller;
 
+import jakarta.validation.Valid;
 import org.example.englishByHeart.domain.Exercise;
 import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.dto.CreateExercisePayload;
@@ -11,6 +12,7 @@ import org.example.englishByHeart.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,7 +69,15 @@ public class ExerciseController {
     }
 
     @PostMapping("/createExercise")
-    public ResponseEntity<Void> getExerciseIdsByTopicsAndRules(@RequestBody CreateExercisePayload payload) {
+    @Validated
+    public ResponseEntity<Object> getExerciseIdsByTopicsAndRules(@Valid @RequestBody CreateExercisePayload payload) {
+
+        if (payload.getUserId() == null || payload.getUserId() <= 0) {
+            return ResponseEntity.badRequest().body("userId is missing or invalid");
+        }
+        if (payload.getSentenceName() == null || payload.getSentenceName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("sentenceName is missing");
+        }
 
         // Extracting data from payload
         Long userId = payload.getUserId();
@@ -87,6 +97,8 @@ public class ExerciseController {
         CreateExerciseRequest createExerciseRequest = new CreateExerciseRequest();
         createExerciseRequest.setUserId(userId);
         createExerciseRequest.setSentenceName(sentenceName);
+        createExerciseRequest.setCurrentTopicsIds(topicIds);
+        createExerciseRequest.setCurrentRulesIds(ruleIds);
         createExerciseRequest.setCurrentSentencesId(responseIds.getBody());
 
         // Creating the exercise

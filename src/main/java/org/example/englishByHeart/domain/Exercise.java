@@ -18,6 +18,12 @@ public class Exercise {
 
     @Column(columnDefinition = "text[]")
     private String[] currentSentencesId;
+
+    @Column(columnDefinition = "text[]")
+    private String[] currentTopicsIds;
+
+    @Column(columnDefinition = "text[]")
+    private String[] currentRulesIds;
     // Getters and setters
 
 
@@ -51,5 +57,21 @@ public class Exercise {
 
     public void setSentenceName(String sentenceName) {
         this.sentenceName = sentenceName;
+    }
+
+    public String[] getCurrentTopicsIds() {
+        return currentTopicsIds;
+    }
+
+    public void setCurrentTopicsIds(String[] currentTopicsIds) {
+        this.currentTopicsIds = currentTopicsIds;
+    }
+
+    public String[] getCurrentRulesIds() {
+        return currentRulesIds;
+    }
+
+    public void setCurrentRulesIds(String[] currentRulesIds) {
+        this.currentRulesIds = currentRulesIds;
     }
 }
