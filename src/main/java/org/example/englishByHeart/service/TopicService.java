@@ -1,5 +1,6 @@
 package org.example.englishByHeart.service;
 
+import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.dto.TopicDTO;
 import org.example.englishByHeart.repos.TopicRepository;
@@ -32,6 +33,9 @@ public class TopicService {
         return topics;
     }
 
+    public List<Topic> getTopicsByTopicIds(List<Long> topicsIds) {
+        return topicRepository.findAllById(topicsIds);
+    }
 
     public Topic createTopic(Topic topic) {
         return topicRepository.save(topic);

@@ -3,10 +3,7 @@ package org.example.englishByHeart.controller;
 import jakarta.validation.Valid;
 import org.example.englishByHeart.domain.Exercise;
 import org.example.englishByHeart.domain.Sentence;
-import org.example.englishByHeart.dto.CreateExercisePayload;
-import org.example.englishByHeart.dto.CreateExerciseRequest;
-import org.example.englishByHeart.dto.ExercisesStartDTO;
-import org.example.englishByHeart.dto.TranslationWithRuleDTO;
+import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.example.englishByHeart.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +27,6 @@ public class ExerciseController {
     public ExerciseService.PickedElementResponse removeRandomElement(@RequestBody List<Long> array) {
         return exerciseService.removeRandomElement(array);
     }
-
-    /*
-    @PostMapping("/create")
-    public ResponseEntity<Exercise> createExercise(@RequestBody Exercise exercise) {
-        Exercise savedExercise = exerciseService.saveExercise(exercise);
-        return new ResponseEntity<>(savedExercise, HttpStatus.CREATED);
-    }*/
 
     @PostMapping("/create")
     public ResponseEntity<Exercise> createExercise(@RequestBody CreateExerciseRequest request) {
@@ -75,13 +65,13 @@ public class ExerciseController {
         if (payload.getUserId() == null || payload.getUserId() <= 0) {
             return ResponseEntity.badRequest().body("userId is missing or invalid");
         }
-        if (payload.getSentenceName() == null || payload.getSentenceName().trim().isEmpty()) {
+        if (payload.getExerciseName() == null || payload.getExerciseName().trim().isEmpty()) {
             return ResponseEntity.badRequest().body("sentenceName is missing");
         }
 
         // Extracting data from payload
         Long userId = payload.getUserId();
-        String sentenceName = payload.getSentenceName();
+        String exerciseName = payload.getExerciseName();
         List<Long> topicIds = payload.getTopicIds();
         List<Long> ruleIds = payload.getRuleIds();
 
@@ -96,7 +86,7 @@ public class ExerciseController {
         // Creating exercise request
         CreateExerciseRequest createExerciseRequest = new CreateExerciseRequest();
         createExerciseRequest.setUserId(userId);
-        createExerciseRequest.setSentenceName(sentenceName);
+        createExerciseRequest.setExerciseName(exerciseName);
         createExerciseRequest.setCurrentTopicsIds(topicIds);
         createExerciseRequest.setCurrentRulesIds(ruleIds);
         createExerciseRequest.setCurrentSentencesId(responseIds.getBody());
@@ -104,5 +94,11 @@ public class ExerciseController {
         // Creating the exercise
         Exercise createdExercise = exerciseService.createExercise(createExerciseRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/exercisesByUserId")
+    public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(@RequestParam Long userId) {
+        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId);
+        return ResponseEntity.ok(exercises);
     }
 }

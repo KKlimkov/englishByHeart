@@ -9,8 +9,8 @@ public class CreateExercisePayload {
     @NotNull(message = "userId is missing or invalid")
     private Long userId;
 
-    @NotEmpty(message = "sentenceName is missing")
-    private String sentenceName;
+    @NotEmpty(message = "exerciseName is missing")
+    private String exerciseName;
 
     private List<Long> topicIds;
 
@@ -42,12 +42,12 @@ public class CreateExercisePayload {
         this.ruleIds = ruleIds;
     }
 
-    public String getSentenceName() {
-        return sentenceName;
+    public @NotEmpty(message = "sentenceName is missing") String getExerciseName() {
+        return exerciseName;
     }
 
-    public void setSentenceName(String sentenceName) {
-        this.sentenceName = sentenceName;
+    public void setExerciseName(@NotEmpty(message = "sentenceName is missing") String exerciseName) {
+        this.exerciseName = exerciseName;
     }
 }
 

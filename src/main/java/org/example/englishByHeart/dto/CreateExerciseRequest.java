@@ -4,7 +4,7 @@ import java.util.List;
 
 public class CreateExerciseRequest {
     private Long userId;
-    private String sentenceName;
+    private String exerciseName;
 
     private List<Long> currentSentencesId;
 
@@ -28,12 +28,12 @@ public class CreateExerciseRequest {
         this.currentSentencesId = currentSentencesId;
     }
 
-    public String getSentenceName() {
-        return sentenceName;
+    public String getExerciseName() {
+        return exerciseName;
     }
 
-    public void setSentenceName(String sentenceName) {
-        this.sentenceName = sentenceName;
+    public void setExerciseName(String sentenceName) {
+        this.exerciseName = sentenceName;
     }
 
     public List<Long> getCurrentTopicsIds() {

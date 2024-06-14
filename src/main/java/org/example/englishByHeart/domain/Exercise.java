@@ -14,7 +14,7 @@ public class Exercise {
 
     private Long userId;
 
-    private String sentenceName;
+    private String exerciseName;
 
     @Column(columnDefinition = "text[]")
     private String[] currentSentencesId;
@@ -51,12 +51,12 @@ public class Exercise {
         this.currentSentencesId = currentSentencesId;
     }
 
-    public String getSentenceName() {
-        return sentenceName;
+    public String getExerciseName() {
+        return exerciseName;
     }
 
-    public void setSentenceName(String sentenceName) {
-        this.sentenceName = sentenceName;
+    public void setExerciseName(String sentenceName) {
+        this.exerciseName = sentenceName;
     }
 
     public String[] getCurrentTopicsIds() {

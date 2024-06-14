@@ -1,9 +1,8 @@
 package org.example.englishByHeart.service;
 
-import org.example.englishByHeart.domain.Exercise;
-import org.example.englishByHeart.domain.Sentence;
-import org.example.englishByHeart.domain.SentenceRule;
+import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.CreateExerciseRequest;
+import org.example.englishByHeart.dto.ExerciseResponse;
 import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.slf4j.Logger;
@@ -70,7 +69,7 @@ public class ExerciseService {
     public Exercise createExercise(CreateExerciseRequest request) {
         Exercise exercise = new Exercise();
         exercise.setUserId(request.getUserId());
-        exercise.setSentenceName(request.getSentenceName());
+        exercise.setExerciseName(request.getExerciseName());
         exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
         exercise.setCurrentTopicsIds(convertListToStringArray(request.getCurrentTopicsIds()));
         exercise.setCurrentRulesIds(convertListToStringArray(request.getCurrentRulesIds()));
@@ -178,6 +177,66 @@ public class ExerciseService {
 
         // Return the response entity
         return response;
+    }
+
+
+    public List<ExerciseResponse> getExercisesByUserId(Long userId) {
+        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+        List<ExerciseResponse> exerciseResponses = new ArrayList<>();
+
+        for (Exercise exercise : exercises) {
+            ExerciseResponse response = new ExerciseResponse();
+            response.setExerciseId(exercise.getExerciseId());
+            response.setExerciseName(exercise.getExerciseName());
+
+            // Fetch topic names
+            List<String> topicNames = fetchTopicNamesByIds(Arrays.asList(exercise.getCurrentTopicsIds()));
+            response.setCurrentTopicsIds(topicNames);
+
+            // Fetch rule names
+            List<String> ruleNames = fetchRuleNamesByIds(Arrays.asList(exercise.getCurrentRulesIds()));
+            response.setCurrentRulesIds(ruleNames);
+
+            exerciseResponses.add(response);
+        }
+
+        return exerciseResponses;
+    }
+
+    private List<String> fetchTopicNamesByIds(List<String> topicIds) {
+        List<Long> ids = topicIds.stream().map(Long::valueOf).collect(Collectors.toList());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/getTopicsByTopicsIds")
+                .queryParam("topicsIds", ids);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<List<Topic>> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<List<Topic>>() {}
+        );
+
+        return response.getBody().stream().map(Topic::getTopicName).collect(Collectors.toList());
+    }
+
+    private List<String> fetchRuleNamesByIds(List<String> ruleIds) {
+        List<Long> ids = ruleIds.stream().map(Long::valueOf).collect(Collectors.toList());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/getRulesByRuleIds")
+                .queryParam("ruleIds", ids);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<List<Rule>> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<List<Rule>>() {}
+        );
+
+        return response.getBody().stream().map(Rule::getRule).collect(Collectors.toList());
     }
 
 }

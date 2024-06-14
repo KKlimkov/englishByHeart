@@ -1,12 +1,20 @@
 <#include "common.ftl">
 
 <div class="container mt-4">
-    <h1>Exercise</h1>
+    <h1>Exercises</h1>
     <form id="exerciseForm">
         <button type="button" class="btn btn-primary" id="continueExerciseBtn">Continue current exercise</button>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExerciseModal">Add new exercise</button>
     </form>
+    <div id="exercisesContainer" class="mt-4">
+        <h2>Exercises List</h2>
+        <div class="row" id="exercisesList">
+            <!-- Placeholder for exercises -->
+        </div>
+    </div>
 </div>
+
+
 
 <#-- Initialize topicIds and ruleIds as empty lists if they are not defined -->
 <#assign topicIds = (topicIds![])?sequence>
@@ -22,7 +30,7 @@
             <div class="modal-body">
                 <div>
                     <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="sentenceName" name="name">
+                    <input type="text" class="form-control" id="exerciseName" name="name">
                     <label for="topic">Choose topics:</label>
                     <div id="topicsContainer">
                         <div class="input-group mb-2">
@@ -59,12 +67,75 @@
     </div>
 </div>
 
+
 <!-- Custom Scripts -->
 <script>
-    let allTopics = [];
- let allRules = [];
 
- async function fetchTopicsAndRules() {
+let allTopics = [];
+let allRules = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    fetchExercises();
+});
+
+async function fetchExercises() {
+    try {
+        const exercisesResponse = await fetch('/exercisesByUserId?userId=1');
+        const exercises = await exercisesResponse.json();
+        renderExercises(exercises);
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+    }
+}
+
+function renderExercises(exercises) {
+    const exercisesList = document.getElementById('exercisesList');
+    exercisesList.innerHTML = ''; // Clear any existing exercises
+
+    if (exercises && exercises.length > 0) {
+        exercises.forEach(exercise => {
+            const card = createExerciseCard(exercise);
+            exercisesList.appendChild(card);
+        });
+    } else {
+        exercisesList.innerHTML = '<p>No exercises found.</p>';
+    }
+}
+
+function createExerciseCard(exercise) {
+    const card = document.createElement('div');
+    card.className = 'col-md-4';
+
+    const cardTitle = exercise.exerciseName || 'Unnamed Exercise';
+    const topics = exercise.currentTopicsIds.length > 0
+        ? exercise.currentTopicsIds.join(', ')
+        : 'No topics available';
+
+    const rules = exercise.currentRulesIds.length > 0
+        ? exercise.currentRulesIds.join(', ')
+        : 'No rules available';
+
+    const cardContent = `
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title"></h5>
+                <p class="card-text"><strong>Topics:</strong> </p>
+                <p class="card-text"><strong>Rules:</strong> </p>
+            </div>
+        </div>
+    `;
+
+    card.innerHTML = cardContent;
+    card.querySelector('.card-title').textContent = cardTitle;
+    card.querySelector('.card-text:nth-of-type(1)').append(document.createTextNode(topics));
+    card.querySelector('.card-text:nth-of-type(2)').append(document.createTextNode(rules));
+
+    return card;
+}
+
+
+     async function fetchTopicsAndRules() {
      try {
          const topicsResponse = await fetch('/topics?userId=1');
          allTopics = await topicsResponse.json();
@@ -253,68 +324,73 @@
  });
 
  // Add validation for the "Name" field
- document.getElementById('addExerciseBtn').addEventListener('click', async function() {
-     const sentenceName = document.getElementById('sentenceName').value.trim();
-     if (!sentenceName) {
-         document.getElementById('sentenceName').classList.add('is-invalid');
-         showError('Name field is required.');
-         return;
-     } else {
-         document.getElementById('sentenceName').classList.remove('is-invalid');
-     }
+ // Update the Add Exercise Function
+document.getElementById('addExerciseBtn').addEventListener('click', async function() {
+    const exerciseName = document.getElementById('exerciseName').value.trim();
+    if (!exerciseName) {
+        document.getElementById('exerciseName').classList.add('is-invalid');
+        showError('Name field is required.');
+        return;
+    } else {
+        document.getElementById('exerciseName').classList.remove('is-invalid');
+    }
 
-     const topicInputs = document.querySelectorAll('#topicsContainer .dropdown-input');
-     const ruleInputs = document.querySelectorAll('#rulesContainer .dropdown-input');
+    const topicInputs = document.querySelectorAll('#topicsContainer .dropdown-input');
+    const ruleInputs = document.querySelectorAll('#rulesContainer .dropdown-input');
 
-     const topicIds = [];
-     topicInputs.forEach(input => {
-         if (input.dataset.id) {
-             topicIds.push(input.dataset.id);
-         }
-     });
+    const topicIds = [];
+    topicInputs.forEach(input => {
+        if (input.dataset.id) {
+            topicIds.push(input.dataset.id);
+        }
+    });
 
-     const ruleIds = [];
-     ruleInputs.forEach(input => {
-         if (input.dataset.id) {
-             ruleIds.push(input.dataset.id);
-         }
-     });
+    const ruleIds = [];
+    ruleInputs.forEach(input => {
+        if (input.dataset.id) {
+            ruleIds.push(input.dataset.id);
+        }
+    });
 
-     try {
-         const payload = {
-             userId: 1,
-             topicIds: topicIds,
-             ruleIds: ruleIds,
-             sentenceName: sentenceName
-         };
+    try {
+        const payload = {
+            userId: 1,
+            topicIds: topicIds,
+            ruleIds: ruleIds,
+            exerciseName: exerciseName
+        };
 
-         const response = await fetch('/createExercise', {
-             method: 'POST',
-             headers: {
-                 'Accept': 'application/json',
-                 'Content-Type': 'application/json'
-             },
-             body: JSON.stringify(payload)
-         });
+        const response = await fetch('/createExercise', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-         if (response.ok) {
-             console.log('Exercise created successfully!');
-             hideError(); // Hide the error message
+        if (response.ok) {
+            console.log('Exercise created successfully!');
+            hideError(); // Hide the error message
 
-             // Close the modal using Bootstrap 5 modal method
-             const addExerciseModalElement = document.getElementById('addExerciseModal');
-             const addExerciseModal = bootstrap.Modal.getInstance(addExerciseModalElement); // Get the Bootstrap modal instance
-             addExerciseModal.hide();
-         } else {
-             const responseBody = await response.json();
-             console.error('Failed to create exercise:', responseBody.message || response.statusText);
-             showError(responseBody.message || 'Something went wrong'); // Display server message or fallback
-         }
-     } catch (error) {
-         console.error('Error creating exercise:', error);
-         showError('Error creating exercise. Please try again.');
-     }
- });
+            // Close the modal using Bootstrap 5 modal method
+            const addExerciseModalElement = document.getElementById('addExerciseModal');
+            const addExerciseModal = bootstrap.Modal.getInstance(addExerciseModalElement); // Get the Bootstrap modal instance
+            addExerciseModal.hide();
+
+            // Reload the exercises list
+            await fetchExercises();
+        } else {
+            const responseBody = await response.json();
+            console.error('Failed to create exercise:', responseBody.message || response.statusText);
+            showError(responseBody.message || 'Something went wrong'); // Display server message or fallback
+        }
+    } catch (error) {
+        console.error('Error creating exercise:', error);
+        showError('Error creating exercise. Please try again.');
+    }
+});
+
 
  function showError(message) {
      const messageContainer = document.getElementById('messageContainer');

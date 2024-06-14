@@ -1,5 +1,6 @@
 package org.example.englishByHeart.controller;
 
+import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.service.TopicService;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.dto.TopicDTO;
@@ -31,5 +32,10 @@ public class TopicController {
         topic.setTopicName(topicDTO.getTopicName());
         Topic createdTopic = topicService.createTopic(topic);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTopic);
+    }
+
+    @GetMapping("/getTopicsByTopicsIds")
+    public List<Topic> getTopicsByTopicIds(@RequestParam List<Long> topicsIds) {
+        return topicService.getTopicsByTopicIds(topicsIds);
     }
 }
