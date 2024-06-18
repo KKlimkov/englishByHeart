@@ -79,8 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchExercises();
 });
 
+
 async function fetchExercises() {
-    try {
+
+     try {
         const exercisesResponse = await fetch('/exercisesByUserId?userId=1');
         const exercises = await exercisesResponse.json();
         renderExercises(exercises);
@@ -122,14 +124,18 @@ function createExerciseCard(exercise) {
                 <h5 class="card-title"></h5>
                 <p class="card-text"><strong>Topics:</strong> </p>
                 <p class="card-text"><strong>Rules:</strong> </p>
+                <p class="card-text"><strong>Number of Sentences:</strong> </p>
             </div>
         </div>
     `;
+
+    const numberOfSentences = exercise.numberOfSentences || 'No sentences';
 
     card.innerHTML = cardContent;
     card.querySelector('.card-title').textContent = cardTitle;
     card.querySelector('.card-text:nth-of-type(1)').append(document.createTextNode(topics));
     card.querySelector('.card-text:nth-of-type(2)').append(document.createTextNode(rules));
+    card.querySelector('.card-text:nth-of-type(3)').append(document.createTextNode(numberOfSentences));
 
     return card;
 }

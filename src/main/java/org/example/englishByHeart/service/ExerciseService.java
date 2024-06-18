@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -67,13 +65,21 @@ public class ExerciseService {
     }
 
     public Exercise createExercise(CreateExerciseRequest request) {
+        logger.info("Creating exercise with request: {}", request);
+
         Exercise exercise = new Exercise();
         exercise.setUserId(request.getUserId());
         exercise.setExerciseName(request.getExerciseName());
-        exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
-        exercise.setCurrentTopicsIds(convertListToStringArray(request.getCurrentTopicsIds()));
-        exercise.setCurrentRulesIds(convertListToStringArray(request.getCurrentRulesIds()));
-        return exerciseRepository.save(exercise);
+        exercise.setSentencesId(convertListToStringArray(request.getSentencesId()));
+        exercise.setTopicsIds(convertListToStringArray(request.getTopicsIds()));
+        exercise.setRulesIds(convertListToStringArray(request.getRulesIds()));
+        exercise.setCurrentSentencesId(convertListToStringArray(request.getSentencesId()));
+
+        Exercise savedExercise = exerciseRepository.save(exercise);
+
+        logger.info("Saved exercise: {}", savedExercise);
+
+        return savedExercise;
     }
 
     private String[] convertListToStringArray(List<Long> list) {
@@ -93,7 +99,7 @@ public class ExerciseService {
             String[] sentencesIdArray = currentSentences.stream()
                     .map(String::valueOf)
                     .toArray(String[]::new);
-            exercise.setCurrentSentencesId(sentencesIdArray);
+            exercise.setSentencesId(sentencesIdArray);
         }
         // Save all updated exercises
         return exerciseRepository.saveAll(exercises);
@@ -102,12 +108,12 @@ public class ExerciseService {
     public List<Long> getCurrentSentencesIdsByUserId(Long userId) {
         List<Exercise> exercises = exerciseRepository.findByUserId(userId);
         Exercise exercise = exercises.isEmpty() ? null : exercises.get(0);
-        if (exercise == null || exercise.getCurrentSentencesId() == null) {
+        if (exercise == null || exercise.getSentencesId() == null) {
             return Collections.emptyList();
         }
         // Convert String[] to List<Long>
         List<Long> sentencesIds = new ArrayList<>();
-        for (String sentenceId : exercise.getCurrentSentencesId()) {
+        for (String sentenceId : exercise.getSentencesId()) {
             sentencesIds.add(Long.parseLong(sentenceId));
         }
         return sentencesIds;
@@ -121,12 +127,19 @@ public class ExerciseService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Construct the URL with the query parameters
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(SENTENCE_IDS_API_URL)
-                .queryParam("topicIds", topicIds.toArray())
-                .queryParam("ruleIds", ruleIds.toArray());
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(SENTENCE_IDS_API_URL);
+
+        if (!topicIds.isEmpty()) {
+            builder.queryParam("topicIds", topicIds.toArray());
+        }
+
+        if (!ruleIds.isEmpty()) {
+            builder.queryParam("ruleIds", ruleIds.toArray());
+        }
 
         String url = builder.toUriString();
+
+        logger.info("Requesting sentence IDs with URL: {}", url);
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
@@ -134,30 +147,11 @@ public class ExerciseService {
                 url,
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<List<Long>>() {});
+                new ParameterizedTypeReference<List<Long>>() {
+                });
 
-        return response;
-    }
+        logger.info("Received response: {}", response);
 
-    public ResponseEntity<Sentence> getSentenceById(Long sentenceId) {
-        // Construct the URL for the specific sentenceId
-        String url = SENTENCE_BY_ID_API_URL + "/" + sentenceId;
-
-        // Set headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create an HTTP request entity
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-
-        // Make the HTTP GET request
-        ResponseEntity<Sentence> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                requestEntity,
-                Sentence.class);
-
-        // Return the response entity
         return response;
     }
 
@@ -179,7 +173,6 @@ public class ExerciseService {
         return response;
     }
 
-
     public List<ExerciseResponse> getExercisesByUserId(Long userId) {
         List<Exercise> exercises = exerciseRepository.findByUserId(userId);
         List<ExerciseResponse> exerciseResponses = new ArrayList<>();
@@ -190,12 +183,14 @@ public class ExerciseService {
             response.setExerciseName(exercise.getExerciseName());
 
             // Fetch topic names
-            List<String> topicNames = fetchTopicNamesByIds(Arrays.asList(exercise.getCurrentTopicsIds()));
+            List<String> topicNames = fetchTopicNamesByIds(Arrays.asList(exercise.getTopicsIds()));
             response.setCurrentTopicsIds(topicNames);
 
             // Fetch rule names
-            List<String> ruleNames = fetchRuleNamesByIds(Arrays.asList(exercise.getCurrentRulesIds()));
+            List<String> ruleNames = fetchRuleNamesByIds(Arrays.asList(exercise.getRulesIds()));
             response.setCurrentRulesIds(ruleNames);
+
+            response.setNumberOfSentences((long) exercise.getSentencesId().length);
 
             exerciseResponses.add(response);
         }
@@ -238,5 +233,41 @@ public class ExerciseService {
 
         return response.getBody().stream().map(Rule::getRule).collect(Collectors.toList());
     }
+
+    public List<Exercise> updateExercises(Long userId) {
+        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+        if (exercises.isEmpty()) {
+            logger.warn("No exercises found for user ID: " + userId);
+            return Collections.emptyList();
+        }
+
+        for (Exercise exercise : exercises) {
+            Set<Long> topicIds = Arrays.stream(exercise.getTopicsIds()).map(Long::valueOf).collect(Collectors.toSet());
+            Set<Long> ruleIds = Arrays.stream(exercise.getRulesIds()).map(Long::valueOf).collect(Collectors.toSet());
+
+            ResponseEntity<List<Long>> response = getSentencesIdsByTopicsAndRules(new ArrayList<>(topicIds), new ArrayList<>(ruleIds));
+            if (response.getStatusCode() != HttpStatus.OK) {
+                logger.error("Failed to fetch sentence IDs from the external service");
+                return Collections.emptyList();
+            }
+
+            List<Long> fetchedSentenceIds = response.getBody();
+            if (fetchedSentenceIds == null || fetchedSentenceIds.isEmpty()) {
+                logger.warn("No sentence IDs returned from the external service for exercise ID: " + exercise.getExerciseId());
+                continue;  // Skip updating this exercise if no sentence IDs are fetched
+            }
+
+            // Update the exercise with the new sentence IDs
+            List<String> updatedSentences = fetchedSentenceIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+
+            exercise.setSentencesId(updatedSentences.toArray(new String[0]));
+            exercise.setHasChanged(true);
+        }
+
+        return exerciseRepository.saveAll(exercises);
+    }
+
 
 }

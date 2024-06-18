@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 public class ExerciseController {
     @Autowired
@@ -49,7 +50,7 @@ public class ExerciseController {
     @PutMapping("/update")
     public ResponseEntity<List<Exercise>> updateExercisesByUserId(@RequestBody CreateExerciseRequest request) {
 
-        List<Exercise> updatedExercises = exerciseService.updateExercisesByUserId(request.getUserId(), request.getCurrentSentencesId());
+        List<Exercise> updatedExercises = exerciseService.updateExercisesByUserId(request.getUserId(), request.getSentencesId());
         if (updatedExercises.isEmpty()) {
             // No exercises found for the given user ID, return 404 Not Found
             return ResponseEntity.notFound().build();
@@ -60,13 +61,13 @@ public class ExerciseController {
 
     @PostMapping("/createExercise")
     @Validated
-    public ResponseEntity<Object> getExerciseIdsByTopicsAndRules(@Valid @RequestBody CreateExercisePayload payload) {
+    public ResponseEntity<Object> createExercise(@Valid @RequestBody CreateExercisePayload payload) {
 
         if (payload.getUserId() == null || payload.getUserId() <= 0) {
             return ResponseEntity.badRequest().body("userId is missing or invalid");
         }
         if (payload.getExerciseName() == null || payload.getExerciseName().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("sentenceName is missing");
+            return ResponseEntity.badRequest().body("exerciseName is missing");
         }
 
         // Extracting data from payload
@@ -87,12 +88,13 @@ public class ExerciseController {
         CreateExerciseRequest createExerciseRequest = new CreateExerciseRequest();
         createExerciseRequest.setUserId(userId);
         createExerciseRequest.setExerciseName(exerciseName);
-        createExerciseRequest.setCurrentTopicsIds(topicIds);
-        createExerciseRequest.setCurrentRulesIds(ruleIds);
-        createExerciseRequest.setCurrentSentencesId(responseIds.getBody());
+        createExerciseRequest.setTopicsIds(topicIds);
+        createExerciseRequest.setRulesIds(ruleIds);
+        createExerciseRequest.setSentencesId(responseIds.getBody());
 
         // Creating the exercise
         Exercise createdExercise = exerciseService.createExercise(createExerciseRequest);
+
         return ResponseEntity.ok().build();
     }
 
@@ -100,5 +102,15 @@ public class ExerciseController {
     public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(@RequestParam Long userId) {
         List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId);
         return ResponseEntity.ok(exercises);
+    }
+
+
+    @PutMapping("/updateExercises")
+    public ResponseEntity<List<Exercise>> updateExercises(@RequestParam Long userId) {
+        List<Exercise> updatedExercises = exerciseService.updateExercises(userId);
+        if (updatedExercises.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedExercises);
     }
 }

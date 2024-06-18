@@ -51,6 +51,22 @@
 </div>
 
 <script>
+
+    async function updateExercises() {
+try {
+        const exercisesResponse = await fetch('/updateExercises?userId=1', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const exercises = await exercisesResponse.json();
+        // Handle exercises as needed
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+    }
+}
+
     document.addEventListener('DOMContentLoaded', async function() {
         let allTopics = [];
         let allRules = [];
@@ -494,6 +510,7 @@ const validateForm = () => {
         if (response.ok) {
             console.log('Form submitted successfully');
             messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
+            updateExercises();
         } else {
             console.error('Error submitting form:', response.statusText);
             messageContainer.innerHTML = '<div class="alert alert-danger">Error submitting form</div>';
@@ -507,8 +524,6 @@ const validateForm = () => {
     }
     document.getElementById('learningSentence').value = '';
 });
-
-
 
         // Add the initial translation container
         const initialTranslationContainer = await createTranslationContainer(true);

@@ -17,15 +17,21 @@ public class Exercise {
     private String exerciseName;
 
     @Column(columnDefinition = "text[]")
+    private String[] sentencesId;
+
+    @Column(columnDefinition = "text[]")
     private String[] currentSentencesId;
 
     @Column(columnDefinition = "text[]")
-    private String[] currentTopicsIds;
+    private String[] topicsIds;
 
     @Column(columnDefinition = "text[]")
-    private String[] currentRulesIds;
+    private String[] rulesIds;
     // Getters and setters
 
+    private boolean hasChanged;
+
+    private boolean isActive;
 
     public Long getExerciseId() {
         return exerciseId;
@@ -48,7 +54,7 @@ public class Exercise {
     }
 
     public void setCurrentSentencesId(String[] currentSentencesId) {
-        this.currentSentencesId = currentSentencesId;
+       this.currentSentencesId = currentSentencesId;
     }
 
     public String getExerciseName() {
@@ -59,19 +65,43 @@ public class Exercise {
         this.exerciseName = sentenceName;
     }
 
-    public String[] getCurrentTopicsIds() {
-        return currentTopicsIds;
+    public String[] getSentencesId() {
+        return sentencesId;
     }
 
-    public void setCurrentTopicsIds(String[] currentTopicsIds) {
-        this.currentTopicsIds = currentTopicsIds;
+    public void setSentencesId(String[] sentencesId) {
+        this.sentencesId = sentencesId;
     }
 
-    public String[] getCurrentRulesIds() {
-        return currentRulesIds;
+    public String[] getTopicsIds() {
+        return topicsIds;
     }
 
-    public void setCurrentRulesIds(String[] currentRulesIds) {
-        this.currentRulesIds = currentRulesIds;
+    public void setTopicsIds(String[] topicsIds) {
+        this.topicsIds = topicsIds;
+    }
+
+    public boolean isHasChanged() {
+        return hasChanged;
+    }
+
+    public void setHasChanged(boolean hasChanged) {
+        this.hasChanged = hasChanged;
+    }
+
+    public String[] getRulesIds() {
+        return rulesIds;
+    }
+
+    public void setRulesIds(String[] rulesIds) {
+        this.rulesIds = rulesIds;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

@@ -8,6 +8,8 @@ public class ExerciseResponse {
     private List<String> currentTopicsIds;
     private List<String> currentRulesIds;
 
+    private Long numberOfSentences;
+
     // Getters and Setters
     public Long getExerciseId() {
         return exerciseId;
@@ -39,5 +41,13 @@ public class ExerciseResponse {
 
     public void setCurrentRulesIds(List<String> currentRulesIds) {
         this.currentRulesIds = currentRulesIds;
+    }
+
+    public Long getNumberOfSentences() {
+        return numberOfSentences;
+    }
+
+    public void setNumberOfSentences(Long numberOfSentences) {
+        this.numberOfSentences = numberOfSentences;
     }
 }
