@@ -1,7 +1,3 @@
-mail:
-    debug: true
-recaptcha:
-    secret: 6LeWk28pAAAAAGq0gsC5B7ZzWFQFShhFG3ntLzrs
 spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/englishByHeart
@@ -17,12 +13,6 @@ spring:
                         non_contextual_creation: true
         hibernate:
             ddl-auto: create
-    mail:
-        host: smtp.gmail.com
-        password: tqzv phll gjxs kzol
-        port: 465
-        protocol: smtps
-        username: k.s.klimkov@gmail.com
     session:
         jdbc:
             initialize-schema: always
