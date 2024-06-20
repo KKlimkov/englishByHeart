@@ -27,7 +27,6 @@ public class ExerciseService {
     private static final String TRANSLATIONS_BY_SENTENCE_ID_API_URL = "http://localhost:8080/translations/translations";
 
 
-
     @Autowired
     private ExerciseRepository exerciseRepository;
 
