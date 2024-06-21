@@ -1,6 +1,8 @@
 package org.example.englishByHeart.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ public class Translation {
     @JsonIgnore
     private List<TranslationRule> translationRuleLinks = new ArrayList<>();
 
+    @Transient
+    private List<RuleAndLink> rulesAndLinks;
     // Constructors, getters, setters
 
 
@@ -54,5 +58,46 @@ public class Translation {
 
     public void setTranslationRuleLinks(List<TranslationRule> translationRuleLinks) {
         this.translationRuleLinks = translationRuleLinks;
+    }
+
+    public List<RuleAndLink> getRulesAndLinks() {
+        return rulesAndLinks;
+    }
+
+    public void setRulesAndLinks(List<RuleAndLink> rulesAndLinks) {
+        this.rulesAndLinks = rulesAndLinks;
+    }
+
+}
+
+class RuleAndLink {
+    private String rule;
+    private String link;
+
+    public RuleAndLink() {
+    }
+
+    @JsonCreator
+    public RuleAndLink(@JsonProperty("rule") String rule, @JsonProperty("link") String link) {
+        this.rule = rule;
+        this.link = link;
+    }
+
+    // Getters and setters
+
+    public String getRule() {
+        return rule;
+    }
+
+    public void setRule(String rule) {
+        this.rule = rule;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
