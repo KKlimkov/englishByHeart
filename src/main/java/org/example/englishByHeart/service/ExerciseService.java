@@ -104,8 +104,8 @@ public class ExerciseService {
         return exerciseRepository.saveAll(exercises);
     }
 
-    public List<Long> getCurrentSentencesIdsByUserId(Long userId) {
-        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+    public List<Long> getCurrentSentencesIdsByUserId(Long userId, Long exerciseId) {
+        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseId(userId, exerciseId);
         Exercise exercise = exercises.isEmpty() ? null : exercises.get(0);
         if (exercise == null || exercise.getSentencesId() == null) {
             return Collections.emptyList();
@@ -172,8 +172,8 @@ public class ExerciseService {
         return response;
     }
 
-    public List<ExerciseResponse> getExercisesByUserId(Long userId) {
-        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+    public List<ExerciseResponse> getExercisesByUserId(Long userId, Long exerciseId) {
+        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseId(userId, exerciseId);
         List<ExerciseResponse> exerciseResponses = new ArrayList<>();
 
         for (Exercise exercise : exercises) {

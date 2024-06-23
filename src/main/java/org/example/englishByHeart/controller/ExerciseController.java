@@ -36,9 +36,12 @@ public class ExerciseController {
     }
 
     @GetMapping("/currentSentencesIds")
-    public ResponseEntity<List<Long>> getCurrentSentencesIdsByUserId(@RequestParam Long userId) {
-        List<Long> currentSentencesIds = exerciseService.getCurrentSentencesIdsByUserId(userId);
-        return ResponseEntity.ok(currentSentencesIds);
+    public ResponseEntity<List<Long>> getCurrentSentencesIdsByUserId(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long exerciseId
+    ) {
+        List<Long> sentencesIds = exerciseService.getCurrentSentencesIdsByUserId(userId, exerciseId);
+        return ResponseEntity.ok(sentencesIds);
     }
 
     @GetMapping("/exercises")
@@ -99,8 +102,11 @@ public class ExerciseController {
     }
 
     @GetMapping("/exercisesByUserId")
-    public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(@RequestParam Long userId) {
-        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId);
+    public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long exerciseId
+    ) {
+        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId, exerciseId);
         return ResponseEntity.ok(exercises);
     }
 
