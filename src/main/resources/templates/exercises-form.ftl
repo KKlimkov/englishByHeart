@@ -118,6 +118,8 @@ function createExerciseCard(exercise) {
         ? exercise.currentRulesIds.join(', ')
         : 'No rules available';
 
+    const exerciseId = exercise.exerciseId;
+
     const cardContent = `
         <div class="card mb-4">
             <div class="card-body">
@@ -125,6 +127,7 @@ function createExerciseCard(exercise) {
                 <p class="card-text"><strong>Topics:</strong> </p>
                 <p class="card-text"><strong>Rules:</strong> </p>
                 <p class="card-text"><strong>Number of Sentences:</strong> </p>
+                <button class="btn btn-primary start-btn">Start</button>
             </div>
         </div>
     `;
@@ -137,9 +140,63 @@ function createExerciseCard(exercise) {
     card.querySelector('.card-text:nth-of-type(2)').append(document.createTextNode(rules));
     card.querySelector('.card-text:nth-of-type(3)').append(document.createTextNode(numberOfSentences));
 
+    const startButton = card.querySelector('.start-btn');
+    startButton.setAttribute('data-exercise-id', exercise.exerciseId);
+    startButton.addEventListener('click', function() {
+        startLesson(exercise.exerciseId);
+        postLessonForm('test');
+    });
     return card;
 }
 
+async function startLesson(exerciseId) {
+    try {
+        const url = '/api/lesson/startLesson?exerciseId=' + exerciseId;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*'
+            },
+            body: '' // Empty body as per the request
+        });
+
+        if (response.ok) {
+            console.log('Lesson started successfully!');
+
+            // Handle success case
+        } else {
+            console.error('Failed to start lesson:', response.statusText);
+            // Handle error case
+        }
+    } catch (error) {
+        console.error('Error starting lesson:', error);
+    }
+}
+
+async function postLessonForm(learningSentence) {
+    try {
+        const url = '/lesson-form';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                learningSentence: learningSentence
+            })
+        });
+
+        if (response.ok) {
+            console.log('Lesson form posted successfully!');
+            // Handle success case if needed
+        } else {
+            console.error('Failed to post lesson form:', response.statusText);
+            // Handle error case if needed
+        }
+    } catch (error) {
+        console.error('Error posting lesson form:', error);
+    }
+}
 
      async function fetchTopicsAndRules() {
      try {

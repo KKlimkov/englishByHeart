@@ -11,6 +11,7 @@ public class Lesson {
     private String comment;
     private String userLink;
     private List<Translation> translations;
+    private List<Long> modifiedArray;
 
     // Getters and setters...
 
@@ -60,5 +61,13 @@ public class Lesson {
 
     public void setTranslations(List<Translation> translations) {
         this.translations = translations;
+    }
+
+    public List<Long> getModifiedArray() {
+        return modifiedArray;
+    }
+
+    public void setModifiedArray(List<Long> modifiedArray) {
+        this.modifiedArray = modifiedArray;
     }
 }

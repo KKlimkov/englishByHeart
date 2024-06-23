@@ -7,16 +7,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/rules-form">Rules</a>
+                    <a class="nav-link" href="/lesson-form">Lesson</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/topics-form">Topics</a>
+                    <a class="nav-link" href="/exercises-form">Exercises</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/sentences-form">Sentences</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/exercises-form">Exercises</a>
+                    <a class="nav-link" href="/rules-form">Rules</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/topics-form">Topics</a>
                 </li>
             </ul>
         </div>

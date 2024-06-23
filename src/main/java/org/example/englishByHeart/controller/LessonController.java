@@ -3,10 +3,9 @@ package org.example.englishByHeart.controller;
 import org.example.englishByHeart.dto.Lesson;
 import org.example.englishByHeart.service.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lesson")
@@ -18,6 +17,11 @@ public class LessonController {
     @GetMapping("/getLesson/{sentenceId}")
     public Lesson getLesson(@PathVariable Long sentenceId) {
         return lessonService.getLesson(sentenceId);
+    }
+
+    @PostMapping("/startLesson")
+    public Map<String, Object> startLesson(@RequestParam Long exerciseId) {
+        return lessonService.startLesson(exerciseId);
     }
 }
 
