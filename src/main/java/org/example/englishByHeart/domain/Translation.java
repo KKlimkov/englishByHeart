@@ -27,7 +27,6 @@ public class Translation {
     private List<RuleAndLink> rulesAndLinks;
     // Constructors, getters, setters
 
-
     public Long getTranslateId() {
         return translateId;
     }
@@ -77,13 +76,10 @@ class RuleAndLink {
     public RuleAndLink() {
     }
 
-    @JsonCreator
-    public RuleAndLink(@JsonProperty("rule") String rule, @JsonProperty("link") String link) {
+    public RuleAndLink(String rule, String link) {
         this.rule = rule;
         this.link = link;
     }
-
-    // Getters and setters
 
     public String getRule() {
         return rule;

@@ -38,14 +38,6 @@ public class LessonService {
         lesson.setUserLink(sentence.getUserLink());
         lesson.setTranslations(translations);
 
-        // Adding rules and links to each translation
-        for (Translation translation : translations) {
-            List<RuleAndLink> rulesAndLinks = translation.getTranslationRuleLinks().stream()
-                    .map(tr -> new RuleAndLink(tr.getRule().getRule(), tr.getRule().getLink()))
-                    .toList();
-            translation.setRulesAndLinks(rulesAndLinks);
-        }
-
         return lesson;
     }
 }

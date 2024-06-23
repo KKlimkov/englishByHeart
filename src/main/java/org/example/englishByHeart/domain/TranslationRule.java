@@ -10,6 +10,7 @@ public class TranslationRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne
     @JoinColumn(name = "translate_id")
     private Translation translation;
