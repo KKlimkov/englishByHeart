@@ -1,6 +1,7 @@
 package org.example.englishByHeart.webController;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,8 +40,9 @@ public class webController {
     }
 
     @PostMapping("/lesson-form")
-    public String showLessonForm(@RequestParam String learningSentence) {
-        return "lesson-form";
+    public String showLessonForm(@RequestParam String learningSentence, Model model) {
+        model.addAttribute("learningSentence", learningSentence);
+        return "redirect:/lesson-form";
     }
 
     // Add mappings for Rules, Topics, Sentences, and Exercises as needed

@@ -141,10 +141,22 @@ function createExerciseCard(exercise) {
     card.querySelector('.card-text:nth-of-type(3)').append(document.createTextNode(numberOfSentences));
 
     const startButton = card.querySelector('.start-btn');
-    startButton.setAttribute('data-exercise-id', exercise.exerciseId);
-    startButton.addEventListener('click', function() {
-        startLesson(exercise.exerciseId);
-        postLessonForm('test');
+    startButton.addEventListener('click', async function() {
+        try {
+            // Start lesson and get response
+            const response = await startLesson(exercise.exerciseId);
+
+            // Check if response has learningSentence
+            const learningSentence = response.learningSentence;
+            console.log(learningSentence);
+            // Call postLessonForm with the learningSentence
+            await postLessonForm(learningSentence);
+
+            // Handle success case if needed
+        } catch (error) {
+            console.error('Error starting or posting lesson:', error);
+            // Handle error case if needed
+        }
     });
     return card;
 }
@@ -162,7 +174,6 @@ async function startLesson(exerciseId) {
 
         if (response.ok) {
             console.log('Lesson started successfully!');
-
             // Handle success case
         } else {
             console.error('Failed to start lesson:', response.statusText);
@@ -188,6 +199,7 @@ async function postLessonForm(learningSentence) {
 
         if (response.ok) {
             console.log('Lesson form posted successfully!');
+            //window.location.href = '/lesson-form';
             // Handle success case if needed
         } else {
             console.error('Failed to post lesson form:', response.statusText);
