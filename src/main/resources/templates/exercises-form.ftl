@@ -105,6 +105,54 @@ function renderExercises(exercises) {
     }
 }
 
+async function startLesson(exerciseId) {
+    try {
+        const url = '/api/lesson/startLesson?exerciseId=' + exerciseId;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*'
+            },
+            body: '' // Empty body as per the request
+        });
+
+        if (response.ok) {
+            const data = await response.json(); // Get the JSON response
+            console.log('Lesson started successfully!', data);
+            return data; // Return the JSON data
+        } else {
+            console.error('Failed to start lesson:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error starting lesson:', error);
+    }
+}
+
+async function postLessonForm(learningSentence) {
+    try {
+        const url = '/lesson-form';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                learningSentence: learningSentence
+            })
+        });
+
+        if (response.ok) {
+            const lessonFormHtml = await response.text(); // Get the HTML content as text
+            console.log('Lesson form posted successfully!');
+            document.getElementById('main-content').innerHTML = lessonFormHtml; // Insert the content into main-content
+        } else {
+            console.error('Failed to post lesson form:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error posting lesson form:', error);
+    }
+}
+
 function createExerciseCard(exercise) {
     const card = document.createElement('div');
     card.className = 'col-md-4';
@@ -147,68 +195,19 @@ function createExerciseCard(exercise) {
             const response = await startLesson(exercise.exerciseId);
 
             // Check if response has learningSentence
-            const learningSentence = response.learningSentence;
-            console.log(learningSentence);
-            // Call postLessonForm with the learningSentence
-            await postLessonForm(learningSentence);
+            if (response && response.learningSentence) {
+                // Call postLessonForm with the learningSentence
+                await postLessonForm(response.learningSentence);
+            }
 
-            // Handle success case if needed
         } catch (error) {
             console.error('Error starting or posting lesson:', error);
-            // Handle error case if needed
         }
     });
+
     return card;
 }
 
-async function startLesson(exerciseId) {
-    try {
-        const url = '/api/lesson/startLesson?exerciseId=' + exerciseId;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Accept': '*/*'
-            },
-            body: '' // Empty body as per the request
-        });
-
-        if (response.ok) {
-            console.log('Lesson started successfully!');
-            // Handle success case
-        } else {
-            console.error('Failed to start lesson:', response.statusText);
-            // Handle error case
-        }
-    } catch (error) {
-        console.error('Error starting lesson:', error);
-    }
-}
-
-async function postLessonForm(learningSentence) {
-    try {
-        const url = '/lesson-form';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                learningSentence: learningSentence
-            })
-        });
-
-        if (response.ok) {
-            console.log('Lesson form posted successfully!');
-            //window.location.href = '/lesson-form';
-            // Handle success case if needed
-        } else {
-            console.error('Failed to post lesson form:', response.statusText);
-            // Handle error case if needed
-        }
-    } catch (error) {
-        console.error('Error posting lesson form:', error);
-    }
-}
 
      async function fetchTopicsAndRules() {
      try {
