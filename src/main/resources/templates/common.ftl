@@ -149,10 +149,8 @@
 <body>
 <!-- Content Area -->
 
-<div id="main-content">
-    <#include "navbar.ftl">
-    <!-- Initial content here -->
-</div>
+<#include "navbar.ftl">
+
 <!-- Bootstrap JS (Optional) -->
 <script src="/bootstrap.bundle.min.js"></script>
 <!-- Custom Scripts -->

@@ -119,4 +119,14 @@ public class ExerciseController {
         }
         return ResponseEntity.ok(updatedExercises);
     }
+
+    @PutMapping("/activate/{exerciseId}")
+    public ResponseEntity<String> activateExercise(@PathVariable Long exerciseId, @RequestParam Long userId) {
+        boolean isActivated = exerciseService.activateExercise(exerciseId, userId);
+        if (isActivated) {
+            return ResponseEntity.ok("Exercise activated successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Exercise not found.");
+        }
+    }
 }

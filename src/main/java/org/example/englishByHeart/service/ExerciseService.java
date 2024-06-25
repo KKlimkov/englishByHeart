@@ -1,5 +1,6 @@
 package org.example.englishByHeart.service;
 
+import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.CreateExerciseRequest;
 import org.example.englishByHeart.dto.ExerciseResponse;
@@ -268,5 +269,14 @@ public class ExerciseService {
         return exerciseRepository.saveAll(exercises);
     }
 
+    @Transactional
+    public boolean activateExercise(Long exerciseId, Long userId) {
+        // Deactivate all exercises for the user
+        exerciseRepository.deactivateAllExercisesByUserId(userId);
 
+        // Activate the new exercise
+        int updatedRows = exerciseRepository.activateExerciseById(exerciseId);
+
+        return updatedRows > 0;
+    }
 }

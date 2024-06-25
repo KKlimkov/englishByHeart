@@ -105,11 +105,11 @@ function renderExercises(exercises) {
     }
 }
 
-async function startLesson(exerciseId) {
+async function activateExercise(exerciseId) {
     try {
-        const url = '/api/lesson/startLesson?exerciseId=' + exerciseId;
+        const url = '/activate/' + exerciseId + '?userId=1';
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Accept': '*/*'
             },
@@ -117,39 +117,12 @@ async function startLesson(exerciseId) {
         });
 
         if (response.ok) {
-            const data = await response.json(); // Get the JSON response
-            console.log('Lesson started successfully!', data);
-            return data; // Return the JSON data
+            console.log('Lesson updated successfully!', data);
         } else {
-            console.error('Failed to start lesson:', response.statusText);
+            console.error('Failed to update lesson:', response.statusText);
         }
     } catch (error) {
-        console.error('Error starting lesson:', error);
-    }
-}
-
-async function postLessonForm(learningSentence) {
-    try {
-        const url = '/lesson-form';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                learningSentence: learningSentence
-            })
-        });
-
-        if (response.ok) {
-            const lessonFormHtml = await response.text(); // Get the HTML content as text
-            console.log('Lesson form posted successfully!');
-            document.getElementById('main-content').innerHTML = lessonFormHtml; // Insert the content into main-content
-        } else {
-            console.error('Failed to post lesson form:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Error posting lesson form:', error);
+        console.error('Error updating lesson:', error);
     }
 }
 
@@ -192,14 +165,7 @@ function createExerciseCard(exercise) {
     startButton.addEventListener('click', async function() {
         try {
             // Start lesson and get response
-            const response = await startLesson(exercise.exerciseId);
-
-            // Check if response has learningSentence
-            if (response && response.learningSentence) {
-                // Call postLessonForm with the learningSentence
-                await postLessonForm(response.learningSentence);
-            }
-
+            const response = await activateExercise(exercise.exerciseId);
         } catch (error) {
             console.error('Error starting or posting lesson:', error);
         }

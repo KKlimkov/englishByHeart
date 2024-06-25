@@ -1,7 +1,9 @@
 package org.example.englishByHeart.repos;
 
+import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.Exercise;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,5 +22,15 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
             @Param("userId") Long userId,
             @Param("exerciseId") Long exerciseId
     );
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Exercise e SET e.isActive = false WHERE e.userId = :userId")
+    int deactivateAllExercisesByUserId(Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Exercise e SET e.isActive = true WHERE e.exerciseId = :exerciseId")
+    int activateExerciseById(Long exerciseId);
 
 }
