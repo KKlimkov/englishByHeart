@@ -33,4 +33,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     @Query("UPDATE Exercise e SET e.isActive = true WHERE e.exerciseId = :exerciseId")
     int activateExerciseById(Long exerciseId);
 
+    @Query("SELECT e.exerciseId FROM Exercise e WHERE e.isActive = true AND e.userId = ?1")
+    Optional<Long> findActiveExerciseIdByUserId(Long userId);
 }

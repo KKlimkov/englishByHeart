@@ -279,4 +279,8 @@ public class ExerciseService {
 
         return updatedRows > 0;
     }
+
+    public Optional<Long> findActiveExerciseIdByUserId(Long userId) {
+        return exerciseRepository.findActiveExerciseIdByUserId(userId);
+    }
 }

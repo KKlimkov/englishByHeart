@@ -44,7 +44,11 @@ public class LessonService {
         return lesson;
     }
 
-    public Map<String, Object> startLesson(Long exerciseId) {
+    public Map<String, Object> startLesson(Long userId) {
+        // Step 1: Get active exercise ID by userId
+        String activeExerciseUrl = "http://localhost:8080/activeExerciseId?userId=" + userId;
+        ResponseEntity<Long> activeExerciseResponse = restTemplate.exchange(activeExerciseUrl, HttpMethod.GET, null, Long.class);
+        Long exerciseId = activeExerciseResponse.getBody();
         // Step 1: Get current sentence IDs
         String currentSentencesUrl = "http://localhost:8080/currentSentencesIds?exerciseId=" + exerciseId;
         ResponseEntity<List<Long>> currentSentencesResponse =

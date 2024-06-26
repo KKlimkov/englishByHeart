@@ -129,4 +129,11 @@ public class ExerciseController {
             return ResponseEntity.status(404).body("Exercise not found.");
         }
     }
+
+    @GetMapping("/activeExerciseId")
+    public ResponseEntity<Long> getActiveExerciseId(@RequestParam Long userId) {
+        return exerciseService.findActiveExerciseIdByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

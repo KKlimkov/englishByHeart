@@ -20,8 +20,8 @@ public class LessonController {
     }
 
     @PostMapping("/startLesson")
-    public Map<String, Object> startLesson(@RequestParam Long exerciseId) {
-        return lessonService.startLesson(exerciseId);
+    public Map<String, Object> startLesson(@RequestParam Long userId) {
+        return lessonService.startLesson(userId);
     }
 }
 

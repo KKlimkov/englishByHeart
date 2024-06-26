@@ -166,6 +166,7 @@ function createExerciseCard(exercise) {
         try {
             // Start lesson and get response
             const response = await activateExercise(exercise.exerciseId);
+            window.location.href = '/lesson-form';
         } catch (error) {
             console.error('Error starting or posting lesson:', error);
         }
