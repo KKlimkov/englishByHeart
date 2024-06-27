@@ -12,6 +12,8 @@ public class Exercise {
     @Schema(hidden = true)
     private Long exerciseId;
 
+    private Long currentSentenceId;
+
     private Long userId;
 
     private String exerciseName;
@@ -103,5 +105,13 @@ public class Exercise {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public Long getCurrentSentenceId() {
+        return currentSentenceId;
+    }
+
+    public void setCurrentSentenceId(Long currentSentenceId) {
+        this.currentSentenceId = currentSentenceId;
     }
 }

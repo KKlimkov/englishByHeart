@@ -5,6 +5,7 @@ import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.CreateExerciseRequest;
 import org.example.englishByHeart.dto.ExerciseResponse;
 import org.example.englishByHeart.dto.TranslationWithRuleDTO;
+import org.example.englishByHeart.dto.UpdateExerciseRequest;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,9 @@ public class ExerciseService {
     }
 
     private String[] convertListToStringArray(List<Long> list) {
+        if (list == null) {
+            return new String[0];
+        }
         return list.stream()
                 .map(String::valueOf)
                 .toArray(String[]::new);
@@ -282,5 +286,44 @@ public class ExerciseService {
 
     public Optional<Long> findActiveExerciseIdByUserId(Long userId) {
         return exerciseRepository.findActiveExerciseIdByUserId(userId);
+    }
+
+    @Transactional
+    public Optional<Exercise> updateExerciseByExerciseId(Long exerciseId, UpdateExerciseRequest request) {
+        Optional<Exercise> optionalExercise = exerciseRepository.findById(exerciseId);
+
+        if (optionalExercise.isPresent()) {
+            Exercise exercise = optionalExercise.get();
+
+            if (request.getUserId() != null && !exercise.getUserId().equals(request.getUserId())) {
+                logger.warn("User ID does not match the exercise's user ID");
+                return Optional.empty();
+            }
+
+            if (request.getExerciseName() != null) {
+                exercise.setExerciseName(request.getExerciseName());
+            }
+            if (request.getCurrentSentenceId() != null) {
+                exercise.setCurrentSentenceId(request.getCurrentSentenceId());
+            }
+            if (request.getSentencesId() != null) {
+                exercise.setSentencesId(convertListToStringArray(request.getSentencesId()));
+            }
+            if (request.getCurrentSentencesId() != null) {
+                exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
+            }
+            if (request.getTopicsIds() != null) {
+                exercise.setTopicsIds(convertListToStringArray(request.getTopicsIds()));
+            }
+            if (request.getRulesIds() != null) {
+                exercise.setRulesIds(convertListToStringArray(request.getRulesIds()));
+            }
+
+            exerciseRepository.save(exercise);
+            return Optional.of(exercise);
+        } else {
+            logger.warn("Exercise not found with ID: " + exerciseId);
+            return Optional.empty();
+        }
     }
 }

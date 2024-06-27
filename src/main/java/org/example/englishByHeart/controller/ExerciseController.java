@@ -136,4 +136,17 @@ public class ExerciseController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/updateExerciseByExerciseId/{exerciseId}")
+    public ResponseEntity<Exercise> updateExerciseByExerciseId(
+            @PathVariable Long exerciseId,
+            @RequestBody UpdateExerciseRequest request) {
+        Optional<Exercise> updatedExercise = exerciseService.updateExerciseByExerciseId(exerciseId, request);
+
+        if (updatedExercise.isPresent()) {
+            return ResponseEntity.ok(updatedExercise.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
