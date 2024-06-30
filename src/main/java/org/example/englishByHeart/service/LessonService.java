@@ -3,7 +3,7 @@ package org.example.englishByHeart.service;
 import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.dto.Lesson;
-import org.example.englishByHeart.dto.PickedElementResponse;
+import org.example.englishByHeart.dto.PickedElementResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -57,9 +57,9 @@ public class LessonService {
 
         // Step 2: Remove a random element
         String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
-        ResponseEntity<PickedElementResponse> pickedElementResponse =
-                restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponse.class);
-        PickedElementResponse pickedElement = pickedElementResponse.getBody();
+        ResponseEntity<PickedElementResponseDTO> pickedElementResponse =
+                restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponseDTO.class);
+        PickedElementResponseDTO pickedElement = pickedElementResponse.getBody();
 
         // Step 3: Get lesson details
         Long pickedSentenceId = pickedElement.getPickedElement();

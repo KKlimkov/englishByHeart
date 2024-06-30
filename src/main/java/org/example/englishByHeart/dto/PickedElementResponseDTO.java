@@ -1,15 +1,17 @@
 package org.example.englishByHeart.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-public class PickedElementResponse {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class PickedElementResponseDTO {
     private List<Long> modifiedArray;
     private Long pickedElement;
-
-    public PickedElementResponse() {
-        // Default constructor needed by Jackson
-    }
-    // Getters and setters
 
     public List<Long> getModifiedArray() {
         return modifiedArray;

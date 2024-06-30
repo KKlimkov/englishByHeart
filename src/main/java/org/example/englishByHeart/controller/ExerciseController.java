@@ -6,6 +6,7 @@ import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.example.englishByHeart.service.ExerciseService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 
 @RestController
@@ -23,6 +25,7 @@ public class ExerciseController {
 
     @Autowired
     ExerciseRepository exerciseRepository;
+
 
     @PostMapping("/removeRandomElement")
     public ExerciseService.PickedElementResponse removeRandomElement(@RequestBody List<Long> array) {
@@ -130,23 +133,19 @@ public class ExerciseController {
         }
     }
 
-    @GetMapping("/activeExerciseId")
-    public ResponseEntity<Long> getActiveExerciseId(@RequestParam Long userId) {
-        return exerciseService.findActiveExerciseIdByUserId(userId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @PutMapping("/updateExerciseByExerciseId/{exerciseId}")
     public ResponseEntity<Exercise> updateExerciseByExerciseId(
             @PathVariable Long exerciseId,
             @RequestBody UpdateExerciseRequest request) {
-        Optional<Exercise> updatedExercise = exerciseService.updateExerciseByExerciseId(exerciseId, request);
-
-        if (updatedExercise.isPresent()) {
-            return ResponseEntity.ok(updatedExercise.get());
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            Optional<Exercise> updatedExercise = exerciseService.updateExerciseByExerciseId(exerciseId, request);
+            if (updatedExercise.isPresent()) {
+                return ResponseEntity.ok(updatedExercise.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

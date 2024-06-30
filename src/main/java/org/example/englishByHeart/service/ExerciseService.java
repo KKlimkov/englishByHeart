@@ -1,18 +1,20 @@
 package org.example.englishByHeart.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.*;
-import org.example.englishByHeart.dto.CreateExerciseRequest;
-import org.example.englishByHeart.dto.ExerciseResponse;
-import org.example.englishByHeart.dto.TranslationWithRuleDTO;
-import org.example.englishByHeart.dto.UpdateExerciseRequest;
+import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -275,55 +277,111 @@ public class ExerciseService {
 
     @Transactional
     public boolean activateExercise(Long exerciseId, Long userId) {
-        // Deactivate all exercises for the user
-        exerciseRepository.deactivateAllExercisesByUserId(userId);
+        Logger logger = LoggerFactory.getLogger(LessonService.class);
+        try {
+            // Deactivate all exercises for the user
+            exerciseRepository.deactivateAllExercisesByUserId(userId);
 
-        // Activate the new exercise
-        int updatedRows = exerciseRepository.activateExerciseById(exerciseId);
+            // Activate the new exercise
+            int updatedRows = exerciseRepository.activateExerciseById(exerciseId);
+            logger.info("Updated rows: {}", updatedRows);
 
-        return updatedRows > 0;
+            if (updatedRows > 0) {
+                // Fetch the current sentence IDs
+                String currentSentencesUrl = "http://localhost:8080/currentSentencesIds?exerciseId=" + exerciseId;
+                ResponseEntity<List<Long>> currentSentencesResponse =
+                        restTemplate.exchange(currentSentencesUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {});
+                List<Long> sentenceIds = currentSentencesResponse.getBody();
+                logger.info("Fetched sentence IDs: {}", sentenceIds);
+
+                // Remove a random element
+                String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
+                ResponseEntity<PickedElementResponseDTO> pickedElementResponse =
+                        restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponseDTO.class);
+                PickedElementResponseDTO pickedElement = pickedElementResponse.getBody();
+                Long pickedSentenceId = pickedElement.getPickedElement();
+                List<Long> modifiedSentenceIds = pickedElement.getModifiedArray();
+                logger.info("Picked sentence ID: {}", pickedSentenceId);
+                logger.info("Modified sentence IDs: {}", modifiedSentenceIds);
+
+                // Create the request object
+                UpdateExerciseRequestForUpdate updateRequest = new UpdateExerciseRequestForUpdate();
+                updateRequest.setUserId(userId);
+                updateRequest.setCurrentSentenceId(pickedSentenceId);
+                updateRequest.setCurrentSentencesId(modifiedSentenceIds);
+
+                // Debugging log before sending the request
+                String updateExerciseUrl = "http://localhost:8080/updateExerciseByExerciseId/" + exerciseId;
+                logger.info("Sending update request to URL: {}", updateExerciseUrl);
+                logger.info("Update request payload: {}", new ObjectMapper().writeValueAsString(updateRequest));
+
+                // Update the exercise
+                restTemplate.put(updateExerciseUrl, updateRequest);
+
+                // Debugging log after the request
+                logger.info("Update request sent successfully to URL: {}", updateExerciseUrl);
+
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred while activating exercise", e);
+        }
+
+        return false;
     }
 
-    public Optional<Long> findActiveExerciseIdByUserId(Long userId) {
-        return exerciseRepository.findActiveExerciseIdByUserId(userId);
-    }
-
-    @Transactional
     public Optional<Exercise> updateExerciseByExerciseId(Long exerciseId, UpdateExerciseRequest request) {
-        Optional<Exercise> optionalExercise = exerciseRepository.findById(exerciseId);
+        Logger logger = LoggerFactory.getLogger(LessonService.class);
+        try {
+            Optional<Exercise> optionalExercise = exerciseRepository.findById(exerciseId);
 
-        if (optionalExercise.isPresent()) {
-            Exercise exercise = optionalExercise.get();
+            if (optionalExercise.isPresent()) {
+                Exercise exercise = optionalExercise.get();
 
-            if (request.getUserId() != null && !exercise.getUserId().equals(request.getUserId())) {
-                logger.warn("User ID does not match the exercise's user ID");
+                if (request.getUserId() != null && !exercise.getUserId().equals(request.getUserId())) {
+                    logger.warn("User ID does not match the exercise's user ID");
+                    return Optional.empty();
+                }
+
+                if (request.getExerciseName() != null) {
+                    exercise.setExerciseName(request.getExerciseName());
+                }
+                if (request.getCurrentSentenceId() != null) {
+                    exercise.setCurrentSentenceId(request.getCurrentSentenceId());
+                }
+                if (request.getSentencesId() != null) {
+                    exercise.setSentencesId(convertListToStringArray(request.getSentencesId()));
+                }
+                if (request.getCurrentSentencesId() != null) {
+                    exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
+                }
+                if (request.getTopicsIds() != null) {
+                    exercise.setTopicsIds(convertListToStringArray(request.getTopicsIds()));
+                }
+                if (request.getRulesIds() != null) {
+                    exercise.setRulesIds(convertListToStringArray(request.getRulesIds()));
+                }
+
+                exerciseRepository.save(exercise);
+                return Optional.of(exercise);
+            } else {
+                logger.warn("Exercise not found with ID: " + exerciseId);
                 return Optional.empty();
             }
-
-            if (request.getExerciseName() != null) {
-                exercise.setExerciseName(request.getExerciseName());
-            }
-            if (request.getCurrentSentenceId() != null) {
-                exercise.setCurrentSentenceId(request.getCurrentSentenceId());
-            }
-            if (request.getSentencesId() != null) {
-                exercise.setSentencesId(convertListToStringArray(request.getSentencesId()));
-            }
-            if (request.getCurrentSentencesId() != null) {
-                exercise.setCurrentSentencesId(convertListToStringArray(request.getCurrentSentencesId()));
-            }
-            if (request.getTopicsIds() != null) {
-                exercise.setTopicsIds(convertListToStringArray(request.getTopicsIds()));
-            }
-            if (request.getRulesIds() != null) {
-                exercise.setRulesIds(convertListToStringArray(request.getRulesIds()));
-            }
-
-            exerciseRepository.save(exercise);
-            return Optional.of(exercise);
-        } else {
-            logger.warn("Exercise not found with ID: " + exerciseId);
+        } catch (Exception e) {
+            logger.error("Error occurred while updating exercise", e);
             return Optional.empty();
+        }
+    }
+
+    private void logRequestDetails(String url, Object request) {
+        try {
+            // Convert request object to JSON string for logging
+            String requestBody = new ObjectMapper().writeValueAsString(request);
+            logger.info("Sending request to URL: {}", url);
+            logger.info("Request body: {}", requestBody);
+        } catch (JsonProcessingException e) {
+            logger.error("Error converting request object to JSON", e);
         }
     }
 }
