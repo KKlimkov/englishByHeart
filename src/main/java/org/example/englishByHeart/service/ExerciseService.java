@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,8 +180,8 @@ public class ExerciseService {
         return response;
     }
 
-    public List<ExerciseResponse> getExercisesByUserId(Long userId, Long exerciseId) {
-        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseId(userId, exerciseId);
+    public List<ExerciseResponse> getExercisesByUserId(Long userId, Long exerciseId, Boolean isActive) {
+        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseIdAndActive(userId, exerciseId, isActive);
         List<ExerciseResponse> exerciseResponses = new ArrayList<>();
 
         for (Exercise exercise : exercises) {
@@ -197,6 +198,11 @@ public class ExerciseService {
             response.setCurrentRulesIds(ruleNames);
 
             response.setNumberOfSentences((long) exercise.getSentencesId().length);
+
+            List<String> currentSentences = Arrays.asList(exercise.getCurrentSentencesId());
+            response.setCurrentSentencesIds(currentSentences);
+
+            response.setCurrentSentenceId(exercise.getCurrentSentenceId());
 
             exerciseResponses.add(response);
         }
@@ -275,26 +281,23 @@ public class ExerciseService {
         return exerciseRepository.saveAll(exercises);
     }
 
+
     @Transactional
     public boolean activateExercise(Long exerciseId, Long userId) {
         Logger logger = LoggerFactory.getLogger(LessonService.class);
         try {
-            // Deactivate all exercises for the user
             exerciseRepository.deactivateAllExercisesByUserId(userId);
 
-            // Activate the new exercise
             int updatedRows = exerciseRepository.activateExerciseById(exerciseId);
             logger.info("Updated rows: {}", updatedRows);
 
             if (updatedRows > 0) {
-                // Fetch the current sentence IDs
                 String currentSentencesUrl = "http://localhost:8080/currentSentencesIds?exerciseId=" + exerciseId;
                 ResponseEntity<List<Long>> currentSentencesResponse =
                         restTemplate.exchange(currentSentencesUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {});
                 List<Long> sentenceIds = currentSentencesResponse.getBody();
                 logger.info("Fetched sentence IDs: {}", sentenceIds);
 
-                // Remove a random element
                 String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
                 ResponseEntity<PickedElementResponseDTO> pickedElementResponse =
                         restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponseDTO.class);
@@ -304,22 +307,22 @@ public class ExerciseService {
                 logger.info("Picked sentence ID: {}", pickedSentenceId);
                 logger.info("Modified sentence IDs: {}", modifiedSentenceIds);
 
-                // Create the request object
                 UpdateExerciseRequestForUpdate updateRequest = new UpdateExerciseRequestForUpdate();
                 updateRequest.setUserId(userId);
                 updateRequest.setCurrentSentenceId(pickedSentenceId);
                 updateRequest.setCurrentSentencesId(modifiedSentenceIds);
 
-                // Debugging log before sending the request
                 String updateExerciseUrl = "http://localhost:8080/updateExerciseByExerciseId/" + exerciseId;
                 logger.info("Sending update request to URL: {}", updateExerciseUrl);
                 logger.info("Update request payload: {}", new ObjectMapper().writeValueAsString(updateRequest));
 
-                // Update the exercise
-                restTemplate.put(updateExerciseUrl, updateRequest);
-
-                // Debugging log after the request
-                logger.info("Update request sent successfully to URL: {}", updateExerciseUrl);
+                // Asynchronous PUT request
+                CompletableFuture.runAsync(() -> restTemplate.put(updateExerciseUrl, updateRequest))
+                        .thenAccept(result -> logger.info("Update request sent successfully to URL: {}", updateExerciseUrl))
+                        .exceptionally(ex -> {
+                            logger.error("Error occurred while sending update request", ex);
+                            return null;
+                        });
 
                 return true;
             }
@@ -329,6 +332,8 @@ public class ExerciseService {
 
         return false;
     }
+
+
 
     public Optional<Exercise> updateExerciseByExerciseId(Long exerciseId, UpdateExerciseRequest request) {
         Logger logger = LoggerFactory.getLogger(LessonService.class);

@@ -23,6 +23,13 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
             @Param("exerciseId") Long exerciseId
     );
 
+    @Query("SELECT e FROM Exercise e WHERE (:userId IS NULL OR e.userId = :userId) AND (:exerciseId IS NULL OR e.exerciseId = :exerciseId) AND (:isActive IS NULL OR e.isActive = :isActive)")
+    List<Exercise> findByUserIdAndExerciseIdAndActive(
+            @Param("userId") Long userId,
+            @Param("exerciseId") Long exerciseId,
+            @Param("isActive") Boolean isActive
+    );
+
     @Modifying
     @Transactional
     @Query("UPDATE Exercise e SET e.isActive = false WHERE e.userId = :userId")

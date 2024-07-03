@@ -13,10 +13,8 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplate() {
-        int timeout = 10000;  // 5 seconds timeout
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(timeout);
-        factory.setReadTimeout(timeout);
-        return new RestTemplate(factory);
-    }
+        factory.setConnectTimeout(5000);  // 5 seconds connection timeout
+        factory.setReadTimeout(10000);    // 10 seconds read timeout
+        return new RestTemplate(factory);}
 }

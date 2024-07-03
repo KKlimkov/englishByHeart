@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function fetchExercises() {
 
      try {
-        const exercisesResponse = await fetch('/exercisesByUserId?userId=1');
+        const exercisesResponse = await fetch('/exercisesByUserIdAndSentenceId?userId=1');
         const exercises = await exercisesResponse.json();
         renderExercises(exercises);
     } catch (error) {

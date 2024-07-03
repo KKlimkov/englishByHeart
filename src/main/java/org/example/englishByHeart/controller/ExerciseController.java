@@ -104,12 +104,13 @@ public class ExerciseController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/exercisesByUserId")
+    @GetMapping("/exercisesByUserIdAndSentenceId")
     public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Long exerciseId
+            @RequestParam(required = false) Long exerciseId,
+            @RequestParam(required = false) Boolean isActive
     ) {
-        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId, exerciseId);
+        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId, exerciseId,isActive);
         return ResponseEntity.ok(exercises);
     }
 
