@@ -23,5 +23,10 @@ public class LessonController {
     public Map<String, Object> startLesson(@RequestParam Long userId) {
         return lessonService.startLesson(userId);
     }
+
+    @PutMapping("/updateLesson")
+    public void updateLesson(@RequestParam Long userId) {
+        lessonService.updateLesson(userId);
+    }
 }
 

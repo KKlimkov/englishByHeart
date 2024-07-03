@@ -18,44 +18,44 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        fetch('http://localhost:8080/api/lesson/startLesson?userId=1', {
-            method: 'POST',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json'
-            },
-            body: ''
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Store the response data for later use
-            window.lessonData = data;
+    fetch('http://localhost:8080/api/lesson/startLesson?userId=1', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/json'
+        },
+        body: ''
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Store the response data for later use
+        window.lessonData = data;
 
-            // Update the learningSentence span with the learning sentence from the response
-            document.getElementById('learningSentence').innerText = data.learningSentence;
-        })
-        .catch(error => console.error('Error:', error));
-    });
+        // Update the learningSentence span with the learning sentence from the response
+        document.getElementById('learningSentence').innerText = data.learningSentence;
+    })
+    .catch(error => console.error('Error:', error));
+});
 
-    document.getElementById('checkButton').addEventListener('click', function() {
-        const userTranslation = document.getElementById('translation').value.trim();
-        const translations = window.lessonData.translations;
+document.getElementById('checkButton').addEventListener('click', function() {
+    const userTranslation = document.getElementById('translation').value.trim().toLowerCase();
+    const translations = window.lessonData.translations;
 
-        let isCorrect = false;
-        for (const translation of translations) {
-            if (translation.translation === userTranslation) {
-                isCorrect = true;
-                break;
-            }
+    let isCorrect = false;
+    for (const translation of translations) {
+        if (translation.translation.trim().toLowerCase() === userTranslation) {
+            isCorrect = true;
+            break;
         }
+    }
 
-        const resultMessage = document.getElementById('resultMessage');
-        if (isCorrect) {
-            resultMessage.textContent = 'Correct';
-            resultMessage.className = 'text-success';
-        } else {
-            resultMessage.textContent = 'Incorrect';
-            resultMessage.className = 'text-danger';
-        }
-    });
+    const resultMessage = document.getElementById('resultMessage');
+    if (isCorrect) {
+        resultMessage.textContent = 'Correct';
+        resultMessage.className = 'text-success';
+    } else {
+        resultMessage.textContent = 'Incorrect';
+        resultMessage.className = 'text-danger';
+    }
+});
 </script>
