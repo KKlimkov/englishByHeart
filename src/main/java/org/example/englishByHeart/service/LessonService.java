@@ -45,29 +45,25 @@ public class LessonService {
     }
 
     public Map<String, Object> startLesson(Long userId) {
-        // Step 1: Get active exercise ID by userId
-        String activeExerciseUrl = "http://localhost:8080/activeExerciseId?userId=" + userId;
-        ResponseEntity<Long> activeExerciseResponse = restTemplate.exchange(activeExerciseUrl, HttpMethod.GET, null, Long.class);
-        Long exerciseId = activeExerciseResponse.getBody();
-        // Step 1: Get current sentence IDs
-        String currentSentencesUrl = "http://localhost:8080/currentSentencesIds?exerciseId=" + exerciseId;
-        ResponseEntity<List<Long>> currentSentencesResponse =
-                restTemplate.exchange(currentSentencesUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {});
-        List<Long> sentenceIds = currentSentencesResponse.getBody();
+        // Step 1: Get active exercise and current sentence ID by userId
+        String activeExerciseUrl = "http://localhost:8080/exercisesByUserIdAndSentenceId?userId=" + userId + "&isActive=true";
+        ResponseEntity<List<Map<String, Long>>> activeExerciseResponse = restTemplate.exchange(activeExerciseUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Map<String, Long>>>() {});
+        List<Map<String, Long>> activeExercises = activeExerciseResponse.getBody();
 
-        // Step 2: Remove a random element
-        String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
-        ResponseEntity<PickedElementResponseDTO> pickedElementResponse =
-                restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponseDTO.class);
-        PickedElementResponseDTO pickedElement = pickedElementResponse.getBody();
+        if (activeExercises == null || activeExercises.isEmpty()) {
+            throw new RuntimeException("No active exercises found for user " + userId);
+        }
 
-        // Step 3: Get lesson details
-        Long pickedSentenceId = pickedElement.getPickedElement();
-        Lesson lesson = getLesson(pickedSentenceId);
+        Long exerciseId = activeExercises.get(0).get("exerciseId");
+        Long currentSentenceId = activeExercises.get(0).get("currentSentenceId");
 
-        // Step 4: Construct the final response
+        // Step 2: Get lesson details
+        String lessonDetailsUrl = "http://localhost:8080/api/lesson/getLesson/" + currentSentenceId;
+        ResponseEntity<Lesson> lessonResponse = restTemplate.exchange(lessonDetailsUrl, HttpMethod.GET, null, Lesson.class);
+        Lesson lesson = lessonResponse.getBody();
+
+        // Step 3: Construct the final response
         return Map.of(
-                "modifiedArray", pickedElement.getModifiedArray(),
                 "sentenceId", lesson.getSentenceId(),
                 "learningSentence", lesson.getLearningSentence(),
                 "comment", lesson.getComment(),
