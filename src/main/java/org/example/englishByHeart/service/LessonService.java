@@ -106,6 +106,10 @@ public class LessonService {
             Long exerciseId = ((Number) activeExercise.get("exerciseId")).longValue();
             List<Long> currentSentencesIds = (List<Long>) activeExercise.get("currentSentencesIds");
 
+            if (currentSentencesIds == null || currentSentencesIds.isEmpty()) {
+                throw new AllLessonsDoneException("All lessons have been done!");
+            }
+
             // Step 2: Remove a random element from currentSentencesIds
             String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
             ResponseEntity<Map<String, Object>> removeElementResponse = restTemplate.exchange(
@@ -129,10 +133,13 @@ public class LessonService {
             restTemplate.exchange(updateExerciseUrl, HttpMethod.PUT, new HttpEntity<>(updateExerciseRequest), Void.class);
         } catch (RestClientException e) {
             throw new RuntimeException("Request processing failed: " + e.getMessage(), e);
+        } catch (AllLessonsDoneException e) {
+            throw e; // Rethrow to be handled by the controller
         } catch (Exception e) {
             throw new RuntimeException("An error occurred: " + e.getMessage(), e);
         }
     }
 
 }
+
 

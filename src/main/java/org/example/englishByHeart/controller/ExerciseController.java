@@ -2,11 +2,9 @@ package org.example.englishByHeart.controller;
 
 import jakarta.validation.Valid;
 import org.example.englishByHeart.domain.Exercise;
-import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.example.englishByHeart.service.ExerciseService;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 
 @RestController
@@ -132,6 +129,12 @@ public class ExerciseController {
         } else {
             return ResponseEntity.status(404).body("Exercise not found.");
         }
+    }
+
+    @PutMapping("/restart")
+    public String restartExercise(@RequestParam Long userId) {
+        exerciseService.restartExercise(userId);
+        return "Ok";
     }
 
     @PutMapping("/updateExerciseByExerciseId/{exerciseId}")

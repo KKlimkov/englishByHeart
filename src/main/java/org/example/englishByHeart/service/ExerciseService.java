@@ -15,6 +15,7 @@ import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -333,7 +334,58 @@ public class ExerciseService {
         return false;
     }
 
+    public Void restartExercise(Long userId) {
+        try {
+            // Step 1: Get active exercise and current sentence ID by userId
+            String activeExerciseUrl = "http://localhost:8080/exercisesByUserIdAndSentenceId?userId=" + userId + "&isActive=true";
+            ResponseEntity<List<Map<String, Object>>> activeExerciseResponse = restTemplate.exchange(activeExerciseUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Map<String, Object>>>() {
+            });
+            List<Map<String, Object>> activeExercises = activeExerciseResponse.getBody();
 
+            // Extract exerciseId and currentSentenceId with validation
+            Long exerciseId = null;
+
+            try {
+                exerciseId = Long.parseLong(activeExercises.get(0).get("exerciseId").toString());
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Invalid format for exerciseId or currentSentenceId", e);
+            }
+
+            String currentSentencesUrl = "http://localhost:8080/currentSentencesIds?exerciseId=" + exerciseId;
+            ResponseEntity<List<Long>> currentSentencesResponse =
+                    restTemplate.exchange(currentSentencesUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Long>>() {
+                    });
+            List<Long> sentenceIds = currentSentencesResponse.getBody();
+            logger.info("Fetched sentence IDs: {}", sentenceIds);
+
+            String removeRandomElementUrl = "http://localhost:8080/removeRandomElement";
+            ResponseEntity<PickedElementResponseDTO> pickedElementResponse =
+                    restTemplate.exchange(removeRandomElementUrl, HttpMethod.POST, new HttpEntity<>(sentenceIds), PickedElementResponseDTO.class);
+            PickedElementResponseDTO pickedElement = pickedElementResponse.getBody();
+            Long pickedSentenceId = pickedElement.getPickedElement();
+            List<Long> modifiedSentenceIds = pickedElement.getModifiedArray();
+            logger.info("Picked sentence ID: {}", pickedSentenceId);
+            logger.info("Modified sentence IDs: {}", modifiedSentenceIds);
+
+            UpdateExerciseRequestForUpdate updateRequest = new UpdateExerciseRequestForUpdate();
+            updateRequest.setUserId(userId);
+            updateRequest.setCurrentSentenceId(pickedSentenceId);
+            updateRequest.setCurrentSentencesId(modifiedSentenceIds);
+
+            String updateExerciseUrl = "http://localhost:8080/updateExerciseByExerciseId/" + exerciseId;
+
+            // Asynchronous PUT request
+            CompletableFuture.runAsync(() -> restTemplate.put(updateExerciseUrl, updateRequest))
+                    .thenAccept(result -> logger.info("Update request sent successfully to URL: {}", updateExerciseUrl))
+                    .exceptionally(ex -> {
+                        logger.error("Error occurred while sending update request", ex);
+                        return null;
+                    });
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 
     public Optional<Exercise> updateExerciseByExerciseId(Long exerciseId, UpdateExerciseRequest request) {
         Logger logger = LoggerFactory.getLogger(LessonService.class);
