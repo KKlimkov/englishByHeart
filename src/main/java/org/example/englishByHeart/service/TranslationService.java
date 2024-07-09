@@ -73,4 +73,8 @@ public class TranslationService {
         }
         return dtos;
     }
+
+    public List<Translation> getTranslationsBySentenceId(Long sentenceId) {
+        return translationRepository.findBySentenceId(sentenceId);
+    }
 }

@@ -1,6 +1,7 @@
 package org.example.englishByHeart.service;
 
 import org.example.englishByHeart.controller.CustomResponse;
+import org.example.englishByHeart.dto.SentenceDtoTable;
 import org.example.englishByHeart.dto.SentenceIdResponse;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.SentenceDTO;
@@ -25,6 +26,9 @@ public class SentenceService {
 
     @Autowired
     private RuleRepository ruleRepository;
+
+    @Autowired
+    private TranslationService translationService;
 
     public List<Sentence> getAllSentences() {
         return sentenceRepository.findAll();
@@ -159,5 +163,17 @@ public class SentenceService {
         }
     }
 
+    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId) {
+        List<Sentence> sentences = sentenceRepository.findByUserId(userId);
+        List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
+
+        for (Sentence sentence : sentences) {
+            List<Translation> translations = translationService.getTranslationsBySentenceId(sentence.getSentenceId());
+            SentenceDtoTable sentenceDto = new SentenceDtoTable(sentence, translations);
+            sentenceDtos.add(sentenceDto);
+        }
+
+        return sentenceDtos;
+    }
 
 }

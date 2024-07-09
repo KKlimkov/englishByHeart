@@ -1,5 +1,6 @@
 package org.example.englishByHeart.controller;
 
+import org.example.englishByHeart.dto.SentenceDtoTable;
 import org.example.englishByHeart.dto.SentenceIdResponse;
 import org.example.englishByHeart.service.SentenceService;
 import org.example.englishByHeart.domain.Sentence;
@@ -87,6 +88,12 @@ public class SentenceController {
     @GetMapping("/sentenceById/{sentenceId}")
     public Sentence getSentenceBySentenceId(@PathVariable Long sentenceId) {
         return sentenceService.getSentenceBySentenceId(sentenceId);
+    }
+
+    @GetMapping("/getFullSentencesByUserId")
+    public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId) {
+        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId);
+        return new ResponseEntity<>(sentences, HttpStatus.OK);
     }
 
 }

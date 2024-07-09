@@ -8,4 +8,5 @@ import java.util.Set;
 
 public interface TranslationRepository extends JpaRepository<Translation, Integer> {
     List<Translation> findBySentenceIdIn(List<Long> sentenceIds);
+    List<Translation> findBySentenceId(Long sentenceId);
 }
