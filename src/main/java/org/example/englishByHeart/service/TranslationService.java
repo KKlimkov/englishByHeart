@@ -77,4 +77,9 @@ public class TranslationService {
     public List<Translation> getTranslationsBySentenceId(Long sentenceId) {
         return translationRepository.findBySentenceId(sentenceId);
     }
+
+    public List<TranslationWithRuleDTO> getTranslationsBySentenceIdWithRules(Long sentenceId) {
+        List<Translation> translations = translationRepository.findBySentenceId(sentenceId);
+        return mapTranslationsToDTO(translations);
+    }
 }

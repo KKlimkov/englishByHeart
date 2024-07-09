@@ -11,10 +11,10 @@ public class SentenceDtoTable {
     private String learningSentence;
     private String comment;
     private String userLink;
-    private List<Translation> translations;
+    private List<TranslationWithRuleDTO> translations;
 
     // Constructor
-    public SentenceDtoTable(Sentence sentence, List<Translation> translations) {
+    public SentenceDtoTable(Sentence sentence, List<TranslationWithRuleDTO> translations) {
         this.sentenceId = sentence.getSentenceId();
         this.userId = sentence.getUserId();
         this.learningSentence = sentence.getLearningSentence();
@@ -63,11 +63,11 @@ public class SentenceDtoTable {
         this.userLink = userLink;
     }
 
-    public List<Translation> getTranslations() {
+    public List<TranslationWithRuleDTO> getTranslations() {
         return translations;
     }
 
-    public void setTranslations(List<Translation> translations) {
+    public void setTranslations(List<TranslationWithRuleDTO> translations) {
         this.translations = translations;
     }
 }

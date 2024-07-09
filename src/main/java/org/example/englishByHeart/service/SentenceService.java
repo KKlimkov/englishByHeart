@@ -5,6 +5,7 @@ import org.example.englishByHeart.dto.SentenceDtoTable;
 import org.example.englishByHeart.dto.SentenceIdResponse;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.SentenceDTO;
+import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.SentenceRepository;
 import org.example.englishByHeart.repos.TopicRepository;
@@ -168,7 +169,7 @@ public class SentenceService {
         List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
 
         for (Sentence sentence : sentences) {
-            List<Translation> translations = translationService.getTranslationsBySentenceId(sentence.getSentenceId());
+            List<TranslationWithRuleDTO> translations = translationService.getTranslationsBySentenceIdWithRules(sentence.getSentenceId());
             SentenceDtoTable sentenceDto = new SentenceDtoTable(sentence, translations);
             sentenceDtos.add(sentenceDto);
         }
