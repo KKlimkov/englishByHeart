@@ -4,10 +4,12 @@ import org.example.englishByHeart.dto.Lesson;
 import org.example.englishByHeart.service.AllLessonsDoneException;
 import org.example.englishByHeart.service.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/lesson")
@@ -22,8 +24,16 @@ public class LessonController {
     }
 
     @PostMapping("/startLesson")
-    public Map<String, Object> startLesson(@RequestParam Long userId) {
-        return lessonService.startLesson(userId);
+    public ResponseEntity<Map<String, Object>> startLesson(@RequestParam Long userId) {
+        try {
+            Map<String, Object> response = lessonService.startLesson(userId);
+            if ("error".equals(response.get("status"))) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", e.getMessage()));
+        }
     }
 
     @PutMapping("/updateLesson")

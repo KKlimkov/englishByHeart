@@ -4,6 +4,8 @@ import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.dto.Lesson;
 import org.example.englishByHeart.dto.PickedElementResponseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -21,6 +23,9 @@ public class LessonService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    private static final Logger logger = LoggerFactory.getLogger(LessonService.class);
+
 
     public Lesson getLesson(Long sentenceId) {
         // Call the sentence service
@@ -49,11 +54,20 @@ public class LessonService {
         try {
             // Step 1: Get active exercise and current sentence ID by userId
             String activeExerciseUrl = "http://localhost:8080/exercisesByUserIdAndSentenceId?userId=" + userId + "&isActive=true";
-            ResponseEntity<List<Map<String, Object>>> activeExerciseResponse = restTemplate.exchange(activeExerciseUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+            logger.info("Fetching active exercises from URL: {}", activeExerciseUrl);
+
+            ResponseEntity<List<Map<String, Object>>> activeExerciseResponse = restTemplate.exchange(
+                    activeExerciseUrl,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+            );
             List<Map<String, Object>> activeExercises = activeExerciseResponse.getBody();
 
             if (activeExercises == null || activeExercises.isEmpty()) {
-                throw new RuntimeException("No active exercises found for user " + userId);
+                logger.warn("No active exercises found for user {}", userId);
+                // Return a custom response indicating no active exercises
+                return Map.of("status", "error", "message", "No active exercises found for user " + userId);
             }
 
             // Extract exerciseId and currentSentenceId with validation
@@ -69,7 +83,12 @@ public class LessonService {
 
             // Step 2: Get lesson details
             String lessonDetailsUrl = "http://localhost:8080/api/lesson/getLesson/" + currentSentenceId;
-            ResponseEntity<Lesson> lessonResponse = restTemplate.exchange(lessonDetailsUrl, HttpMethod.GET, null, Lesson.class);
+            ResponseEntity<Lesson> lessonResponse = restTemplate.exchange(
+                    lessonDetailsUrl,
+                    HttpMethod.GET,
+                    null,
+                    Lesson.class
+            );
             Lesson lesson = lessonResponse.getBody();
 
             if (lesson == null) {

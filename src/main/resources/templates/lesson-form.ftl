@@ -1,5 +1,11 @@
 <#include "common.ftl">
 
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
 <div class="container mt-4">
     <h1>Lesson</h1>
     <form id="lessonForm">
@@ -14,8 +20,8 @@
         <button type="button" class="btn btn-primary" id="checkButton">Check</button>
         <button type="button" class="btn btn-success" id="continueButton" disabled>Continue</button>
         <button type="button" class="btn btn-warning" id="restartButton" disabled>Restart lesson</button>
-        <div id="resultMessage" class="mt-3"></div>
     </form>
+    <div id="resultMessage" class="mt-3"></div>
 </div>
 
 <script>
@@ -28,15 +34,31 @@
             },
             body: ''
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Unknown error');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
+
             // Store the response data for later use
             window.lessonData = data;
 
             // Update the learningSentence span with the learning sentence from the response
             document.getElementById('learningSentence').innerText = data.learningSentence;
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('resultMessage').textContent = error.message;
+            document.getElementById('resultMessage').className = 'text-danger';
+            document.getElementById('lessonForm').classList.add('hidden');
+        });
     });
 
     document.getElementById('checkButton').addEventListener('click', function() {

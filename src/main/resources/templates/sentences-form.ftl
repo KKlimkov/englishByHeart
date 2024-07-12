@@ -613,6 +613,7 @@
         console.error('Modal instance not found');
     }
 
+await fetchAndDisplaySentences();
                     updateExercises();
                 } else {
                     console.error('Error submitting form:', response.statusText);
