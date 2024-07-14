@@ -38,4 +38,16 @@ public class TopicController {
     public List<Topic> getTopicsByTopicIds(@RequestParam List<Long> topicsIds) {
         return topicService.getTopicsByTopicIds(topicsIds);
     }
+
+    @PutMapping("/topics/{id}")
+    public ResponseEntity<Topic> updateTopicName(@PathVariable Long id, @RequestParam String newTopicName) {
+        Topic updatedTopic = topicService.updateTopicName(id, newTopicName);
+        return ResponseEntity.ok(updatedTopic);
+    }
+
+    @DeleteMapping("/topics/{id}")
+    public ResponseEntity<Void> deleteTopic(@PathVariable Long id) {
+        topicService.deleteTopic(id);
+        return ResponseEntity.noContent().build();
+    }
 }
