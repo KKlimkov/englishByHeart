@@ -113,8 +113,8 @@ public class ExerciseController {
 
 
     @PutMapping("/updateExercises")
-    public ResponseEntity<List<Exercise>> updateExercises(@RequestParam Long userId) {
-        List<Exercise> updatedExercises = exerciseService.updateExercises(userId);
+    public ResponseEntity<List<Exercise>> updateExercises(@RequestParam Long userId, @RequestParam String mode) {
+        List<Exercise> updatedExercises = exerciseService.updateExercises(userId, mode);
         if (updatedExercises.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

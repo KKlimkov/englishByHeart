@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
+import org.example.englishByHeart.repos.TopicRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,10 @@ public class ExerciseService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private TopicRepository topicRepository;
+
 
     public PickedElementResponse removeRandomElement(List<Long> array) {
         if (array.isEmpty()) {
@@ -247,7 +252,7 @@ public class ExerciseService {
         return response.getBody().stream().map(Rule::getRule).collect(Collectors.toList());
     }
 
-    public List<Exercise> updateExercises(Long userId) {
+    public List<Exercise> updateExercises(Long userId, String mode) {
         List<Exercise> exercises = exerciseRepository.findByUserId(userId);
         if (exercises.isEmpty()) {
             logger.warn("No exercises found for user ID: " + userId);
@@ -255,31 +260,60 @@ public class ExerciseService {
         }
 
         for (Exercise exercise : exercises) {
-            Set<Long> topicIds = Arrays.stream(exercise.getTopicsIds()).map(Long::valueOf).collect(Collectors.toSet());
-            Set<Long> ruleIds = Arrays.stream(exercise.getRulesIds()).map(Long::valueOf).collect(Collectors.toSet());
-
-            ResponseEntity<List<Long>> response = getSentencesIdsByTopicsAndRules(new ArrayList<>(topicIds), new ArrayList<>(ruleIds));
-            if (response.getStatusCode() != HttpStatus.OK) {
-                logger.error("Failed to fetch sentence IDs from the external service");
-                return Collections.emptyList();
+            if ("SENTENCE".equalsIgnoreCase(mode)) {
+                updateExerciseSentences(exercise);
+            } else if ("TOPIC".equalsIgnoreCase(mode)) {
+                updateExerciseTopics(exercise);
             }
-
-            List<Long> fetchedSentenceIds = response.getBody();
-            if (fetchedSentenceIds == null || fetchedSentenceIds.isEmpty()) {
-                logger.warn("No sentence IDs returned from the external service for exercise ID: " + exercise.getExerciseId());
-                continue;  // Skip updating this exercise if no sentence IDs are fetched
-            }
-
-            // Update the exercise with the new sentence IDs
-            List<String> updatedSentences = fetchedSentenceIds.stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-
-            exercise.setSentencesId(updatedSentences.toArray(new String[0]));
-            exercise.setHasChanged(true);
         }
 
         return exerciseRepository.saveAll(exercises);
+    }
+
+    private void updateExerciseSentences(Exercise exercise) {
+        Set<Long> topicIds = Arrays.stream(exercise.getTopicsIds()).map(Long::valueOf).collect(Collectors.toSet());
+        Set<Long> ruleIds = Arrays.stream(exercise.getRulesIds()).map(Long::valueOf).collect(Collectors.toSet());
+
+        ResponseEntity<List<Long>> response = getSentencesIdsByTopicsAndRules(new ArrayList<>(topicIds), new ArrayList<>(ruleIds));
+        if (response.getStatusCode() != HttpStatus.OK) {
+            logger.error("Failed to fetch sentence IDs from the external service");
+            return;
+        }
+
+        List<Long> fetchedSentenceIds = response.getBody();
+
+        if (fetchedSentenceIds == null || fetchedSentenceIds.isEmpty()) {
+            logger.warn("No sentence IDs returned from the external service for exercise ID: " + exercise.getExerciseId());
+
+            // Set sentences IDs to an empty list in the database
+            exercise.setSentencesId(new String[0]);
+            exercise.setHasChanged(true);
+            exerciseRepository.save(exercise); // Save the updated exercise to the database
+
+            return; // Skip further processing
+        }
+
+        // Update the exercise with the new sentence IDs
+        List<String> updatedSentences = fetchedSentenceIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
+        exercise.setSentencesId(updatedSentences.toArray(new String[0]));
+        exercise.setHasChanged(true);
+    }
+
+    private void updateExerciseTopics(Exercise exercise) {
+        List<Long> topicIds = Arrays.stream(exercise.getTopicsIds())
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+        List<Long> existingTopicIds = topicRepository.findByTopicIdIn(topicIds).stream()
+                .map(Topic::getTopicId)
+                .collect(Collectors.toList());
+
+        exercise.setTopicsIds(existingTopicIds.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+        exercise.setHasChanged(true);
     }
 
 
