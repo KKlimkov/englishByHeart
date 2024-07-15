@@ -14,6 +14,7 @@
                 <th>Comment</th>
                 <th>User Link</th>
                 <th>Translations</th>
+                <th>Topics</th>
             </tr>
             </thead>
             <tbody id="sentencesTableBody">
@@ -130,6 +131,16 @@
                 });
                 translationsCell.appendChild(translationsList);
                 row.appendChild(translationsCell);
+
+                const topicsCell = document.createElement('td');
+            const topicsList = document.createElement('ul');
+            sentence.topics.forEach(topic => {
+                const topicItem = document.createElement('li');
+                topicItem.textContent = topic.topicName;
+                topicsList.appendChild(topicItem);
+            });
+            topicsCell.appendChild(topicsList);
+            row.appendChild(topicsCell);
 
                 tableBody.appendChild(row);
             });

@@ -1,8 +1,10 @@
 package org.example.englishByHeart.service;
 
 import org.example.englishByHeart.domain.Rule;
+import org.example.englishByHeart.domain.SentenceTopic;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.dto.TopicDTO;
+import org.example.englishByHeart.repos.SentenceTopicRepository;
 import org.example.englishByHeart.repos.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,9 @@ public class TopicService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private SentenceTopicRepository sentenceTopicRepository;
 
     public List<TopicDTO> getAllTopics() {
         List<Topic> topics = topicRepository.findAll();
@@ -55,6 +60,14 @@ public class TopicService {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id " + topicId));
         topicRepository.delete(topic);
+    }
+
+    // New method to get topics by sentence ID
+    public List<Topic> getTopicsBySentenceId(Long sentenceId) {
+        List<SentenceTopic> sentenceTopics = sentenceTopicRepository.findBySentence_SentenceId(sentenceId);
+        return sentenceTopics.stream()
+                .map(SentenceTopic::getTopic)
+                .collect(Collectors.toList());
     }
 }
 

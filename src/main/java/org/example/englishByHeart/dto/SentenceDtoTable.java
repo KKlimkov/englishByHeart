@@ -1,6 +1,7 @@
 package org.example.englishByHeart.dto;
 
 import org.example.englishByHeart.domain.Sentence;
+import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.domain.Translation;
 
 import java.util.List;
@@ -12,15 +13,17 @@ public class SentenceDtoTable {
     private String comment;
     private String userLink;
     private List<TranslationWithRuleDTO> translations;
+    private List<Topic> topics; // Add this line
 
     // Constructor
-    public SentenceDtoTable(Sentence sentence, List<TranslationWithRuleDTO> translations) {
+    public SentenceDtoTable(Sentence sentence, List<TranslationWithRuleDTO> translations, List<Topic> topics) {
         this.sentenceId = sentence.getSentenceId();
         this.userId = sentence.getUserId();
         this.learningSentence = sentence.getLearningSentence();
         this.comment = sentence.getComment();
         this.userLink = sentence.getUserLink();
         this.translations = translations;
+        this.topics = topics; // Add this line
     }
 
     public Long getSentenceId() {
@@ -69,5 +72,13 @@ public class SentenceDtoTable {
 
     public void setTranslations(List<TranslationWithRuleDTO> translations) {
         this.translations = translations;
+    }
+
+    public List<Topic> getTopics() { // Add this getter
+        return topics;
+    }
+
+    public void setTopics(List<Topic> topics) { // Add this setter
+        this.topics = topics;
     }
 }

@@ -31,6 +31,9 @@ public class SentenceService {
     @Autowired
     private TranslationService translationService;
 
+    @Autowired
+    private TopicService topicService;
+
     public List<Sentence> getAllSentences() {
         return sentenceRepository.findAll();
     }
@@ -170,7 +173,8 @@ public class SentenceService {
 
         for (Sentence sentence : sentences) {
             List<TranslationWithRuleDTO> translations = translationService.getTranslationsBySentenceIdWithRules(sentence.getSentenceId());
-            SentenceDtoTable sentenceDto = new SentenceDtoTable(sentence, translations);
+            List<Topic> topics = topicService.getTopicsBySentenceId(sentence.getSentenceId());
+            SentenceDtoTable sentenceDto = new SentenceDtoTable(sentence, translations, topics);
             sentenceDtos.add(sentenceDto);
         }
 
