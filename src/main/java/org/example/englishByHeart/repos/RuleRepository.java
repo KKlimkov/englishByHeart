@@ -20,4 +20,7 @@ public interface RuleRepository extends JpaRepository<Rule, Long> {
 
     @Query("SELECT tr.rule FROM TranslationRule tr WHERE tr.translation.sentenceId = :sentenceId")
     List<Rule> findRulesBySentenceId(@Param("sentenceId") Long sentenceId);
+
+    List<Rule> findByRuleIdIn(List<Long> ruleIds);
+
 }

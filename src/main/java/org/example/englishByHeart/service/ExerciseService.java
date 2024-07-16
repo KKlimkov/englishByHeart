@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.repos.ExerciseRepository;
+import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.TopicRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,11 @@ public class ExerciseService {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private RuleService ruleService;
+
+    @Autowired
+    private RuleRepository ruleRepository;
 
     public PickedElementResponse removeRandomElement(List<Long> array) {
         if (array.isEmpty()) {
@@ -264,6 +270,8 @@ public class ExerciseService {
                 updateExerciseSentences(exercise);
             } else if ("TOPIC".equalsIgnoreCase(mode)) {
                 updateExerciseTopics(exercise);
+            } else if ("RULE".equalsIgnoreCase(mode)) {
+                updateExerciseRules(exercise);
             }
         }
 
@@ -314,6 +322,24 @@ public class ExerciseService {
                 .map(String::valueOf)
                 .toArray(String[]::new));
         exercise.setHasChanged(true);
+
+        updateExerciseSentences(exercise);
+    }
+
+    private void updateExerciseRules(Exercise exercise) {
+        List<Long> ruleIds = Arrays.stream(exercise.getRulesIds())
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+        List<Long> existingRuleIds = ruleRepository.findByRuleIdIn(ruleIds).stream()
+                .map(Rule::getRuleId)
+                .collect(Collectors.toList());
+
+        exercise.setRulesIds(existingRuleIds.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+        exercise.setHasChanged(true);
+
+        updateExerciseSentences(exercise);
     }
 
 

@@ -6,6 +6,7 @@ import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.dto.RuleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,5 +58,28 @@ public class RuleController {
     public Set<Long> getTranslationIdsForRules(@RequestParam List<Long> ruleIds) {
         List<Rule> rules = ruleService.getRulesByRuleIds(ruleIds);
         return ruleService.getTranslationIdsForRules(rules);
+    }
+
+    // New endpoint to update rule
+    @PutMapping("/rule/{ruleId}")
+    public ResponseEntity<Rule> updateRule(@PathVariable Long ruleId,
+                                           @RequestParam String newRule,
+                                           @RequestParam String newLink) {
+        Rule updatedRule = ruleService.updateRule(ruleId, newRule, newLink);
+        if (updatedRule != null) {
+            return ResponseEntity.ok(updatedRule);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // New endpoint to delete rule
+    @DeleteMapping("/rule/{ruleId}")
+    public ResponseEntity<Void> deleteRule(@PathVariable Long ruleId) {
+        if (ruleService.deleteRule(ruleId)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

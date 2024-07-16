@@ -34,6 +34,7 @@ public class RuleService {
         return ruleRepository.findAllById(ruleIds);
     }
 
+
     public List<Rule> getAllRulesByUser(Long userId) {
         List<Rule> rules = ruleRepository.findByUserId(userId);
         return rules;
@@ -48,4 +49,26 @@ public class RuleService {
                         .map(Translation::getTranslateId))
                 .collect(Collectors.toSet());
     }
+
+    // New method to update rule
+    public Rule updateRule(Long ruleId, String newRule, String newLink) {
+        Rule rule = ruleRepository.findById(ruleId).orElse(null);
+        if (rule != null) {
+            rule.setRule(newRule);
+            rule.setLink(newLink);
+            return ruleRepository.save(rule);
+        }
+        return null;
+    }
+
+    // New method to delete rule by ruleId
+    public boolean deleteRule(Long ruleId) {
+        if (ruleRepository.existsById(ruleId)) {
+            ruleRepository.deleteById(ruleId);
+            return true;
+        }
+        return false;
+    }
+
+
 }
