@@ -2,7 +2,7 @@
 
 <div class="container mt-4">
     <h1>Create Rule</h1>
-    <form id="ruleForm">
+    <div id="ruleForm">
         <div class="mb-3">
             <label for="ruleInput" class="form-label">Rule:</label>
             <input type="text" class="form-control" id="ruleInput" name="rule" autocomplete="off" required>
@@ -12,8 +12,8 @@
             <input type="text" class="form-control" id="linkInput" name="link" autocomplete="off" required>
         </div>
         <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Rule</button>
-        <div id="rulesContainer" class="container mt-4 row"></div>
-    </form>
+        <div id="rulesContainer" class="container mt-4 row card-container"></div>
+    </div>
 </div>
 
 <div id="messageContainer" class="container mt-4"></div>
@@ -44,26 +44,23 @@
     </div>
 </div>
 
+
 <script>
     // Check if the rule input is empty and disable/enable the button accordingly
     function checkInput() {
         var ruleInput = document.getElementById('ruleInput');
-        var linkInput = document.getElementById('linkInput');
         var submitButton = document.getElementById('submitButton');
 
-        if (ruleInput.value.trim() === '' || linkInput.value.trim() === '') {
+        if (ruleInput.value.trim() === '') {
             ruleInput.classList.add('border-danger');
-            linkInput.classList.add('border-danger');
             submitButton.disabled = true;
         } else {
             ruleInput.classList.remove('border-danger');
-            linkInput.classList.remove('border-danger');
             submitButton.disabled = false;
         }
     }
 
     document.getElementById('ruleInput').addEventListener('input', checkInput);
-    document.getElementById('linkInput').addEventListener('input', checkInput);
 
     document.getElementById('submitButton').addEventListener('click', function(event) {
         event.preventDefault(); // Prevent the form from submitting the traditional way
@@ -84,13 +81,8 @@
             body: JSON.stringify(requestData)
         })
         .then(response => {
-            var messageContainer = document.getElementById('messageContainer');
             if (response.ok) {
-                var message = document.createElement('div');
-                message.classList.add('alert', 'alert-success');
-                message.textContent = 'Rule has been added successfully';
-                messageContainer.innerHTML = '';
-                messageContainer.appendChild(message);
+                showAlert('messageContainer', 'Rule has been added successfully', 'success');
                 clearForm(); // Clear form fields after successful submission
                 fetchRules();
             } else {
@@ -98,12 +90,7 @@
             }
         })
         .catch(error => {
-            var messageContainer = document.getElementById('messageContainer');
-            var message = document.createElement('div');
-            message.classList.add('alert', 'alert-danger');
-            message.textContent = error.message;
-            messageContainer.innerHTML = '';
-            messageContainer.appendChild(message);
+            showAlert('messageContainer', error.message, 'danger');
         });
     });
 
@@ -133,48 +120,46 @@
     }
 
     // Function to create a rule card
-    function createRuleCard(rule) {
-        const card = document.createElement('div');
-        card.className = 'col-md-4';
-        card.setAttribute('data-rule-id', rule.ruleId); // Set ruleId as an attribute
+function createRuleCard(rule) {
+    const card = document.createElement('div');
+    card.className = 'col-md-4'; // Ensure this class is used consistently
+    card.setAttribute('data-rule-id', rule.ruleId); // Set ruleId as an attribute
 
-        const cardContent = `
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title"></h5>
-                    <p class="card-text"><strong>Link:</strong> </p>
-                    <p class="card-text"><strong>User ID:</strong> </p>
-                    <button class="btn btn-warning update-btn" data-bs-toggle="modal" data-bs-target="#updateModal">Update</button>
-                    <button class="btn btn-danger delete-btn">Delete</button>
-                </div>
+    const cardContent = `
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title"></h5>
+                <p class="card-text"><strong>Link:</strong> </p>
+                <button class="btn btn-warning update-btn" data-bs-toggle="modal" data-bs-target="#updateModal">Update</button>
+                <button class="btn btn-danger delete-btn">Delete</button>
             </div>
-        `;
+        </div>
+    `;
 
-        card.innerHTML = cardContent;
-        card.querySelector('.card-title').textContent = rule.rule;
-        card.querySelector('.card-text:nth-of-type(1)').append(document.createTextNode(rule.link));
-        card.querySelector('.card-text:nth-of-type(2)').append(document.createTextNode(rule.userId));
+    card.innerHTML = cardContent;
+    card.querySelector('.card-title').textContent = rule.rule;
+    card.querySelector('.card-text:nth-of-type(1)').append(document.createTextNode(rule.link));
 
-        // Add event listeners for update and delete buttons
-        const updateBtn = card.querySelector('.update-btn');
-        updateBtn.setAttribute('data-rule-id', rule.ruleId);
-        updateBtn.setAttribute('data-rule', rule.rule);
-        updateBtn.setAttribute('data-link', rule.link);
-        updateBtn.addEventListener('click', function() {
-            document.getElementById('updateRuleInput').value = this.getAttribute('data-rule');
-            document.getElementById('updateLinkInput').value = this.getAttribute('data-link');
-            document.getElementById('updateButton').setAttribute('data-rule-id', this.getAttribute('data-rule-id'));
-        });
+    // Add event listeners for update and delete buttons
+    const updateBtn = card.querySelector('.update-btn');
+    updateBtn.setAttribute('data-rule-id', rule.ruleId);
+    updateBtn.setAttribute('data-rule', rule.rule);
+    updateBtn.setAttribute('data-link', rule.link);
+    updateBtn.addEventListener('click', function() {
+        document.getElementById('updateRuleInput').value = this.getAttribute('data-rule');
+        document.getElementById('updateLinkInput').value = this.getAttribute('data-link');
+        document.getElementById('updateButton').setAttribute('data-rule-id', this.getAttribute('data-rule-id'));
+    });
 
-        const deleteBtn = card.querySelector('.delete-btn');
-        deleteBtn.setAttribute('data-rule-id', rule.ruleId);
-        deleteBtn.addEventListener('click', function() {
-            var ruleId = this.getAttribute('data-rule-id');
-            deleteRule(ruleId);
-        });
+    const deleteBtn = card.querySelector('.delete-btn');
+    deleteBtn.setAttribute('data-rule-id', rule.ruleId);
+    deleteBtn.addEventListener('click', function() {
+        var ruleId = this.getAttribute('data-rule-id');
+        deleteRule(ruleId);
+    });
 
-        return card;
-    }
+    return card;
+}
 
     // Function to handle rule update
     document.getElementById('updateButton').addEventListener('click', function() {
@@ -192,12 +177,7 @@
         })
         .then(response => {
             if (response.ok) {
-                var messageContainer = document.getElementById('messageContainer');
-                var message = document.createElement('div');
-                message.classList.add('alert', 'alert-success');
-                message.textContent = 'Rule has been updated successfully';
-                messageContainer.innerHTML = '';
-                messageContainer.appendChild(message);
+                showAlert('messageContainer', 'Rule has been updated successfully', 'success');
                 fetchRules();
                 document.querySelector('#updateModal .btn-close').click();
             } else {
@@ -205,12 +185,7 @@
             }
         })
         .catch(error => {
-            var messageContainer = document.getElementById('messageContainer');
-            var message = document.createElement('div');
-            message.classList.add('alert', 'alert-danger');
-            message.textContent = error.message;
-            messageContainer.innerHTML = '';
-            messageContainer.appendChild(message);
+            showAlert('messageContainer', error.message, 'danger');
         });
     });
 
@@ -226,28 +201,15 @@
         })
         .then(response => {
             if (response.ok) {
-                var messageContainer = document.getElementById('messageContainer');
-                var message = document.createElement('div');
-                message.classList.add('alert', 'alert-success');
-                message.textContent = 'Rule has been deleted successfully';
-                messageContainer.innerHTML = '';
-                messageContainer.appendChild(message);
-
-                // Call updateExercises after successful deletion
+                showAlert('messageContainer', 'Rule has been deleted successfully', 'success');
                 updateExercises();
-
                 fetchRules();
             } else {
                 throw new Error('Unexpected error');
             }
         })
         .catch(error => {
-            var messageContainer = document.getElementById('messageContainer');
-            var message = document.createElement('div');
-            message.classList.add('alert', 'alert-danger');
-            message.textContent = error.message;
-            messageContainer.innerHTML = '';
-            messageContainer.appendChild(message);
+            showAlert('messageContainer', error.message, 'danger');
         });
     }
 
