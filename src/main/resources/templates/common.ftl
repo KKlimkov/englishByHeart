@@ -141,6 +141,30 @@
     .suggestions-box div:hover {
         background-color: #f0f0f0;
     }
+
+        .topic-card {
+        margin: 0;
+        padding: 0;
+    }
+    .card-container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .fade-out {
+        opacity: 1;
+        transition: opacity 1s ease-out;
+    }
+    .fade-out.hidden {
+        opacity: 0;
+    }
+
+    input[type="text"] {
+    autocomplete: off;
+}
+
+/* Ensure specificity for inputs within specific classes or IDs */
+.form-control[type="text"] {
+    autocomplete: off;
 }
     </style>
 </head>
@@ -153,6 +177,7 @@
 
 <!-- Bootstrap JS (Optional) -->
 <script src="/bootstrap.bundle.min.js"></script>
+<script src="/common.js" defer></script>
 <!-- Custom Scripts -->
 <script>
     // Add your custom JavaScript here

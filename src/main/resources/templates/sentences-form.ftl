@@ -37,21 +37,21 @@
                 <form id="sentenceForm">
                     <div class="mb-3">
                         <label for="learningSentence" class="form-label">Learning Sentence:</label>
-                        <input type="text" class="form-control" id="learningSentence" name="learningSentence">
+                        <input type="text" class="form-control" id="learningSentence" name="learningSentence" autocomplete="off">
                     </div>
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment:</label>
-                        <input type="text" class="form-control" id="comment" name="comment">
+                        <input type="text" class="form-control" id="comment" name="comment" autocomplete="off">
                     </div>
                     <div class="mb-3">
                         <label for="userLink" class="form-label">User Link:</label>
-                        <input type="text" class="form-control" id="userLink" name="userLink">
+                        <input type="text" class="form-control" id="userLink" name="userLink" autocomplete="off">
                     </div>
 
                     <div id="topicContainer" class="mb-3">
                         <label for="topicInput" class="form-label">Topic:</label>
                         <div class="custom-dropdown topic-container">
-                            <input type="text" class="form-control dropdown-input" id="topicInput" name="topicInput" placeholder="Type to search" data-topic-id="">
+                            <input type="text" class="form-control dropdown-input" id="topicInput" name="topicInput" placeholder="Type to search"  autocomplete="off" data-topic-id="">
                             <div id="dropdownMenu" class="dropdown-menu scroll-container" role="menu"></div>
                         </div>
                         <input type="hidden" id="topicIds" name="topicIds">

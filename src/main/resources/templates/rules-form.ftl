@@ -5,11 +5,11 @@
     <form id="ruleForm">
         <div class="mb-3">
             <label for="ruleInput" class="form-label">Rule:</label>
-            <input type="text" class="form-control" id="ruleInput" name="rule" required>
+            <input type="text" class="form-control" id="ruleInput" name="rule" autocomplete="off" required>
         </div>
         <div class="mb-3">
             <label for="linkInput" class="form-label">Link:</label>
-            <input type="text" class="form-control" id="linkInput" name="link" required>
+            <input type="text" class="form-control" id="linkInput" name="link" autocomplete="off" required>
         </div>
         <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Rule</button>
         <div id="rulesContainer" class="container mt-4 row"></div>
