@@ -60,11 +60,10 @@ public class RuleController {
         return ruleService.getTranslationIdsForRules(rules);
     }
 
-    // New endpoint to update rule
     @PutMapping("/rule/{ruleId}")
     public ResponseEntity<Rule> updateRule(@PathVariable Long ruleId,
                                            @RequestParam String newRule,
-                                           @RequestParam String newLink) {
+                                           @RequestParam(required = false) String newLink) {
         Rule updatedRule = ruleService.updateRule(ruleId, newRule, newLink);
         if (updatedRule != null) {
             return ResponseEntity.ok(updatedRule);

@@ -11,7 +11,7 @@ public class webController {
 
     @GetMapping("/")
     public String common() {
-        return "common";
+        return "redirect:/lesson-form";
     }
 
     @GetMapping("/rules-form")

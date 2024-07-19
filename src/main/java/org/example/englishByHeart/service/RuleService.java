@@ -55,7 +55,9 @@ public class RuleService {
         Rule rule = ruleRepository.findById(ruleId).orElse(null);
         if (rule != null) {
             rule.setRule(newRule);
-            rule.setLink(newLink);
+            if (newLink != null) {
+                rule.setLink(newLink);
+            }
             return ruleRepository.save(rule);
         }
         return null;

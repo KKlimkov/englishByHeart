@@ -96,4 +96,19 @@ public class SentenceController {
         return new ResponseEntity<>(sentences, HttpStatus.OK);
     }
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Sentence> updateSentence(
+            @PathVariable Long id,
+            @RequestBody SentenceDTO sentenceDTO) {
+        return sentenceService.updateSentence(id, sentenceDTO);
+    }
+
+    @DeleteMapping("/{sentenceId}/user/{userId}")
+    public ResponseEntity<Void> deleteSentence(
+            @PathVariable Long sentenceId,
+            @PathVariable Long userId) {
+        return sentenceService.deleteSentenceByIdAndUserId(sentenceId, userId);
+    }
+
 }

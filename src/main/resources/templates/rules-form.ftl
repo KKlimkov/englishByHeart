@@ -167,7 +167,7 @@ function createRuleCard(rule) {
         var newRule = document.getElementById('updateRuleInput').value;
         var newLink = document.getElementById('updateLinkInput').value;
 
-        var updateUrl = '/rules/' + encodeURIComponent(ruleId) + '?newRule=' + encodeURIComponent(newRule) + '&newLink=' + encodeURIComponent(newLink);
+        var updateUrl = '/rule/' + encodeURIComponent(ruleId) + '?newRule=' + encodeURIComponent(newRule) + '&newLink=' + encodeURIComponent(newLink);
 
         fetch(updateUrl, {
             method: 'PUT',

@@ -21,6 +21,7 @@ spring:
         expose-request-attributes: true
         expose-session-attributes: true
         suffix: .ftl
+        template-loader-path: classpath:/templates/
 upload:
     path: /home/kklimkov/Desktop/EnglishByHeart/pictures
 

@@ -181,4 +181,58 @@ public class SentenceService {
         return sentenceDtos;
     }
 
+
+    public ResponseEntity<Sentence> updateSentence(Long id, SentenceDTO sentenceDto) {
+        Optional<Sentence> optionalSentence = sentenceRepository.findById(id);
+        if (optionalSentence.isPresent()) {
+            Sentence sentence = optionalSentence.get();
+
+            // Update basic fields
+            sentence.setUserId(sentenceDto.getUserId());
+            sentence.setLearningSentence(sentenceDto.getLearningSentence());
+            sentence.setComment(sentenceDto.getComment());
+            sentence.setUserLink(sentenceDto.getUserLink());
+
+            // Handle topics
+            List<SentenceTopic> sentenceTopics = new ArrayList<>();
+            for (Long topicsId : sentenceDto.getTopicsIds()) {
+                Topic topic = topicRepository.findById(topicsId)
+                        .orElseThrow(() -> new RuntimeException("Topic not found with id: " + topicsId));
+                SentenceTopic sentenceTopic = new SentenceTopic();
+                sentenceTopic.setSentence(sentence);
+                sentenceTopic.setTopic(topic);
+                sentenceTopics.add(sentenceTopic);
+            }
+            sentence.setSentenceTopics(sentenceTopics);
+
+            // Handle rules
+            List<SentenceRule> sentenceRules = new ArrayList<>();
+            for (Long rulesId : sentenceDto.getRulesIds()) {
+                Rule rule = ruleRepository.findById(rulesId)
+                        .orElseThrow(() -> new RuntimeException("Rule not found with id: " + rulesId));
+                SentenceRule sentenceRule = new SentenceRule();
+                sentenceRule.setSentence(sentence);
+                sentenceRule.setRule(rule);
+                sentenceRules.add(sentenceRule);
+            }
+            sentence.setSentenceRules(sentenceRules);
+
+            // Save updated sentence
+            Sentence updatedSentence = sentenceRepository.save(sentence);
+            return new ResponseEntity<>(updatedSentence, HttpStatus.OK);
+        } else {
+            throw new RuntimeException("Sentence not found with id " + id);
+        }
+    }
+
+    public ResponseEntity<Void> deleteSentenceByIdAndUserId(Long sentenceId, Long userId) {
+        Optional<Sentence> sentenceOptional = sentenceRepository.findBySentenceIdAndUserId(sentenceId, userId);
+        if (sentenceOptional.isPresent()) {
+            sentenceRepository.delete(sentenceOptional.get());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

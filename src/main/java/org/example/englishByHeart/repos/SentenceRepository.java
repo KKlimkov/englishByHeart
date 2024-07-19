@@ -64,4 +64,6 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
             "WHERE sr.rule.ruleId IN :ruleIds")
     Set<Long> findSentenceIdsByRuleIds(@Param("ruleIds") List<Long> ruleIds);
 
+    Optional<Sentence> findBySentenceIdAndUserId(Long sentenceId, Long userId);
+
 }
