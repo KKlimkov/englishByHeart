@@ -13,6 +13,16 @@ public class SentenceDTO {
 
     private List<Long> rulesIds;
 
+    private Long sentenceId;
+
+    public Long getSentenceId() {
+        return sentenceId;
+    }
+
+    public void setSentenceId(Long sentenceId) {
+        this.sentenceId = sentenceId;
+    }
+
     public Long getUserId() {
         return userId;
     }

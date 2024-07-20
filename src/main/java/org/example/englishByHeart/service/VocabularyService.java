@@ -115,4 +115,40 @@ public class VocabularyService {
         // If all requests were successful, return a success response
         return ResponseEntity.ok().build();
     }
+
+    public ResponseEntity<String> updateSentence(Long sentenceId, VocabularyRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        SentenceDTO sentenceDTO = new SentenceDTO();
+        sentenceDTO.setSentenceId(sentenceId); // Set the sentenceId
+        sentenceDTO.setUserLink(request.getUserLink());
+        sentenceDTO.setLearningSentence(request.getLearningSentence());
+        sentenceDTO.setComment(request.getComment());
+        sentenceDTO.setUserId(request.getUserId());
+        sentenceDTO.setTopicsIds(request.getTopicsIds());
+
+        List<Long> rulesIds = new ArrayList<>();
+        Set<Long> setRulesIds = new HashSet<>();
+
+        List<TranslationRequestForAdd> translations = request.getTranslations();
+        if (translations != null) {
+            for (TranslationRequestForAdd translation : translations) {
+                List<Long> ruleIds = translation.getRuleIds();
+                if (ruleIds != null) {
+                    setRulesIds.addAll(ruleIds);
+                }
+            }
+        }
+
+        rulesIds.addAll(setRulesIds);
+        sentenceDTO.setRulesIds(rulesIds);
+
+        HttpEntity<SentenceDTO> requestEntity = new HttpEntity<>(sentenceDTO, headers);
+
+        String url = SENTENCE_API_URL + "/" + sentenceId;
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
+
+        return response;
+    }
 }

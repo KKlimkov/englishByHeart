@@ -1,5 +1,7 @@
 package org.example.englishByHeart.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.example.englishByHeart.controller.CustomResponse;
 import org.example.englishByHeart.dto.SentenceDtoTable;
 import org.example.englishByHeart.dto.SentenceIdResponse;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SentenceService {
@@ -182,47 +185,40 @@ public class SentenceService {
     }
 
 
-    public ResponseEntity<Sentence> updateSentence(Long id, SentenceDTO sentenceDto) {
-        Optional<Sentence> optionalSentence = sentenceRepository.findById(id);
-        if (optionalSentence.isPresent()) {
-            Sentence sentence = optionalSentence.get();
+    @Transactional
+    public void updateSentence(Long id, SentenceDTO sentenceDto) {
+        Sentence sentence = sentenceRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Sentence not found"));
 
-            // Update basic fields
-            sentence.setUserId(sentenceDto.getUserId());
-            sentence.setLearningSentence(sentenceDto.getLearningSentence());
-            sentence.setComment(sentenceDto.getComment());
-            sentence.setUserLink(sentenceDto.getUserLink());
+        // Update basic fields
+        sentence.setUserId(sentenceDto.getUserId());
+        sentence.setLearningSentence(sentenceDto.getLearningSentence());
+        sentence.setComment(sentenceDto.getComment());
+        sentence.setUserLink(sentenceDto.getUserLink());
 
-            // Handle topics
-            List<SentenceTopic> sentenceTopics = new ArrayList<>();
-            for (Long topicsId : sentenceDto.getTopicsIds()) {
-                Topic topic = topicRepository.findById(topicsId)
-                        .orElseThrow(() -> new RuntimeException("Topic not found with id: " + topicsId));
-                SentenceTopic sentenceTopic = new SentenceTopic();
-                sentenceTopic.setSentence(sentence);
-                sentenceTopic.setTopic(topic);
-                sentenceTopics.add(sentenceTopic);
-            }
-            sentence.setSentenceTopics(sentenceTopics);
-
-            // Handle rules
-            List<SentenceRule> sentenceRules = new ArrayList<>();
-            for (Long rulesId : sentenceDto.getRulesIds()) {
-                Rule rule = ruleRepository.findById(rulesId)
-                        .orElseThrow(() -> new RuntimeException("Rule not found with id: " + rulesId));
-                SentenceRule sentenceRule = new SentenceRule();
-                sentenceRule.setSentence(sentence);
-                sentenceRule.setRule(rule);
-                sentenceRules.add(sentenceRule);
-            }
-            sentence.setSentenceRules(sentenceRules);
-
-            // Save updated sentence
-            Sentence updatedSentence = sentenceRepository.save(sentence);
-            return new ResponseEntity<>(updatedSentence, HttpStatus.OK);
-        } else {
-            throw new RuntimeException("Sentence not found with id " + id);
+        // Update rules
+        if (sentenceDto.getRulesIds() != null) {
+            Set<SentenceRule> newRules = sentenceDto.getRulesIds().stream()
+                    .map(ruleId -> ruleRepository.findById(ruleId)
+                            .orElseThrow(() -> new EntityNotFoundException("Rule not found")))
+                    .map(rule -> new SentenceRule(sentence, rule))
+                    .collect(Collectors.toSet());
+            sentence.getSentenceRules().clear();
+            sentence.getSentenceRules().addAll(newRules);
         }
+
+        // Update topics
+        if (sentenceDto.getTopicsIds() != null) {
+            Set<SentenceTopic> newTopics = sentenceDto.getTopicsIds().stream()
+                    .map(topicId -> topicRepository.findById(topicId)
+                            .orElseThrow(() -> new EntityNotFoundException("Topic not found")))
+                    .map(topic -> new SentenceTopic(sentence, topic))
+                    .collect(Collectors.toSet());
+            sentence.getSentenceTopics().clear();
+            sentence.getSentenceTopics().addAll(newTopics);
+        }
+
+        sentenceRepository.save(sentence);
     }
 
     public ResponseEntity<Void> deleteSentenceByIdAndUserId(Long sentenceId, Long userId) {

@@ -18,6 +18,16 @@ public class SentenceTopic {
     @JoinColumn(name = "topic_id")
     private Topic topic;
 
+    // Default constructor
+    public SentenceTopic() {
+    }
+
+    public SentenceTopic(Sentence sentence, Topic topic) {
+        this.sentence = sentence;
+        this.topic = topic;
+    }
+
+
     // Constructors, getters, and setters
 
 

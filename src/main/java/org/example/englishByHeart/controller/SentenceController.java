@@ -98,10 +98,9 @@ public class SentenceController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sentence> updateSentence(
-            @PathVariable Long id,
-            @RequestBody SentenceDTO sentenceDTO) {
-        return sentenceService.updateSentence(id, sentenceDTO);
+    public ResponseEntity<Void> updateSentence(@PathVariable Long id, @RequestBody SentenceDTO sentenceDto) {
+        sentenceService.updateSentence(id, sentenceDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{sentenceId}/user/{userId}")

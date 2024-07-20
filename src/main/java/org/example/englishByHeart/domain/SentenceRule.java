@@ -18,6 +18,17 @@ public class SentenceRule {
     @JoinColumn(name = "rule_id")
     private Rule rule;
 
+    // Default constructor
+    public SentenceRule() {
+    }
+
+    // Constructor with parameters
+    public SentenceRule(Sentence sentence, Rule rule) {
+        this.sentence = sentence;
+        this.rule = rule;
+    }
+
+
     // Constructors, getters, and setters
 
 
