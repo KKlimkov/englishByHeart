@@ -1,5 +1,6 @@
 package org.example.englishByHeart.service;
 
+import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.domain.TranslationRule;
@@ -8,6 +9,7 @@ import org.example.englishByHeart.dto.TranslationRequest;
 import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.TranslationRepository;
+import org.example.englishByHeart.repos.TranslationRuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,9 @@ public class TranslationService {
 
     @Autowired
     private RuleRepository ruleRepository;
+
+    @Autowired
+    private TranslationRuleRepository translationRuleRepository;
 
     public Translation createTranslation(TranslationRequest translationRequest) {
         Translation translation = new Translation();
@@ -81,5 +86,30 @@ public class TranslationService {
     public List<TranslationWithRuleDTO> getTranslationsBySentenceIdWithRules(Long sentenceId) {
         List<Translation> translations = translationRepository.findBySentenceId(sentenceId);
         return mapTranslationsToDTO(translations);
+    }
+
+
+    @Transactional
+    public void updateTranslationsBySentenceId(List<TranslationRequest> translationDtos) {
+
+        if (translationDtos.isEmpty()) {
+            return; // No translations to update
+        }
+
+        Long sentenceId = translationDtos.get(0).getSentenceId();
+
+        // Delete existing translation rules by sentence ID
+        List<Translation> translations = translationRepository.findBySentenceId(sentenceId);
+        for (Translation translation : translations) {
+            translationRuleRepository.deleteByTranslationId(translation.getTranslateId());
+        }
+
+        // Delete existing translations by sentence ID
+        translationRepository.deleteBySentenceId(sentenceId);
+
+        // Save new translations and their rules
+        for (TranslationRequest dto : translationDtos) {
+            createTranslation(dto); // Pass each TranslationRequest individually
+        }
     }
 }

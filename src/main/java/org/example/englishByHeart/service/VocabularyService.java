@@ -28,6 +28,7 @@ public class VocabularyService {
     private static final String TRANSLATIONS_API_URL = "http://localhost:8080/translations/sentenceIds"; // Update with your API URL
     private static final String RULE_API_URL = "http://localhost:8080/getTranslationIdsByRuleIds"; // Update with your API URL
     private static final String SENTENCES_API_URL = "http://localhost:8080/api/sentence/search"; // Update with your API URL
+    private static final String UPDATE_TRANSLATIONS_API_URL = "http://localhost:8080/translations/updateBySentenceId";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -120,17 +121,17 @@ public class VocabularyService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        // Prepare the SentenceDTO
         SentenceDTO sentenceDTO = new SentenceDTO();
-        sentenceDTO.setSentenceId(sentenceId); // Set the sentenceId
+        sentenceDTO.setSentenceId(sentenceId);
         sentenceDTO.setUserLink(request.getUserLink());
         sentenceDTO.setLearningSentence(request.getLearningSentence());
         sentenceDTO.setComment(request.getComment());
         sentenceDTO.setUserId(request.getUserId());
         sentenceDTO.setTopicsIds(request.getTopicsIds());
 
-        List<Long> rulesIds = new ArrayList<>();
+        // Collect all unique rule IDs
         Set<Long> setRulesIds = new HashSet<>();
-
         List<TranslationRequestForAdd> translations = request.getTranslations();
         if (translations != null) {
             for (TranslationRequestForAdd translation : translations) {
@@ -141,14 +142,55 @@ public class VocabularyService {
             }
         }
 
-        rulesIds.addAll(setRulesIds);
+        // Convert Set to List and set in DTO
+        List<Long> rulesIds = new ArrayList<>(setRulesIds);
         sentenceDTO.setRulesIds(rulesIds);
 
+        // Log the SentenceDTO
+        logger.info("Updating Sentence: URL={}, Payload={}", SENTENCE_API_URL + "/" + sentenceId, sentenceDTO);
+
+        // Send the request to update the sentence
         HttpEntity<SentenceDTO> requestEntity = new HttpEntity<>(sentenceDTO, headers);
+        String sentenceUrl = SENTENCE_API_URL + "/" + sentenceId;
+        ResponseEntity<String> response = restTemplate.exchange(sentenceUrl, HttpMethod.PUT, requestEntity, String.class);
 
-        String url = SENTENCE_API_URL + "/" + sentenceId;
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
+        // Log the response for updating the sentence
+        logger.info("Update Sentence Response: Status={}, Body={}", response.getStatusCode(), response.getBody());
 
-        return response;
+        // Check if the sentence update was successful
+        if (response.getStatusCode() == HttpStatus.NO_CONTENT) {
+            // Prepare TranslationRequests
+            List<TranslationRequest> translationRequests = translations.stream()
+                    .map(translation -> {
+                        TranslationRequest translationRequest = new TranslationRequest();
+                        translationRequest.setTranslation(translation.getTranslation());
+                        translationRequest.setRuleIds(translation.getRuleIds());
+                        translationRequest.setSentenceId(sentenceId);
+                        return translationRequest;
+                    })
+                    .collect(Collectors.toList());
+
+            // Log the TranslationRequests
+            logger.info("Preparing to Update Translations: Payload={}", translationRequests);
+
+            // Send the request to update translations
+            HttpEntity<List<TranslationRequest>> translationRequestEntity = new HttpEntity<>(translationRequests, headers);
+            String translationsUrl = "/translations/updateBySentenceId/" + sentenceId;
+            logger.info("Updating Translations: URL={}, Payload={}", translationsUrl, translationRequests);
+
+            ResponseEntity<String> translationResponse = restTemplate.exchange(translationsUrl, HttpMethod.PUT, translationRequestEntity, String.class);
+
+            // Log the response for updating translations
+            logger.info("Update Translations Response: Status={}, Body={}", translationResponse.getStatusCode(), translationResponse.getBody());
+
+            if (translationResponse.getStatusCode() != HttpStatus.OK) {
+                return translationResponse; // Return the response from updating translations if not OK
+            }
+        } else {
+            logger.warn("Sentence update failed with status: {}", response.getStatusCode());
+        }
+
+        return response; // Return the response from updating the sentence
     }
+
 }

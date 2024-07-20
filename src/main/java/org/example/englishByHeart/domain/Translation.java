@@ -17,6 +17,7 @@ public class Translation {
     private Long translateId;
 
     private String translation;
+
     private Long sentenceId;
 
     @OneToMany(mappedBy = "translation", cascade = CascadeType.ALL, orphanRemoval = true)

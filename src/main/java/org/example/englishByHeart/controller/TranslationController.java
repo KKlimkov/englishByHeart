@@ -26,4 +26,9 @@ public class TranslationController {
     public List<TranslationWithRuleDTO> getTranslationsBySentenceIds(@RequestParam List<Long> sentenceIds) {
         return translationService.getTranslationsBySentenceIds(sentenceIds);
     }
+
+    @PutMapping("/updateBySentenceId/{sentenceId}")
+    public void updateTranslationsBySentenceId(@RequestBody List<TranslationRequest> translationRequests) {
+        translationService.updateTranslationsBySentenceId(translationRequests);
+    }
 }

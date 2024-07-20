@@ -57,6 +57,7 @@ public class VocabularyController {
         this.objectMapper = objectMapper;
     }
 
+
     @PutMapping("/update/sentence/{sentenceId}")
     public ResponseEntity<CustomResponse<Long>> updateSentence(@PathVariable Long sentenceId, @RequestBody VocabularyRequest request) throws JsonProcessingException {
         ResponseEntity<String> sentenceResponse = vocabularyService.updateSentence(sentenceId, request);
@@ -65,21 +66,7 @@ public class VocabularyController {
                     .body(new CustomResponse<>(false, "Sentence update failed", null));
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode responseBodyJson = objectMapper.readTree(sentenceResponse.getBody());
-        Long updatedSentenceId = responseBodyJson.get("data").get("sentenceId").asLong();
-
-        List<ResponseEntity<String>> responses = new ArrayList<>();
-        for (TranslationRequestForAdd translation : request.getTranslations()) {
-            ResponseEntity<String> translationResponse = vocabularyService.callExternalControllerForTranslations(Collections.singletonList(translation), updatedSentenceId);
-            responses.add(translationResponse);
-
-            if (translationResponse.getStatusCode() != HttpStatus.OK) {
-                System.err.println("Controller: Translation request failed: " + translationResponse.getBody());
-            }
-        }
-
-        CustomResponse<Long> customResponse = new CustomResponse<>(true, null, updatedSentenceId);
+        CustomResponse<Long> customResponse = new CustomResponse<>(true, "Sentence updated successfully", sentenceId);
         return ResponseEntity.ok().body(customResponse);
     }
 
