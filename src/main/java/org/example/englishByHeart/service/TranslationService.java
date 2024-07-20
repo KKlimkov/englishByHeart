@@ -63,13 +63,11 @@ public class TranslationService {
             dto.setTranslation(translation.getTranslation());
             dto.setSentenceId(translation.getSentenceId());
 
-            List<Rule> rules = ruleRepository.findRulesBySentenceId(translation.getSentenceId());
             List<RulesAndLinks> rulesAndLinks = new ArrayList<>();
-
-            for (Rule rule : rules) {
+            for (TranslationRule translationRule : translation.getTranslationRuleLinks()) {
                 RulesAndLinks ruleAndLink = new RulesAndLinks();
-                ruleAndLink.setRule(rule.getRule());
-                ruleAndLink.setLink(rule.getLink());
+                ruleAndLink.setRule(translationRule.getRule().getRule());
+                ruleAndLink.setLink(translationRule.getRule().getLink());
                 rulesAndLinks.add(ruleAndLink);
             }
 
@@ -91,7 +89,6 @@ public class TranslationService {
 
     @Transactional
     public void updateTranslationsBySentenceId(List<TranslationRequest> translationDtos) {
-
         if (translationDtos.isEmpty()) {
             return; // No translations to update
         }

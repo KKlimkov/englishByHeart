@@ -15,6 +15,7 @@
                 <th>User Link</th>
                 <th>Translations</th>
                 <th>Topics</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="sentencesTableBody">
@@ -22,6 +23,7 @@
             </tbody>
         </table>
     </div>
+    <div id="messageContainerPage" class="container mt-4"></div>
 </div>
 
 
@@ -133,18 +135,60 @@
                 row.appendChild(translationsCell);
 
                 const topicsCell = document.createElement('td');
-            const topicsList = document.createElement('ul');
-            sentence.topics.forEach(topic => {
-                const topicItem = document.createElement('li');
-                topicItem.textContent = topic.topicName;
-                topicsList.appendChild(topicItem);
-            });
-            topicsCell.appendChild(topicsList);
-            row.appendChild(topicsCell);
+                const topicsList = document.createElement('ul');
+                sentence.topics.forEach(topic => {
+                    const topicItem = document.createElement('li');
+                    topicItem.textContent = topic.topicName;
+                    topicsList.appendChild(topicItem);
+                });
+                topicsCell.appendChild(topicsList);
+                row.appendChild(topicsCell);
+
+                const actionsCell = document.createElement('td');
+                const updateButton = document.createElement('button');
+                updateButton.textContent = 'Update';
+                updateButton.classList.add('btn', 'btn-warning', 'm-1');
+                updateButton.setAttribute('sentence-id', sentence.sentenceId);
+                updateButton.addEventListener('click', function() {
+
+                });
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('btn', 'btn-danger', 'm-1');
+                deleteButton.setAttribute('sentence-id', sentence.sentenceId);
+                deleteButton.addEventListener('click', function() {
+
+                const sentenceId = this.getAttribute('sentence-id');
+   const url = 'http://localhost:8080/api/sentence/' + sentenceId + '/user/1'; // Assuming user ID is 1
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Accept': '*/*',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Optionally, handle successful deletion
+        showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
+        fetchAndDisplaySentences();
+        // Optionally, remove the row or update the UI
+    })
+    .catch(error => {
+        // Optionally, handle error
+        console.error('There was a problem with the fetch operation:', error);
+    });
+                });
+
+                actionsCell.appendChild(updateButton);
+                actionsCell.appendChild(deleteButton);
+                row.appendChild(actionsCell);
 
                 tableBody.appendChild(row);
             });
-
         } catch (error) {
             console.error('Error fetching sentences:', error);
         }

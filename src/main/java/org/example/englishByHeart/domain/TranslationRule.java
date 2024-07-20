@@ -12,11 +12,11 @@ public class TranslationRule {
 
 
     @ManyToOne
-    @JoinColumn(name = "translate_id")
+    @JoinColumn(name = "translation_id", nullable = false)
     private Translation translation;
 
     @ManyToOne
-    @JoinColumn(name = "rule_id")
+    @JoinColumn(name = "rule_id", nullable = false)
     private Rule rule;
 
     public Long getId() {
