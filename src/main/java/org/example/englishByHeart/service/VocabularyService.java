@@ -175,7 +175,7 @@ public class VocabularyService {
 
             // Send the request to update translations
             HttpEntity<List<TranslationRequest>> translationRequestEntity = new HttpEntity<>(translationRequests, headers);
-            String translationsUrl = "/translations/updateBySentenceId/" + sentenceId;
+            String translationsUrl = UPDATE_TRANSLATIONS_API_URL;
             logger.info("Updating Translations: URL={}, Payload={}", translationsUrl, translationRequests);
 
             ResponseEntity<String> translationResponse = restTemplate.exchange(translationsUrl, HttpMethod.PUT, translationRequestEntity, String.class);

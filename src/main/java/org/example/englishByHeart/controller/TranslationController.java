@@ -27,7 +27,7 @@ public class TranslationController {
         return translationService.getTranslationsBySentenceIds(sentenceIds);
     }
 
-    @PutMapping("/updateBySentenceId/{sentenceId}")
+    @PutMapping("/updateBySentenceId")
     public void updateTranslationsBySentenceId(@RequestBody List<TranslationRequest> translationRequests) {
         translationService.updateTranslationsBySentenceId(translationRequests);
     }
