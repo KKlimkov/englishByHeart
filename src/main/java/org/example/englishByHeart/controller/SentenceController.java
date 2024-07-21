@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @RestController
@@ -94,6 +95,16 @@ public class SentenceController {
     public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId) {
         List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId);
         return new ResponseEntity<>(sentences, HttpStatus.OK);
+    }
+
+    @GetMapping("/getFullSentenceBySentenceId")
+    public ResponseEntity<SentenceDtoTable> getFullSentenceBySentenceId(@RequestParam Long sentenceId) {
+        try {
+            SentenceDtoTable sentence = sentenceService.getFullSentenceBySentenceId(sentenceId);
+            return new ResponseEntity<>(sentence, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 

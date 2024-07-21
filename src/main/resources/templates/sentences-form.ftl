@@ -150,7 +150,27 @@
                 updateButton.classList.add('btn', 'btn-warning', 'm-1');
                 updateButton.setAttribute('sentence-id', sentence.sentenceId);
                 updateButton.addEventListener('click', function() {
+const sentenceId = this.getAttribute('sentence-id');
+const url = 'http://localhost:8080/api/sentence/getFullSentenceBySentenceId?sentenceId=' + sentenceId;
+    // Fetch the existing sentence data
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': '*/*',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Populate the form fields with the fetched data
+            document.getElementById('learningSentence').value = data.learningSentence;
+            document.getElementById('comment').value = data.comment;
+            document.getElementById('userLink').value = data.userLink;
+            // Populate other form fields as needed
 
+            // Show the modal
+            new bootstrap.Modal(document.getElementById('sentenceModal')).show();
+        })
+        .catch(error => console.error('Error fetching sentence data:', error));
                 });
 
                 const deleteButton = document.createElement('button');

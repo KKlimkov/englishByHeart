@@ -184,6 +184,19 @@ public class SentenceService {
         return sentenceDtos;
     }
 
+    public SentenceDtoTable getFullSentenceBySentenceId(Long sentenceId) {
+        Optional<Sentence> sentenceOpt = sentenceRepository.findById(sentenceId);
+
+        if (sentenceOpt.isPresent()) {
+            Sentence sentence = sentenceOpt.get();
+            List<TranslationWithRuleDTO> translations = translationService.getTranslationsBySentenceIdWithRules(sentence.getSentenceId());
+            List<Topic> topics = topicService.getTopicsBySentenceId(sentence.getSentenceId());
+            return new SentenceDtoTable(sentence, translations, topics);
+        } else {
+            throw new NoSuchElementException("Sentence with id " + sentenceId + " not found");
+        }
+    }
+
 
     @Transactional
     public void updateSentence(Long id, SentenceDTO sentenceDto) {
