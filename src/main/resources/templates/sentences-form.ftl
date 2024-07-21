@@ -27,7 +27,6 @@
 </div>
 
 
-<!-- Modal -->
 <div class="modal fade" id="createSentenceModal" tabindex="-1" aria-labelledby="createSentenceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -53,7 +52,7 @@
                     <div id="topicContainer" class="mb-3">
                         <label for="topicInput" class="form-label">Topic:</label>
                         <div class="custom-dropdown topic-container">
-                            <input type="text" class="form-control dropdown-input" id="topicInput" name="topicInput" placeholder="Type to search"  autocomplete="off" data-topic-id="">
+                            <input type="text" class="form-control dropdown-input" id="topicInput" name="topicInput" placeholder="Type to search" autocomplete="off" data-topic-id="">
                             <div id="dropdownMenu" class="dropdown-menu scroll-container" role="menu"></div>
                         </div>
                         <input type="hidden" id="topicIds" name="topicIds">
@@ -80,13 +79,192 @@
                             <div class="alert alert-danger">No response data received.</div>
                         </#if>
                     </div>
-                </form>
             </div>
+            </form>
         </div>
     </div>
 </div>
+</div>
 
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Get references to elements
+    const modal = new bootstrap.Modal(document.getElementById('createSentenceModal'));
+    const modalTitle = document.getElementById('createSentenceModalLabel');
+    const sentenceForm = document.getElementById('sentenceForm');
+    const learningSentenceInput = document.getElementById('learningSentence');
+    const commentInput = document.getElementById('comment');
+    const userLinkInput = document.getElementById('userLink');
+    const topicContainer = document.getElementById('topicContainer');
+    const additionalTopics = document.getElementById('additionalTopics');
+    const translationsContainer = document.getElementById('translations');
+    const topicInput = document.getElementById('topicInput');
+    const topicIds = document.getElementById('topicIds');
+
+    // Function to clear form fields
+    function clearForm() {
+        learningSentenceInput.value = '';
+        commentInput.value = '';
+        userLinkInput.value = '';
+        topicInput.value = '';
+        topicIds.value = '';
+        additionalTopics.innerHTML = '';
+        translationsContainer.innerHTML = '';
+    }
+
+    // Function to add a new topic input
+    function addTopicContainer(topicName = '', topicId = '') {
+        const topicDiv = document.createElement('div');
+        topicDiv.classList.add('mb-3');
+        const inputGroupDiv = document.createElement('div');
+        inputGroupDiv.classList.add('input-group');
+
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.classList.add('form-control');
+        inputElement.value = topicName;
+        inputElement.dataset.topicId = topicId;
+        inputElement.autocomplete = 'off';
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.classList.add('btn', 'btn-danger');
+        removeButton.textContent = 'Remove Topic';
+        removeButton.addEventListener('click', function() {
+            topicDiv.remove();
+        });
+
+        inputGroupDiv.appendChild(inputElement);
+        inputGroupDiv.appendChild(removeButton);
+        topicDiv.appendChild(inputGroupDiv);
+        additionalTopics.appendChild(topicDiv);
+    }
+
+    // Function to add a new translation input
+    function addTranslationContainer(translation = '', rules = []) {
+        const translationDiv = document.createElement('div');
+        translationDiv.classList.add('mb-3');
+
+        const translationLabel = document.createElement('label');
+        translationLabel.textContent = 'Translation:';
+        translationDiv.appendChild(translationLabel);
+
+        const translationInput = document.createElement('input');
+        translationInput.type = 'text';
+        translationInput.classList.add('form-control', 'mb-1');
+        translationInput.name = 'translations[]';
+        translationInput.value = translation;
+        translationDiv.appendChild(translationInput);
+
+        const rulesLabel = document.createElement('label');
+        rulesLabel.textContent = 'Rules:';
+        translationDiv.appendChild(rulesLabel);
+
+        rules.forEach(rule => {
+            const ruleInput1 = document.createElement('input');
+            ruleInput1.type = 'text';
+            ruleInput1.classList.add('form-control', 'mb-1');
+            ruleInput1.value = rule.rule;
+            translationDiv.appendChild(ruleInput1);
+
+            const ruleInput2 = document.createElement('input');
+            ruleInput2.type = 'text';
+            ruleInput2.classList.add('form-control', 'mb-1');
+            ruleInput2.value = rule.link;
+            translationDiv.appendChild(ruleInput2);
+        });
+
+        const addRuleButton = document.createElement('button');
+        addRuleButton.type = 'button';
+        addRuleButton.classList.add('btn', 'btn-primary');
+        addRuleButton.textContent = 'Add Rule';
+        addRuleButton.addEventListener('click', function() {
+            addRuleContainer(addRuleButton);
+        });
+
+        const removeTranslationButton = document.createElement('button');
+        removeTranslationButton.type = 'button';
+        removeTranslationButton.classList.add('btn', 'btn-danger');
+        removeTranslationButton.textContent = 'Remove Translation';
+        removeTranslationButton.addEventListener('click', function() {
+            translationDiv.remove();
+        });
+
+        translationDiv.appendChild(addRuleButton);
+        translationDiv.appendChild(removeTranslationButton);
+        translationsContainer.appendChild(translationDiv);
+    }
+
+    // Function to add a new rule input
+    function addRuleContainer(button) {
+        const ruleDiv = document.createElement('div');
+        ruleDiv.classList.add('mb-3');
+
+        const ruleInput1 = document.createElement('input');
+        ruleInput1.type = 'text';
+        ruleInput1.classList.add('form-control', 'mb-1');
+        ruleInput1.placeholder = 'Rule';
+        ruleDiv.appendChild(ruleInput1);
+
+        const ruleInput2 = document.createElement('input');
+        ruleInput2.type = 'text';
+        ruleInput2.classList.add('form-control', 'mb-1');
+        ruleInput2.placeholder = 'Link';
+        ruleDiv.appendChild(ruleInput2);
+
+        button.parentElement.insertBefore(ruleDiv, button);
+    }
+
+    // Handle Create button click
+    const createButton = document.getElementById('createButton');
+    if (createButton) {
+        createButton.addEventListener('click', function () {
+            clearForm();
+            modalTitle.textContent = 'Create Sentence';
+            modal.show();
+        });
+    }
+
+    // Handle Update button click
+    const updateButtons = document.querySelectorAll('.update-button');
+    updateButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const sentenceId = this.getAttribute('sentence-id');
+            const url = 'http://localhost:8080/api/sentence/getFullSentenceBySentenceId?sentenceId='+sentenceId;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Update modal title
+                    modalTitle.textContent = 'Update Sentence';
+
+                    // Populate form fields with fetched data
+                    learningSentenceInput.value = data.learningSentence;
+                    commentInput.value = data.comment;
+                    userLinkInput.value = data.userLink;
+
+                    // Populate topics
+                    additionalTopics.innerHTML = '';
+                    data.topics.forEach(topic => addTopicContainer(topic.topicName, topic.topicId));
+
+                    // Populate translations
+                    translationsContainer.innerHTML = '';
+                    data.translations.forEach(translation => {
+                        const rules = translation.rulesAndLinks.map(rule => ({
+                            rule: rule.rule,
+                            link: rule.link
+                        }));
+                        addTranslationContainer(translation.translation, rules);
+                    });
+
+                    modal.show();
+                })
+                .catch(error => console.error('Error fetching sentence data:', error));
+        });
+    });
+});
+
 
     async function fetchAndDisplaySentences() {
         try {
@@ -147,11 +325,12 @@
                 const actionsCell = document.createElement('td');
                 const updateButton = document.createElement('button');
                 updateButton.textContent = 'Update';
-                updateButton.classList.add('btn', 'btn-warning', 'm-1');
-                updateButton.setAttribute('sentence-id', sentence.sentenceId);
-                updateButton.addEventListener('click', function() {
-const sentenceId = this.getAttribute('sentence-id');
-const url = 'http://localhost:8080/api/sentence/getFullSentenceBySentenceId?sentenceId=' + sentenceId;
+updateButton.classList.add('btn', 'btn-warning', 'm-1');
+updateButton.setAttribute('sentence-id', sentence.sentenceId);
+updateButton.addEventListener('click', function() {
+    const sentenceId = this.getAttribute('sentence-id');
+    const url = 'http://localhost:8080/api/sentence/getFullSentenceBySentenceId?sentenceId=' + sentenceId;
+
     // Fetch the existing sentence data
     fetch(url, {
         method: 'GET',
@@ -159,19 +338,58 @@ const url = 'http://localhost:8080/api/sentence/getFullSentenceBySentenceId?sent
             'Accept': '*/*',
         }
     })
-        .then(response => response.json())
-        .then(data => {
-            // Populate the form fields with the fetched data
-            document.getElementById('learningSentence').value = data.learningSentence;
-            document.getElementById('comment').value = data.comment;
-            document.getElementById('userLink').value = data.userLink;
-            // Populate other form fields as needed
+    .then(response => response.json())
+    .then(data => {
+        // Populate the form fields with the fetched data
+        document.getElementById('learningSentence').value = data.learningSentence;
+        document.getElementById('comment').value = data.comment;
+        document.getElementById('userLink').value = data.userLink;
 
-            // Show the modal
-            new bootstrap.Modal(document.getElementById('sentenceModal')).show();
-        })
-        .catch(error => console.error('Error fetching sentence data:', error));
-                });
+        // Populate topics
+        const topicIds = data.topics.map(topic => topic.topicId).join(',');
+        document.getElementById('topicIds').value = topicIds;
+        document.getElementById('topicInput').value = data.topics.map(topic => topic.topicName).join(', ');
+
+        // Clear and populate translations
+        const translationsContainer = document.getElementById('translations');
+        translationsContainer.innerHTML = '';
+        data.translations.forEach(translation => {
+            const translationDiv = document.createElement('div');
+            translationDiv.classList.add('mb-3');
+
+            // Create translation input
+            const translationInput = document.createElement('input');
+            translationInput.type = 'text';
+            translationInput.classList.add('form-control', 'mb-1');
+            translationInput.name = 'translations[]';
+            translationInput.value = translation.translation;
+            translationDiv.appendChild(translationInput);
+
+            // Create rules and links inputs
+            translation.rulesAndLinks.forEach(rule => {
+                const ruleInput = document.createElement('input');
+                ruleInput.type = 'text';
+                ruleInput.classList.add('form-control', 'mb-1');
+                ruleInput.value = rule.rule;
+                translationDiv.appendChild(ruleInput);
+
+                const linkInput = document.createElement('input');
+                linkInput.type = 'text';
+                linkInput.classList.add('form-control', 'mb-1');
+                linkInput.value = rule.link;
+                translationDiv.appendChild(linkInput);
+            });
+
+            translationsContainer.appendChild(translationDiv);
+        });
+
+        // Show the modal
+        const createSentenceModal = new bootstrap.Modal(document.getElementById('createSentenceModal'));
+        createSentenceModal.show();
+    })
+    .catch(error => console.error('Error fetching sentence data:', error));
+});
+
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
