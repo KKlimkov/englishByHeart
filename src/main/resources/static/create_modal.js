@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     };
 
-    const initialTopicInput = document.getElementById('topicInput');
-    const initialDropdownMenu = document.getElementById('dropdownMenu');
+    const initialTopicInput = document.getElementById('createTopicInput');
+    const initialDropdownMenu = document.getElementById('createDropdownMenu');
     setupTopicInput(initialTopicInput, initialDropdownMenu);
 
     const createTopicContainer = () => {
@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         return topicContainer;
     };
 
-    window.addTopicContainer = function() {
-        const additionalTopicsDiv = document.getElementById('additionalTopics');
+    window.addCreateTopicContainer = function() {
+        const additionalTopicsDiv = document.getElementById('createAdditionalTopics');
         const topicContainer = createTopicContainer();
         additionalTopicsDiv.appendChild(topicContainer);
     };
@@ -271,8 +271,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         return translationContainer;
     };
 
-    window.addTranslationContainer = async function() {
-        const translationsDiv = document.getElementById('translations');
+    window.addCreateTranslationContainer = async function() {
+        const translationsDiv = document.getElementById('createTranslations');
         const translationContainer = await createTranslationContainer();
         translationsDiv.appendChild(translationContainer);
     };
@@ -281,9 +281,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         let isValid = true;
 
         // Get the input fields
-        const learningSentenceInput = document.getElementById('learningSentence');
-        const commentInput = document.getElementById('comment');
-        const userLinkInput = document.getElementById('userLink');
+        const learningSentenceInput = document.getElementById('createLearningSentence');
+        const commentInput = document.getElementById('createComment');
+        const userLinkInput = document.getElementById('createUserLink');
         const topicInputs = document.querySelectorAll('.dropdown-input');
         const translationContainers = document.querySelectorAll('.translation-container');
 
@@ -323,13 +323,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     };
 
 
-    document.getElementById('sentenceForm').addEventListener('submit', async function(event) {
+    document.getElementById('createSentenceForm').addEventListener('submit', async function(event) {
         event.preventDefault();
 
         // Function to validate form fields
         const validateForm = () => {
             let isValid = true;
-            const requiredFields = ['learningSentence']; // Only validate learningSentence for red border
+            const requiredFields = ['createLearningSentence']; // Only validate learningSentence for red border
             const mainTopicInput = document.querySelector('.topic-container input[type="text"]');
             const translationContainers = document.querySelectorAll('.translation-container');
 
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
-        const learningSentence = document.getElementById('learningSentence').value.trim();
+        const learningSentence = document.getElementById('createLearningSentence').value.trim();
         const mainTopicInput = document.querySelector('.topic-container input[type="text"]');
         const topicsIds = [];
 
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // Collect additional topic IDs
-        const additionalTopicInputs = document.querySelectorAll('#additionalTopics .topic-container input[type="text"]');
+        const additionalTopicInputs = document.querySelectorAll('#createAdditionalTopics .topic-container input[type="text"]');
         additionalTopicInputs.forEach(input => {
             const topicId = parseInt(input.dataset.topicId);
             if (!isNaN(topicId) && !topicsIds.includes(topicId)) {
@@ -417,9 +417,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const data = {
             userId: 1,
-            learningSentence: document.getElementById('learningSentence').value,
-            comment: document.getElementById('comment').value,
-            userLink: document.getElementById('userLink').value,
+            learningSentence: document.getElementById('createLearningSentence').value,
+            comment: document.getElementById('createComment').value,
+            userLink: document.getElementById('createUserLink').value,
             topicsIds: topicsIds,
             translations: translations
         };
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 body: JSON.stringify(data)
             });
 
-            const messageContainer = document.getElementById('messageContainer');
+            const messageContainer = document.getElementById('createMessageContainer');
             if (response.ok) {
                 console.log('Form submitted successfully');
                 messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
@@ -448,6 +448,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
                 await fetchAndDisplaySentences();
                 updateExercises();
+
             } else {
                 console.error('Error submitting form:', response.statusText);
                 messageContainer.innerHTML = '<div class="alert alert-danger">Error submitting form</div>';
@@ -455,14 +456,19 @@ document.addEventListener('DOMContentLoaded', async function() {
             messageContainer.style.display = 'block'; // Show the message container
         } catch (error) {
             console.error('Error submitting form:', error);
-            const messageContainer = document.getElementById('messageContainer');
+            const messageContainer = document.getElementById('createMessageContainer');
             messageContainer.innerHTML = '<div class="alert alert-danger">Error submitting form</div>';
             messageContainer.style.display = 'block'; // Show the message container
         }
-        document.getElementById('learningSentence').value = '';
+        document.getElementById('createLearningSentence').value = '';
     });
 
     // Add the initial translation container
     const initialTranslationContainer = await createTranslationContainer(true);
-    document.getElementById('translations').appendChild(initialTranslationContainer);
+
+    const modalElement = document.getElementById('createSentenceModal');
+    if (modalElement) {
+    document.getElementById('createTranslations').appendChild(initialTranslationContainer);
+    }
+
 });
