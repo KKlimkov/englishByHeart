@@ -70,6 +70,15 @@ document.addEventListener('DOMContentLoaded', async function() {
                 event.preventDefault();
             }
         });
+
+        // Prevent drag-and-drop
+            topicInput.addEventListener('dragover', function(event) {
+                event.preventDefault();
+            });
+
+            topicInput.addEventListener('drop', function(event) {
+                event.preventDefault();
+            });
     };
 
     const initialTopicInput = document.getElementById('createTopicInput');
@@ -164,6 +173,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 event.preventDefault();
             }
         });
+
+         ruleInput.addEventListener('dragover', function(event) {
+                        event.preventDefault();
+                    });
+
+                    ruleInput.addEventListener('drop', function(event) {
+                        event.preventDefault();
+                    });
 
         // Store the current scroll position before focusing on the input field
         let scrollYBeforeFocus;
@@ -439,13 +456,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 console.log('Form submitted successfully');
                 messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
 
-                // Close modal after adding sentence
-                const addSentenceModal = bootstrap.Modal.getInstance(document.getElementById('createSentenceModal'));
-                if (addSentenceModal) {
-                    addSentenceModal.hide(); // Close the modal
-                } else {
-                    console.error('Modal instance not found');
-                }
+                // Close modal after adding sentence using jQuery
+                    $('#createSentenceModal').modal('hide');
+                    $('.modal-backdrop').remove();
+
+
                 await fetchAndDisplaySentences();
                 updateExercises();
 

@@ -162,12 +162,7 @@
         .fade-out.hidden {
             opacity: 0;
         }
-        .modal {
-            background: rgba(255, 255, 255, 0.8);
-        }
-        .modal-backdrop {
-             display: none;
-        };
+
     </style>
 </head>
 

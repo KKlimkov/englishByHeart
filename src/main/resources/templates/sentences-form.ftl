@@ -109,7 +109,9 @@
                         <input type="text" class="form-control" id="updateUserLink" name="userLink">
                     </div>
                     <div id="updateAdditionalTopics" class="mb-3"></div>
+                    <button type="button" id="addUpdateTopicButton" class="btn btn-secondary">Add Another Topic</button>
                     <div id="updateTranslations" class="mb-3"></div>
+                    <button type="button" id="addUpdateTranslationButton" class="btn btn-secondary">Add Another Translation</button>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Save changes</button>
@@ -188,8 +190,6 @@
                 updateButton.textContent = 'Update';
                 updateButton.classList.add('btn', 'btn-warning', 'm-1');
                 updateButton.setAttribute('sentence-id', sentence.sentenceId);
-
-
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
