@@ -80,7 +80,7 @@ const setupTopicInput = (topicInput, dropdownMenu) => {
     });
 };
 
-const createUpdateTopicContainer = (withRemoveButton = true) => {
+const createUpdateTopicContainer = (withRemoveButton = true, topicId = '') => {
     const topicContainer = document.createElement('div');
     topicContainer.classList.add('topic-container', 'mb-3');
 
@@ -88,6 +88,9 @@ const createUpdateTopicContainer = (withRemoveButton = true) => {
     topicInput.type = 'text';
     topicInput.classList.add('form-control', 'dropdown-input');
     topicInput.placeholder = 'Type to search';
+    if (topicId) {
+        topicInput.dataset.topicId = topicId;
+    }
 
     const dropdownMenu = document.createElement('div');
     dropdownMenu.classList.add('dropdown-menu', 'scroll-container');
@@ -110,11 +113,11 @@ const createUpdateTopicContainer = (withRemoveButton = true) => {
     return topicContainer;
 };
 
-window.addUpdateTopicContainer = function(topicName = '') {
+window.addUpdateTopicContainer = function(topicName = '', topicId = '') {
     const additionalTopicsDiv = document.getElementById('updateAdditionalTopics');
     const topicContainers = additionalTopicsDiv.getElementsByClassName('topic-container');
     const isFirst = topicContainers.length === 0;
-    const topicContainer = createUpdateTopicContainer(!isFirst);
+    const topicContainer = createUpdateTopicContainer(!isFirst, topicId);
     const topicInput = topicContainer.querySelector('.dropdown-input');
     topicInput.value = decodeURIComponent(topicName);
     additionalTopicsDiv.appendChild(topicContainer);
@@ -132,6 +135,7 @@ async function fetchRules() {
     try {
         const rulesResponse = await fetch('/rulesByUserId?userId=1');
         allRules = await rulesResponse.json();
+        console.log('Fetched rules:', allRules); // Add thi
     } catch (error) {
         console.error('Error fetching rules:', error);
     }
@@ -213,43 +217,43 @@ const setupRuleInput = (ruleInput, ruleDropdownMenu) => {
     });
 };
 
-const createRuleInput = (addRemoveButton = true) => {
+// Function to create rule input
+const createRuleInput = (addRemoveButton = true, ruleId = '') => {
     const ruleWrapper = document.createElement('div');
     ruleWrapper.classList.add('rule-wrapper', 'mb-3');
 
-    const ruleInputWrapper = document.createElement('div');
-    ruleInputWrapper.classList.add('d-flex', 'align-items-center');
-
     const ruleInput = document.createElement('input');
     ruleInput.type = 'text';
-    ruleInput.classList.add('form-control', 'dropdown-input', 'mb-2', 'mr-2');
-    ruleInput.placeholder = 'Type to search rule';
+    ruleInput.classList.add('form-control', 'dropdown-input');
+    ruleInput.placeholder = 'Type to search';
+    if (ruleId) {
+        ruleInput.dataset.ruleId = ruleId;
+    }
 
     const ruleDropdownMenu = document.createElement('div');
     ruleDropdownMenu.classList.add('dropdown-menu', 'scroll-container');
 
     setupRuleInput(ruleInput, ruleDropdownMenu);
 
-    ruleInputWrapper.appendChild(ruleInput);
+    ruleWrapper.appendChild(ruleInput);
+    ruleWrapper.appendChild(ruleDropdownMenu);
 
     if (addRemoveButton) {
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove Rule';
-        removeButton.classList.add('btn', 'btn-danger', 'ml-auto');
-        removeButton.style.width = '150px';
+        removeButton.classList.add('btn', 'btn-danger', 'mt-2');
         removeButton.onclick = function() {
             ruleWrapper.remove();
         };
-        ruleInputWrapper.appendChild(removeButton);
+        ruleWrapper.appendChild(removeButton);
     }
-
-    ruleWrapper.appendChild(ruleInputWrapper);
-    ruleWrapper.appendChild(ruleDropdownMenu);
 
     return ruleWrapper;
 };
 
-const createTranslationContainer = async (initial = false) => {
+async function createTranslationContainer(translation = '', rulesAndLinks = [], initial = false) {
+    console.log('Creating translation container with:', { translation, rulesAndLinks });
+
     const translationContainer = document.createElement('div');
     translationContainer.classList.add('translation-container', 'mb-3');
     translationContainer.style.border = '1px solid #ccc';
@@ -265,6 +269,7 @@ const createTranslationContainer = async (initial = false) => {
     translationInput.type = 'text';
     translationInput.classList.add('form-control', 'mb-3');
     translationInput.placeholder = 'Translation';
+    translationInput.value = decodeURIComponent(translation);
     translationContainer.appendChild(translationInput);
 
     const rulesLabel = document.createElement('label');
@@ -273,48 +278,98 @@ const createTranslationContainer = async (initial = false) => {
     translationContainer.appendChild(rulesLabel);
 
     const rulesList = document.createElement('div');
-    rulesList.classList.add('rules-list', 'mb-3');
+    rulesList.classList.add('rules-list');
     translationContainer.appendChild(rulesList);
 
+    // Add initial rules
+    if (rulesAndLinks.length > 0) {
+        console.log('Adding initial rules:', rulesAndLinks);
+
+        for (const { ruleId } of rulesAndLinks) {
+            if (ruleId) {
+                console.log('Fetching rule with ID:', ruleId);
+                const ruleData = await fetchRuleById(ruleId);
+                if (ruleData) {
+                    console.log('Fetched rule data:', ruleData);
+                    const ruleWrapper = createRuleInput(false, ruleId);
+                    const ruleInput = ruleWrapper.querySelector('.dropdown-input');
+                    ruleInput.value = ruleData.rule;
+                    rulesList.appendChild(ruleWrapper);
+                } else {
+                    console.error('No data found for rule ID:', ruleId);
+                }
+            } else {
+                console.error('Undefined ruleId:', ruleId);
+            }
+        }
+    } else {
+        console.log('No rules to add.');
+    }
+
     const addRuleButton = document.createElement('button');
+    addRuleButton.classList.add('btn', 'btn-secondary', 'mt-3');
     addRuleButton.type = 'button';
-    addRuleButton.classList.add('btn', 'btn-primary', 'mb-3');
     addRuleButton.textContent = 'Add Rule';
-    addRuleButton.onclick = function() {
-        const ruleWrapper = createRuleInput(true);
+    addRuleButton.onclick = () => {
+        const ruleWrapper = createRuleInput();
         rulesList.appendChild(ruleWrapper);
     };
     translationContainer.appendChild(addRuleButton);
 
     if (!initial) {
         const removeTranslationButton = document.createElement('button');
+        removeTranslationButton.classList.add('btn', 'btn-danger', 'mt-3');
         removeTranslationButton.type = 'button';
-        removeTranslationButton.classList.add('btn', 'btn-danger', 'd-block', 'mt-2');
         removeTranslationButton.textContent = 'Remove Translation';
-        removeTranslationButton.onclick = function() {
+        removeTranslationButton.onclick = () => {
             translationContainer.remove();
         };
         translationContainer.appendChild(removeTranslationButton);
     }
 
-    const initialRuleWrapper = createRuleInput(false);
-    rulesList.appendChild(initialRuleWrapper);
-
     return translationContainer;
+}
+
+
+// Fetch rule by ID
+async function fetchRuleById(ruleId) {
+    if (!ruleId) {
+        console.error('Invalid ruleId:', ruleId);
+        return null;
+    }
+    try {
+        const response = await fetch('/getRuleById/' + ruleId);
+        const ruleData = await response.json();
+        console.log('Fetched rule by ID:', ruleData);
+        return ruleData;
+    } catch (error) {
+        console.error('Error fetching rule by ID:', error);
+        return null;
+    }
+}
+
+window.addUpdateTranslationContainer = async function(translation = '', rulesAndLinks = [], initial = false) {
+    const additionalTranslationsDiv = document.getElementById('updateTranslations');
+    if (!additionalTranslationsDiv) {
+        console.error('Element with id "updateTranslations" not found.');
+        return;
+    }
+    const translationContainer = await createTranslationContainer(translation, rulesAndLinks, initial);
+    additionalTranslationsDiv.appendChild(translationContainer);
 };
 
-window.addUpdateTranslationContainer = async function() {
-    const translationsDiv = document.getElementById('updateTranslations');
-    const translationContainer = await createTranslationContainer();
-    translationsDiv.appendChild(translationContainer);
-};
-
-document.getElementById('addUpdateTranslationButton').addEventListener('click', function() {
-    addUpdateTranslationContainer();
+document.getElementById('addUpdateTranslationButton').addEventListener('click', async function() {
+    await addUpdateTranslationContainer();
 });
 
-
 function fillUpdateModal(sentenceData) {
+    const updateAdditionalTopicsDiv = document.getElementById('updateAdditionalTopics');
+    const updateTranslationsDiv = document.getElementById('updateTranslations');
+    if (!updateTranslationsDiv) {
+        console.error('Element with id "updateTranslations" not found.');
+        return;
+    }
+
     console.log('Filling update modal with data:', sentenceData);
 
     const sentenceIdField = document.getElementById('updateSentenceId');
@@ -335,44 +390,87 @@ function fillUpdateModal(sentenceData) {
     userLinkField.value = decodeURIComponent(sentenceData.userLink);
 
     // Clear existing topics and translations
-    const updateAdditionalTopicsDiv = document.getElementById('updateAdditionalTopics');
     updateAdditionalTopicsDiv.innerHTML = '';
-    const updateTranslationsDiv = document.getElementById('updateTranslations');
     updateTranslationsDiv.innerHTML = '';
 
     // Add topics
     sentenceData.topics.forEach(topic => {
-        addUpdateTopicContainer(topic.topicName);
+        addUpdateTopicContainer(topic.topicName, topic.topicId);
     });
 
     // Add translations
-    sentenceData.translations.forEach(translation => {
-        const rulesAndLinks = translation.rulesAndLinks.map(ruleAndLink => ruleAndLink.rule);
-        addUpdateTranslationContainer(translation.translation, rulesAndLinks);
+    sentenceData.translations.forEach(async (translation) => {
+        console.log('Processing translation:', translation);
+        const rulesAndLinks = translation.rulesAndLinks.map(ruleAndLink => {
+            console.log('Rule and Link:', ruleAndLink);
+            return {
+                ruleId: ruleAndLink.ruleId
+            };
+        });
+        await addUpdateTranslationContainer(translation.translation, rulesAndLinks, false);
     });
 }
 
-function addUpdateTopicContainer(topicName) {
-    if (topicName === undefined) topicName = '';
-    const additionalTopicsDiv = document.getElementById('updateAdditionalTopics');
-    const topicContainer = document.createElement('div');
-    topicContainer.classList.add('mb-3');
-    topicContainer.innerHTML = `
-        <label for="topicInput" class="form-label">Topic:</label>
-        <input type="text" class="form-control topic-input" autocomplete="off" value="${decodeURIComponent(topicName)}">
-    `;
-    additionalTopicsDiv.appendChild(topicContainer);
-}
 
-function addUpdateTranslationContainer(translation, rulesAndLinks) {
-    if (translation === undefined) translation = '';
-    if (rulesAndLinks === undefined) rulesAndLinks = [];
-    const translationsDiv = document.getElementById('updateTranslations');
-    const translationContainer = document.createElement('div');
-    translationContainer.classList.add('translation-container');
-    translationContainer.innerHTML = `
-        <input type="text" class="form-control translation-input mb-2" placeholder="Translation" value="${decodeURIComponent(translation)}">
-        <input type="text" class="form-control rulesAndLinks-input mb-2" placeholder="Rules and Links (comma separated)" value="${decodeURIComponent(rulesAndLinks.join(', '))}">
-    `;
-    translationsDiv.appendChild(translationContainer);
-}
+document.getElementById('updateSentenceForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Gather form data
+    const sentenceId = document.getElementById('updateSentenceId').value;
+    const userId = document.getElementById('updateUserId').value;
+    const learningSentence = document.getElementById('updateLearningSentence').value;
+    const comment = document.getElementById('updateComment').value;
+    const userLink = document.getElementById('updateUserLink').value;
+
+    // Gather topic IDs
+    const topicContainers = document.querySelectorAll('#updateAdditionalTopics .topic-container .dropdown-input');
+    const topicsIds = Array.from(topicContainers).map(container => parseInt(container.dataset.topicId)).filter(id => !isNaN(id));
+
+    // Gather translations and their rules
+    const translationContainers = document.querySelectorAll('#updateTranslations .translation-container');
+    const translations = Array.from(translationContainers).map(container => {
+        const translationInput = container.querySelector('input[type="text"]');
+        const rulesList = container.querySelectorAll('.rules-list .dropdown-input');
+        const ruleIds = Array.from(rulesList).map(ruleInput => parseInt(ruleInput.dataset.ruleId)).filter(id => !isNaN(id));
+        return {
+            translation: translationInput.value,
+            ruleIds: ruleIds
+        };
+    });
+
+    // Create the data object to send in the PUT request
+    const data = {
+        userId: parseInt(userId),
+        learningSentence: learningSentence,
+        comment: comment,
+        userLink: userLink,
+        topicsIds: topicsIds,
+        translations: translations
+    };
+
+    // Send the PUT request
+    try {
+        const response = await fetch('http://localhost:8080/vocabulary/update/sentence/'+sentenceId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': '*/*'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Handle success (e.g., close modal, show success message, update UI)
+        alert('Sentence updated successfully!');
+        $('#updateSentenceModal').modal('hide');
+        await fetchAndDisplaySentences();
+        updateExercises();
+        // Optionally, refresh data on the page or redirect to another page
+    } catch (error) {
+        console.error('Error updating sentence:', error);
+        alert('An error occurred while updating the sentence.');
+    }
+});

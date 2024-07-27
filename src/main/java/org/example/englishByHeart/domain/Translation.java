@@ -71,6 +71,8 @@ public class Translation {
 }
 
 class RuleAndLink {
+
+    private String ruleId;
     private String rule;
     private String link;
 
@@ -96,5 +98,13 @@ class RuleAndLink {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(String ruleId) {
+        this.ruleId = ruleId;
     }
 }

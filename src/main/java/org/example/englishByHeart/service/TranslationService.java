@@ -68,6 +68,7 @@ public class TranslationService {
                 RulesAndLinks ruleAndLink = new RulesAndLinks();
                 ruleAndLink.setRule(translationRule.getRule().getRule());
                 ruleAndLink.setLink(translationRule.getRule().getLink());
+                ruleAndLink.setRuleId(translationRule.getRule().getRuleId());
                 rulesAndLinks.add(ruleAndLink);
             }
 
