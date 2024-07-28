@@ -15,7 +15,7 @@
         </div>
         <div class="mb-3">
             <label for="translation" class="form-label">Type a Translation:</label>
-            <input type="text" class="form-control" id="translation" name="translation">
+            <input type="text" class="form-control" id="translation" name="translation" autocomplete="off">
         </div>
         <button type="button" class="btn btn-primary" id="checkButton">Check</button>
         <button type="button" class="btn btn-success" id="continueButton" disabled>Continue</button>

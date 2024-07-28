@@ -30,11 +30,11 @@
             <div class="modal-body">
                 <div>
                     <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="exerciseName" name="name">
+                    <input type="text" class="form-control" id="exerciseName" name="name" autocomplete="off">
                     <label for="topic">Choose topics:</label>
                     <div id="topicsContainer">
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control dropdown-input" placeholder="Type to search" data-topic-id="">
+                            <input type="text" class="form-control dropdown-input" placeholder="Type to search" data-topic-id=""  autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-danger" type="button" onclick="removeTopic(this)">Remove Topic</button>
                             </div>
@@ -47,7 +47,7 @@
                     <label for="rules">Choose rules:</label>
                     <div id="rulesContainer">
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control dropdown-input" placeholder="Type to search rule" data-rule-id="">
+                            <input type="text" class="form-control dropdown-input" placeholder="Type to search rule" data-rule-id=""  autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-danger" type="button" onclick="removeRule(this)">Remove Rule</button>
                             </div>
@@ -417,7 +417,9 @@ document.getElementById('addExerciseBtn').addEventListener('click', async functi
             // Close the modal using Bootstrap 5 modal method
             const addExerciseModalElement = document.getElementById('addExerciseModal');
             const addExerciseModal = bootstrap.Modal.getInstance(addExerciseModalElement); // Get the Bootstrap modal instance
-            addExerciseModal.hide();
+            // addExerciseModal.hide();
+            $('#addExerciseModal').modal('hide');
+            $('.modal-backdrop').remove();
 
             // Reload the exercises list
             await fetchExercises();

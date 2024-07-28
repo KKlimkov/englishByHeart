@@ -37,13 +37,10 @@ const setupTopicInput = (topicInput, dropdownMenu) => {
     topicInput.addEventListener('blur', function() {
         setTimeout(() => {
             dropdownMenu.style.display = 'none';
-            // Clear input if the value is not in the dropdown
             const selectedTopic = Array.from(dropdownMenu.children).find(child => child.textContent === topicInput.value);
             if (!selectedTopic) {
-                topicInput.value = '';
                 topicInput.dataset.topicId = '';
             } else {
-                // Update data-topic-id with the selected topic's ID
                 topicInput.dataset.topicId = selectedTopic.dataset.topicId;
             }
         }, 100);
@@ -170,7 +167,6 @@ const setupRuleInput = (ruleInput, ruleDropdownMenu) => {
             ruleDropdownMenu.style.display = 'none';
             const selectedRule = Array.from(ruleDropdownMenu.children).find(child => child.textContent === ruleInput.value);
             if (!selectedRule) {
-                ruleInput.value = '';
                 ruleInput.dataset.ruleId = '';
             }
         }, 100);
@@ -251,9 +247,8 @@ const createRuleInput = (addRemoveButton = true, ruleId = '') => {
     return ruleWrapper;
 };
 
-async function createTranslationContainer(translation = '', rulesAndLinks = [], initial = false) {
-    console.log('Creating translation container with:', { translation, rulesAndLinks });
 
+async function createTranslationContainer(translation = '', rulesAndLinks = [], initial = false) {
     const translationContainer = document.createElement('div');
     translationContainer.classList.add('translation-container', 'mb-3');
     translationContainer.style.border = '1px solid #ccc';
@@ -281,29 +276,20 @@ async function createTranslationContainer(translation = '', rulesAndLinks = [], 
     rulesList.classList.add('rules-list');
     translationContainer.appendChild(rulesList);
 
-    // Add initial rules
+    let isFirstRule = true;
     if (rulesAndLinks.length > 0) {
-        console.log('Adding initial rules:', rulesAndLinks);
-
         for (const { ruleId } of rulesAndLinks) {
             if (ruleId) {
-                console.log('Fetching rule with ID:', ruleId);
                 const ruleData = await fetchRuleById(ruleId);
                 if (ruleData) {
-                    console.log('Fetched rule data:', ruleData);
-                    const ruleWrapper = createRuleInput(false, ruleId);
+                    const ruleWrapper = createRuleInput(!isFirstRule, ruleId);
                     const ruleInput = ruleWrapper.querySelector('.dropdown-input');
                     ruleInput.value = ruleData.rule;
                     rulesList.appendChild(ruleWrapper);
-                } else {
-                    console.error('No data found for rule ID:', ruleId);
+                    isFirstRule = false;
                 }
-            } else {
-                console.error('Undefined ruleId:', ruleId);
             }
         }
-    } else {
-        console.log('No rules to add.');
     }
 
     const addRuleButton = document.createElement('button');
@@ -311,7 +297,7 @@ async function createTranslationContainer(translation = '', rulesAndLinks = [], 
     addRuleButton.type = 'button';
     addRuleButton.textContent = 'Add Rule';
     addRuleButton.onclick = () => {
-        const ruleWrapper = createRuleInput();
+        const ruleWrapper = createRuleInput(true);
         rulesList.appendChild(ruleWrapper);
     };
     translationContainer.appendChild(addRuleButton);
@@ -356,10 +342,19 @@ window.addUpdateTranslationContainer = async function(translation = '', rulesAnd
     }
     const translationContainer = await createTranslationContainer(translation, rulesAndLinks, initial);
     additionalTranslationsDiv.appendChild(translationContainer);
+
+    // Ensure the first translation does not have a remove button
+    const translationContainers = additionalTranslationsDiv.getElementsByClassName('translation-container');
+    if (translationContainers.length === 1) {
+        const firstRemoveButton = translationContainers[0].querySelector('.btn-danger');
+        if (firstRemoveButton) {
+            firstRemoveButton.remove();
+        }
+    }
 };
 
 document.getElementById('addUpdateTranslationButton').addEventListener('click', async function() {
-    await addUpdateTranslationContainer();
+    await addUpdateTranslationContainer('', [], false);
 });
 
 function fillUpdateModal(sentenceData) {
@@ -399,16 +394,16 @@ function fillUpdateModal(sentenceData) {
     });
 
     // Add translations
-    sentenceData.translations.forEach(async (translation) => {
-        console.log('Processing translation:', translation);
-        const rulesAndLinks = translation.rulesAndLinks.map(ruleAndLink => {
-            console.log('Rule and Link:', ruleAndLink);
-            return {
-                ruleId: ruleAndLink.ruleId
-            };
+    sentenceData.translations.forEach(async (translation, index) => {
+            console.log('Processing translation:', translation);
+            const rulesAndLinks = translation.rulesAndLinks.map(ruleAndLink => {
+                console.log('Rule and Link:', ruleAndLink);
+                return {
+                    ruleId: ruleAndLink.ruleId
+                };
+            });
+            await addUpdateTranslationContainer(translation.translation, rulesAndLinks, index === 0);
         });
-        await addUpdateTranslationContainer(translation.translation, rulesAndLinks, false);
-    });
 }
 
 
@@ -459,13 +454,13 @@ document.getElementById('updateSentenceForm').addEventListener('submit', async f
             body: JSON.stringify(data)
         });
 
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Handle success (e.g., close modal, show success message, update UI)
-        alert('Sentence updated successfully!');
         $('#updateSentenceModal').modal('hide');
+        $('.modal-backdrop').remove();
         await fetchAndDisplaySentences();
         updateExercises();
         // Optionally, refresh data on the page or redirect to another page

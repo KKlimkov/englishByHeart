@@ -50,7 +50,7 @@
                     </div>
 
                     <div id="createTopicContainer" class="mb-3">
-                        <label for="createTopicInput" class="form-label">Topic:</label>
+                        <h5>Topics:</h5>
                         <div class="custom-dropdown topic-container">
                             <input type="text" class="form-control dropdown-input" id="createTopicInput" name="topicInput" placeholder="Type to search" autocomplete="off" data-topic-id="">
                             <div id="createDropdownMenu" class="dropdown-menu scroll-container" role="menu"></div>
@@ -63,7 +63,7 @@
                     <button type="button" class="btn btn-secondary mb-3" onclick="addCreateTopicContainer()">Add Another Topic</button>
 
                     <div class="mb-3">
-                        <h3>Translations</h3>
+                        <h5>Translations:</h5>
                         <div id="createTranslations"></div>
                         <button type="button" class="btn btn-secondary mb-3" onclick="addCreateTranslationContainer()">Add Translation</button>
                     </div>
@@ -108,8 +108,11 @@
                         <label for="updateUserLink" class="form-label">User Link</label>
                         <input type="text" class="form-control" id="updateUserLink" name="userLink">
                     </div>
+                    <h5>Topics:</h5>
                     <div id="updateAdditionalTopics" class="mb-3"></div>
-                    <button type="button" id="addUpdateTopicButton" class="btn btn-secondary">Add Another Topic</button>
+                    <button type="button" id="addUpdateTopicButton" class="btn btn-secondary mb-3">Add Another Topic</button>
+
+                    <br><h5>Translations:</h5>
                     <div id="updateTranslations" class="mb-3"></div>
                     <button type="button" id="addUpdateTranslationButton" class="btn btn-secondary">Add Another Translation</button>
                     <div class="modal-footer">
@@ -213,6 +216,7 @@
                             // Optionally, handle successful deletion
                             showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
                             fetchAndDisplaySentences();
+                            updateExercises();
                             // Optionally, remove the row or update the UI
                         })
                         .catch(error => {
