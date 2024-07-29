@@ -294,6 +294,32 @@ document.addEventListener('DOMContentLoaded', async function() {
         translationsDiv.appendChild(translationContainer);
     };
 
+    const resetForm = () => {
+            // Clear main input fields
+            document.getElementById('createLearningSentence').value = '';
+            document.getElementById('createComment').value = '';
+            document.getElementById('createUserLink').value = '';
+
+            // Clear topics
+            document.getElementById('createTopicInput').value = '';
+            document.getElementById('createTopicInput').dataset.topicId = '';
+            document.getElementById('createDropdownMenu').innerHTML = '';
+
+            // Clear additional topics
+            document.getElementById('createAdditionalTopics').innerHTML = '';
+
+            // Clear translations
+            document.getElementById('createTranslations').innerHTML = '';
+            addCreateTranslationContainer(); // Add the initial translation container
+        };
+
+        // Ensure you include jQuery if not already included
+        $(document).ready(function() {
+            $('#createSentenceModal').on('show.bs.modal', function() {
+                resetForm(); // Call the reset form function when modal is shown
+            });
+        });
+
     const validateForm = () => {
         let isValid = true;
 
@@ -454,13 +480,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             const messageContainer = document.getElementById('createMessageContainer');
             if (response.ok) {
                 console.log('Form submitted successfully');
-                messageContainer.innerHTML = '<div class="alert alert-success">Sentence was added successfully</div>';
-
+                    showAlert('messageContainerPage', 'Sentence was added successfully', 'Success');
                 // Close modal after adding sentence using jQuery
                     $('#createSentenceModal').modal('hide');
                     $('.modal-backdrop').remove();
-
-
                 await fetchAndDisplaySentences();
                 updateExercises();
 

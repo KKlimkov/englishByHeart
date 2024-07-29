@@ -175,7 +175,6 @@ function createExerciseCard(exercise) {
     return card;
 }
 
-
      async function fetchTopicsAndRules() {
      try {
          const topicsResponse = await fetch('/topics?userId=1');
