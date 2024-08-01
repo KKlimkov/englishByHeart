@@ -202,12 +202,16 @@ public class ExerciseService {
             response.setExerciseName(exercise.getExerciseName());
 
             // Fetch topic names
-            List<String> topicNames = fetchTopicNamesByIds(Arrays.asList(exercise.getTopicsIds()));
-            response.setCurrentTopicsIds(topicNames);
+            List<String> topicIds = Arrays.asList(exercise.getTopicsIds());
+            List<String> topicNames = fetchTopicNamesByIds(topicIds);
+            List<IdNamePair> topics = IdNamePairHelper.formIdNamePairs(topicIds, topicNames);
+            response.setCurrentTopicsIds(topics);
 
             // Fetch rule names
-            List<String> ruleNames = fetchRuleNamesByIds(Arrays.asList(exercise.getRulesIds()));
-            response.setCurrentRulesIds(ruleNames);
+            List<String> ruleIds = Arrays.asList(exercise.getRulesIds());
+            List<String> ruleNames = fetchRuleNamesByIds(ruleIds);
+            List<IdNamePair> rules = IdNamePairHelper.formIdNamePairs(ruleIds, ruleNames);
+            response.setCurrentRulesIds(rules);
 
             response.setNumberOfSentences((long) exercise.getSentencesId().length);
 
@@ -239,7 +243,6 @@ public class ExerciseService {
 
         return response.getBody().stream().map(Topic::getTopicName).collect(Collectors.toList());
     }
-
     private List<String> fetchRuleNamesByIds(List<String> ruleIds) {
         List<Long> ids = ruleIds.stream().map(Long::valueOf).collect(Collectors.toList());
         HttpHeaders headers = new HttpHeaders();
@@ -499,6 +502,23 @@ public class ExerciseService {
             logger.info("Request body: {}", requestBody);
         } catch (JsonProcessingException e) {
             logger.error("Error converting request object to JSON", e);
+        }
+    }
+
+    @Transactional
+    public boolean deleteExerciseById(Long exerciseId) {
+        try {
+            if (exerciseRepository.existsById(exerciseId)) {
+                exerciseRepository.deleteById(exerciseId);
+                logger.info("Deleted exercise with ID: {}", exerciseId);
+                return true;
+            } else {
+                logger.warn("Exercise not found with ID: {}", exerciseId);
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred while deleting exercise", e);
+            return false;
         }
     }
 }

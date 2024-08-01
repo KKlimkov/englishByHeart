@@ -5,8 +5,9 @@ import java.util.List;
 public class ExerciseResponse {
     private Long exerciseId;
     private String exerciseName;
-    private List<String> currentTopicsIds;
-    private List<String> currentRulesIds;
+
+    private List<IdNamePair> currentTopicsIds;
+    private List<IdNamePair> currentRulesIds;
 
     private List<String> currentSentencesIds;
     private Long currentSentenceId;
@@ -30,19 +31,19 @@ public class ExerciseResponse {
         this.exerciseName = exerciseName;
     }
 
-    public List<String> getCurrentTopicsIds() {
+    public List<IdNamePair> getCurrentTopicsIds() {
         return currentTopicsIds;
     }
 
-    public void setCurrentTopicsIds(List<String> currentTopicsIds) {
+    public void setCurrentTopicsIds(List<IdNamePair> currentTopicsIds) {
         this.currentTopicsIds = currentTopicsIds;
     }
 
-    public List<String> getCurrentRulesIds() {
+    public List<IdNamePair> getCurrentRulesIds() {
         return currentRulesIds;
     }
 
-    public void setCurrentRulesIds(List<String> currentRulesIds) {
+    public void setCurrentRulesIds(List<IdNamePair> currentRulesIds) {
         this.currentRulesIds = currentRulesIds;
     }
 

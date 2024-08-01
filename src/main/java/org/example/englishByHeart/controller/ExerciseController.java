@@ -152,4 +152,14 @@ public class ExerciseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @DeleteMapping("/exercises/{exerciseId}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable Long exerciseId) {
+        boolean isDeleted = exerciseService.deleteExerciseById(exerciseId);
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
