@@ -162,6 +162,8 @@
         .fade-out.hidden {
             opacity: 0;
         }
+        .input-group input.is-invalid {
+    border: 2px solid red;
 
     </style>
 </head>

@@ -97,7 +97,7 @@
     </div>
 </div>
 
-
+<script src="updateExercisesFunctions.js"></script>
 <script src="update_exercise_modal.js"></script>
 <script src="create_exercise_modal.js"></script>
 
