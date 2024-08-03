@@ -172,7 +172,7 @@ function createExerciseCard(exercise) {
     // Extract names of rules
     const rules = exercise.currentRulesIds.map(rule => rule.name).join(', ') || 'No rules available';
 
-    const exerciseId = exercise.exerciseId;
+    const numberOfSentences = exercise.numberOfSentences || 0; // Ensure numberOfSentences is a number
 
     const cardContent = `
         <div class="card mb-4">
@@ -188,8 +188,6 @@ function createExerciseCard(exercise) {
         </div>
     `;
 
-    const numberOfSentences = exercise.numberOfSentences || 'No sentences';
-
     card.innerHTML = cardContent;
     card.querySelector('.card-title').textContent = cardTitle;
     card.querySelector('.card-text:nth-of-type(1)').append(document.createTextNode(topics));
@@ -197,7 +195,14 @@ function createExerciseCard(exercise) {
     card.querySelector('.card-text:nth-of-type(3)').append(document.createTextNode(numberOfSentences));
 
     const startButton = card.querySelector('.start-btn');
+    if (numberOfSentences === 0) {
+        startButton.setAttribute('disabled', 'true');
+    }
+
     startButton.addEventListener('click', async function() {
+        if (numberOfSentences === 0) {
+            return; // Prevent action if numberOfSentences is 0
+        }
         try {
             // Start lesson and get response
             const response = await activateExercise(exercise.exerciseId);
@@ -209,16 +214,16 @@ function createExerciseCard(exercise) {
 
     const updateButton = card.querySelector('.update-btn');
     updateButton.addEventListener('click', function() {
-        console.log('Update button clicked for exercise:', exerciseId);
-        openUpdateModal(exerciseId); // Call the function to open the update modal
+        console.log('Update button clicked for exercise:', exercise.exerciseId);
+        openUpdateModal(exercise.exerciseId); // Call the function to open the update modal
     });
 
     const deleteButton = card.querySelector('.delete-btn');
     deleteButton.addEventListener('click', async function() {
         // Implement the delete exercise logic here
-        console.log('Delete button clicked for exercise:', exerciseId);
+        console.log('Delete button clicked for exercise:', exercise.exerciseId);
         try {
-            await deleteExercise(exerciseId);
+            await deleteExercise(exercise.exerciseId);
             card.remove(); // Remove the card from the DOM after successful deletion
             fetchExercises();
         } catch (error) {
