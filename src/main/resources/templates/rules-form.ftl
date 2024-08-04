@@ -11,6 +11,23 @@
             <label for="linkInput" class="form-label">Link:</label>
             <input type="text" class="form-control" id="linkInput" name="link" autocomplete="off" required>
         </div>
+        <div class="mb-3">
+            <label for="sortBy" class="form-label">Sort By:</label>
+            <select id="sortBy" class="form-select">
+                <option value="CREATE_DATE">Create Date</option>
+                <option value="UPDATE_DATE">Update Date</option>
+                <option value="NAME">Name</option>
+                <option value="LINK">Link</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sortDirection" class="form-label">Direction:</label>
+            <select id="sortDirection" class="form-select">
+                <option value="ASC">Ascending</option>
+                <option value="DESC">Descending</option>
+            </select>
+        </div>
+        <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
         <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Rule</button>
         <div id="rulesContainer" class="container mt-4 row card-container"></div>
     </div>
@@ -101,23 +118,33 @@
         checkInput(); // Re-check the input after clearing the form
     }
 
+document.getElementById('applyButton').addEventListener('click', function() {
+    fetchRules(); // Fetch rules with the selected sort options
+});
+
     // Function to fetch and display rules
     function fetchRules() {
-        fetch('http://localhost:8080/rulesByUserId?userId=1')
-            .then(response => response.json())
-            .then(data => {
-                var rulesContainer = document.getElementById('rulesContainer');
-                rulesContainer.innerHTML = ''; // Clear existing rules
+    var sortBy = document.getElementById('sortBy').value;
+    var sortDirection = document.getElementById('sortDirection').value;
 
-                data.forEach(rule => {
-                    var card = createRuleCard(rule);
-                    rulesContainer.appendChild(card);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching rules:', error);
+    // Construct the URL using string concatenation
+    var url = 'http://localhost:8080/rulesByUserId?userId=1&sortBy=' + encodeURIComponent(sortBy) + '&mode=' + encodeURIComponent(sortDirection);
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            var rulesContainer = document.getElementById('rulesContainer');
+            rulesContainer.innerHTML = ''; // Clear existing rules
+
+            data.forEach(rule => {
+                var card = createRuleCard(rule);
+                rulesContainer.appendChild(card);
             });
-    }
+        })
+        .catch(error => {
+            console.error('Error fetching rules:', error);
+        });
+}
 
     // Function to create a rule card
 function createRuleCard(rule) {
@@ -235,4 +262,6 @@ function createRuleCard(rule) {
 
     // Initial fetch of rules when the page loads
     fetchRules();
+
+
 </script>

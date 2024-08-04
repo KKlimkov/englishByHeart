@@ -1,10 +1,12 @@
 package org.example.englishByHeart.controller;
 
 import org.example.englishByHeart.domain.Topic;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.service.RuleService;
 import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.dto.RuleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +36,12 @@ public class RuleController {
     }
 
     @GetMapping("/rulesByUserId")
-    public List<Rule> getAllRulessByUser(Long userId) {
-        return ruleService.getAllRulesByUser(userId);
+    public List<Rule> getRulesByUser(@RequestParam Long userId,
+                                     @RequestParam(required = false) SortBy sortBy,
+                                     @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode) {
+        return ruleService.getAllRulesByUserId(userId, sortBy, mode);
     }
+
 
     @GetMapping("/getRuleById/{ruleId}")
     public Rule getRuleById(@PathVariable Long ruleId) {

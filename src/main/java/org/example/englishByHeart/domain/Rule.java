@@ -3,7 +3,10 @@ package org.example.englishByHeart.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,14 @@ public class Rule {
     private String link;
 
     private Long userId;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private ZonedDateTime createDate;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private ZonedDateTime updateDate;
 
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -77,4 +88,19 @@ public class Rule {
         this.translationRule = translationRule;
     }
 
+    public ZonedDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(ZonedDateTime createDate) {
+        this.createDate = createDate;
+    }
+
+    public ZonedDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(ZonedDateTime updateDate) {
+        this.updateDate = updateDate;
+    }
 }

@@ -4,8 +4,10 @@ import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.domain.Translation;
 import org.example.englishByHeart.domain.TranslationRule;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,9 +37,12 @@ public class RuleService {
     }
 
 
-    public List<Rule> getAllRulesByUser(Long userId) {
-        List<Rule> rules = ruleRepository.findByUserId(userId);
-        return rules;
+    public List<Rule> getAllRulesByUserId(Long userId, SortBy sortBy, Sort.Direction direction) {
+        if (sortBy == null) {
+            return ruleRepository.findAllByUserId(userId, Sort.unsorted());
+        } else {
+            return ruleRepository.findAllByUserId(userId, Sort.by(direction, sortBy.getField()));
+        }
     }
 
     public Set<Long> getTranslationIdsForRules(List<Rule> rules) {
