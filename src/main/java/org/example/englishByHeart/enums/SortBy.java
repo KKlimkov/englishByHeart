@@ -5,8 +5,8 @@ public enum SortBy {
     UPDATE_DATE("updateDate"),
     RULE_NAME("rule"),
     RULE_LINK("link"),
-
-    TOPIC_NAME("topicName");
+    TOPIC_NAME("topicName"),
+    LEARNING_SENTENCE("learningSentence");
 
     private final String field;
 

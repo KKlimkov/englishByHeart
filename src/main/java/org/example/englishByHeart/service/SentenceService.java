@@ -176,11 +176,8 @@ public class SentenceService {
 
         List<Sentence> sentences;
 
-        if (sortBy == null) {
-            sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
-        } else {
-            sentences = sentenceRepository.findByUserId(userId, Sort.by(direction, sortBy.getField()));
-        }
+        // Fetch sentences without sorting
+        sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
 
         List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
 
@@ -191,7 +188,44 @@ public class SentenceService {
             sentenceDtos.add(sentenceDto);
         }
 
+        // Sort in-memory based on nested properties
+        if (sortBy != null) {
+            Comparator<SentenceDtoTable> comparator = getComparatorForSortBy(sortBy, direction);
+            sentenceDtos = sentenceDtos.stream().sorted(comparator).collect(Collectors.toList());
+        }
+
         return sentenceDtos;
+    }
+
+    private Comparator<SentenceDtoTable> getComparatorForSortBy(SortBy sortBy, Sort.Direction direction) {
+        Comparator<SentenceDtoTable> comparator;
+
+        switch (sortBy) {
+            case TOPIC_NAME:
+                comparator = Comparator.comparing(sentenceDtoTable -> sentenceDtoTable.getTopics().stream()
+                        .map(Topic::getTopicName)
+                        .sorted()
+                        .collect(Collectors.joining(", ")));
+                break;
+            case RULE_NAME:
+                comparator = Comparator.comparing(sentenceDtoTable -> sentenceDtoTable.getTranslations().stream()
+                        .flatMap(translation -> translation.getRulesAndLinks().stream())
+                        .map(ruleAndLink -> ruleAndLink.getRule()) // Ensure this method exists in RulesAndLinks
+                        .sorted()
+                        .collect(Collectors.joining(", ")));
+                break;
+            default:
+                // Handle other sort options if needed
+                comparator = Comparator.comparing(SentenceDtoTable::getLearningSentence);
+                break;
+        }
+
+        // Reverse order if direction is DESC
+        if (direction == Sort.Direction.DESC) {
+            comparator = comparator.reversed();
+        }
+
+        return comparator;
     }
 
     public SentenceDtoTable getFullSentenceBySentenceId(Long sentenceId) {
