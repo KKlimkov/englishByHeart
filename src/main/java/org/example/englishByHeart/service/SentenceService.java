@@ -8,10 +8,12 @@ import org.example.englishByHeart.dto.SentenceIdResponse;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.SentenceDTO;
 import org.example.englishByHeart.dto.TranslationWithRuleDTO;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.SentenceRepository;
 import org.example.englishByHeart.repos.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -157,7 +159,7 @@ public class SentenceService {
             return sentenceRepository.findByUserIdAndSentenceTopicsIn(userId, sentenceTopics);
         } else if (userId != null) {
             // Search by userId
-            return sentenceRepository.findByUserId(userId);
+            return sentenceRepository.findByUserId(userId, Sort.unsorted());
         } else if (sentenceIds != null && !sentenceIds.isEmpty()) {
             // Search by sentenceIds
             return sentenceRepository.findBySentenceIdIn(sentenceIds);
@@ -170,8 +172,16 @@ public class SentenceService {
         }
     }
 
-    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId) {
-        List<Sentence> sentences = sentenceRepository.findByUserId(userId);
+    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction) {
+
+        List<Sentence> sentences;
+
+        if (sortBy == null) {
+            sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
+        } else {
+            sentences = sentenceRepository.findByUserId(userId, Sort.by(direction, sortBy.getField()));
+        }
+
         List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
 
         for (Sentence sentence : sentences) {

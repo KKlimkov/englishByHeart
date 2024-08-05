@@ -1,6 +1,8 @@
 package org.example.englishByHeart.repos;
 
+import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.Sentence;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +13,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
-    List<Sentence> findByUserId(Long userId);
+
+    @Query("SELECT r FROM Sentence r WHERE r.userId = :userId")
+    List<Sentence> findByUserId(@Param("userId") Long userId, Sort sort);
 
     Optional<Sentence> findBySentenceId(Long sentenceId);
 

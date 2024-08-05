@@ -9,6 +9,22 @@
             <input type="text" class="form-control" id="topicInput" name="topic" autocomplete="off" required>
         </div>
         <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Topic</button>
+        <div class="mb-3">
+            <label for="sortBy" class="form-label">Sort By:</label>
+            <select id="sortBy" class="form-select">
+                <option value="CREATE_DATE">Create Date</option>
+                <option value="UPDATE_DATE">Update Date</option>
+                <option value="TOPIC_NAME">Name</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sortDirection" class="form-label">Direction:</label>
+            <select id="sortDirection" class="form-select">
+                <option value="ASC">Ascending</option>
+                <option value="DESC">Descending</option>
+            </select>
+        </div>
+        <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
         <div id="topicsContainer" class="container mt-4 row card-container"></div>
     </div>
 </div>
@@ -92,22 +108,31 @@
         checkInput(); // Check input to disable/enable the button
     }
 
+document.getElementById('applyButton').addEventListener('click', function() {
+    fetchTopics(); // Fetch rules with the selected sort options
+});
+
     // Function to fetch and display topics
     function fetchTopics() {
-        fetch('http://localhost:8080/topics?userId=1')
-            .then(response => response.json())
-            .then(data => {
-                var topicsContainer = document.getElementById('topicsContainer');
+
+    var sortBy = document.getElementById('sortBy').value;
+    var sortDirection = document.getElementById('sortDirection').value;
+    var url = 'http://localhost:8080/topics?userId=1&sortBy=' + encodeURIComponent(sortBy) + '&mode=' + encodeURIComponent(sortDirection);
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            var topicsContainer = document.getElementById('topicsContainer');
                 topicsContainer.innerHTML = ''; // Clear existing topics
 
                 data.forEach(topic => {
                     var card = createTopicCard(topic);
                     topicsContainer.appendChild(card);
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching topics:', error);
-            });
+        })
+        .catch(error => {
+            console.error('Error fetching rules:', error);
+        });
     }
 
     // Function to create a topic card
@@ -240,6 +265,7 @@
     }
 
     // Initial fetch of topics when the page loads
+
     fetchTopics();
 
 </script>

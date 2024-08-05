@@ -4,9 +4,11 @@ import org.example.englishByHeart.domain.Rule;
 import org.example.englishByHeart.domain.SentenceTopic;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.dto.TopicDTO;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.SentenceTopicRepository;
 import org.example.englishByHeart.repos.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,9 +38,13 @@ public class TopicService {
         return topicRepository.findById(id);
     }
 
-    public List<Topic> getAllTopicsByUser(Long userId) {
-        List<Topic> topics = topicRepository.findByUserId(userId);
-        return topics;
+
+    public List<Topic> getAllTopicsByUser(Long userId, SortBy sortBy, Sort.Direction direction) {
+        if (sortBy == null) {
+            return topicRepository.findAllByUserId(userId, Sort.unsorted());
+        } else {
+            return topicRepository.findAllByUserId(userId, Sort.by(direction, sortBy.getField()));
+        }
     }
 
     public List<Topic> getTopicsByTopicIds(List<Long> topicsIds) {

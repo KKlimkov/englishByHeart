@@ -11,13 +11,14 @@
             <label for="linkInput" class="form-label">Link:</label>
             <input type="text" class="form-control" id="linkInput" name="link" autocomplete="off" required>
         </div>
+        <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Rule</button>
         <div class="mb-3">
             <label for="sortBy" class="form-label">Sort By:</label>
             <select id="sortBy" class="form-select">
                 <option value="CREATE_DATE">Create Date</option>
                 <option value="UPDATE_DATE">Update Date</option>
-                <option value="NAME">Name</option>
-                <option value="LINK">Link</option>
+                <option value="RULE_NAME">Name</option>
+                <option value="RULE_LINK">Link</option>
             </select>
         </div>
         <div class="mb-3">
@@ -28,7 +29,6 @@
             </select>
         </div>
         <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
-        <button type="button" id="submitButton" class="btn btn-primary" disabled>Create Rule</button>
         <div id="rulesContainer" class="container mt-4 row card-container"></div>
     </div>
 </div>

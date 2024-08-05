@@ -132,7 +132,6 @@
 <script src="update_modal.js"></script>
 
 
-
 <script>
     async function fetchAndDisplaySentences() {
         try {

@@ -2,10 +2,12 @@ package org.example.englishByHeart.controller;
 
 import org.example.englishByHeart.dto.SentenceDtoTable;
 import org.example.englishByHeart.dto.SentenceIdResponse;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.service.SentenceService;
 import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.dto.SentenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -92,8 +94,10 @@ public class SentenceController {
     }
 
     @GetMapping("/getFullSentencesByUserId")
-    public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId) {
-        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId);
+    public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId,
+                                                                           @RequestParam(required = false) SortBy sortBy,
+                                                                           @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode) {
+        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId, sortBy, mode);
         return new ResponseEntity<>(sentences, HttpStatus.OK);
     }
 

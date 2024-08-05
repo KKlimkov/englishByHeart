@@ -1,10 +1,12 @@
 package org.example.englishByHeart.controller;
 
 import org.example.englishByHeart.domain.Rule;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.service.TopicService;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.dto.TopicDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,10 @@ public class TopicController {
     private TopicService topicService;
 
     @GetMapping("/topics")
-    public List<Topic> getAllTopicsByUser(Long userId) {
-        return topicService.getAllTopicsByUser(userId);
+    public List<Topic> getAllTopicsByUser(@RequestParam Long userId,
+                                          @RequestParam(required = false) SortBy sortBy,
+                                          @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode) {
+        return topicService.getAllTopicsByUser(userId, sortBy, mode);
     }
 
 
