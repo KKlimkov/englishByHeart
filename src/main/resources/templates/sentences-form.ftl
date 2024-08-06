@@ -6,6 +6,24 @@
         Create Sentence
     </button>
     <div class="mt-4">
+        <div class="mb-3">
+            <label for="sortBy" class="form-label">Sort By:</label>
+            <select id="sortBy" class="form-select">
+                <option value="CREATE_DATE">Create Date</option>
+                <option value="UPDATE_DATE">Update Date</option>
+                <option value="RULE_NAME">Rule</option>
+                <option value="TOPIC_NAME">Topic</option>
+                <option value="LEARNING_SENTENCE">Sentence</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sortDirection" class="form-label">Direction:</label>
+            <select id="sortDirection" class="form-select">
+                <option value="ASC">Ascending</option>
+                <option value="DESC">Descending</option>
+            </select>
+        </div>
+        <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
         <table class="table table-bordered">
             <thead>
             <tr>
@@ -133,111 +151,124 @@
 
 
 <script>
-    async function fetchAndDisplaySentences() {
-        try {
-            const response = await fetch('http://localhost:8080/api/sentence/getFullSentencesByUserId?userId=1', {
-                method: 'GET',
-                headers: {
-                    'Accept': '*/*'
-                }
-            });
-            const sentences = await response.json();
-
-            const tableBody = document.getElementById('sentencesTableBody');
-            tableBody.innerHTML = ''; // Clear any existing rows
-
-            sentences.forEach(sentence => {
-                const row = document.createElement('tr');
-
-                const sentenceIdCell = document.createElement('td');
-                sentenceIdCell.textContent = sentence.sentenceId;
-                row.appendChild(sentenceIdCell);
-
-                const learningSentenceCell = document.createElement('td');
-                learningSentenceCell.textContent = sentence.learningSentence;
-                row.appendChild(learningSentenceCell);
-
-                const commentCell = document.createElement('td');
-                commentCell.textContent = sentence.comment;
-                row.appendChild(commentCell);
-
-                const userLinkCell = document.createElement('td');
-                userLinkCell.textContent = sentence.userLink;
-                row.appendChild(userLinkCell);
-
-                const translationsCell = document.createElement('td');
-                const translationsList = document.createElement('ul');
-                sentence.translations.forEach(translation => {
-                    const translationItem = document.createElement('li');
-                    var rulesAndLinks = [];
-                    translation.rulesAndLinks.forEach(function(ruleAndLink) {
-                        rulesAndLinks.push(ruleAndLink.rule);
-                    });
-                    translationItem.textContent = translation.translation + " (" + rulesAndLinks.join(', ') + ")";
-                    translationsList.appendChild(translationItem);
-                });
-                translationsCell.appendChild(translationsList);
-                row.appendChild(translationsCell);
-
-                const topicsCell = document.createElement('td');
-                const topicsList = document.createElement('ul');
-                sentence.topics.forEach(topic => {
-                    const topicItem = document.createElement('li');
-                    topicItem.textContent = topic.topicName;
-                    topicsList.appendChild(topicItem);
-                });
-                topicsCell.appendChild(topicsList);
-                row.appendChild(topicsCell);
-
-                const actionsCell = document.createElement('td');
-                const updateButton = document.createElement('button');
-                updateButton.textContent = 'Update';
-                updateButton.classList.add('btn', 'btn-warning', 'm-1');
-                updateButton.setAttribute('sentence-id', sentence.sentenceId);
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.classList.add('btn', 'btn-danger', 'm-1');
-                deleteButton.setAttribute('sentence-id', sentence.sentenceId);
-                deleteButton.addEventListener('click', function() {
-
-                    const sentenceId = this.getAttribute('sentence-id');
-                    const url = 'http://localhost:8080/api/sentence/' + sentenceId + '/user/1'; // Assuming user ID is 1
-
-                    fetch(url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Accept': '*/*',
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            // Optionally, handle successful deletion
-                            showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
-                            fetchAndDisplaySentences();
-                            updateExercises();
-                            // Optionally, remove the row or update the UI
-                        })
-                        .catch(error => {
-                            // Optionally, handle error
-                            console.error('There was a problem with the fetch operation:', error);
-                        });
-                });
-
-                actionsCell.appendChild(updateButton);
-                actionsCell.appendChild(deleteButton);
-                row.appendChild(actionsCell);
-
-                tableBody.appendChild(row);
-            });
-
-             addUpdateEventListeners();
-        } catch (error) {
-            console.error('Error fetching sentences:', error);
+    async function fetchAndDisplaySentences(sortBy, sortDirection) {
+    try {
+        var url = 'http://localhost:8080/api/sentence/getFullSentencesByUserId?userId=1';
+        if (sortBy) {
+            url += '&sortBy=' + sortBy;
         }
+        if (sortDirection) {
+            url += '&mode=' + sortDirection;
+        }
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': '*/*'
+            }
+        });
+        const sentences = await response.json();
+
+        const tableBody = document.getElementById('sentencesTableBody');
+        tableBody.innerHTML = ''; // Clear any existing rows
+
+        sentences.forEach(function(sentence) {
+            const row = document.createElement('tr');
+
+            const sentenceIdCell = document.createElement('td');
+            sentenceIdCell.textContent = sentence.sentenceId;
+            row.appendChild(sentenceIdCell);
+
+            const learningSentenceCell = document.createElement('td');
+            learningSentenceCell.textContent = sentence.learningSentence;
+            row.appendChild(learningSentenceCell);
+
+            const commentCell = document.createElement('td');
+            commentCell.textContent = sentence.comment;
+            row.appendChild(commentCell);
+
+            const userLinkCell = document.createElement('td');
+            userLinkCell.textContent = sentence.userLink;
+            row.appendChild(userLinkCell);
+
+            const translationsCell = document.createElement('td');
+            const translationsList = document.createElement('ul');
+            sentence.translations.forEach(function(translation) {
+                const translationItem = document.createElement('li');
+                var rulesAndLinks = [];
+                translation.rulesAndLinks.forEach(function(ruleAndLink) {
+                    rulesAndLinks.push(ruleAndLink.rule);
+                });
+                translationItem.textContent = translation.translation + " (" + rulesAndLinks.join(', ') + ")";
+                translationsList.appendChild(translationItem);
+            });
+            translationsCell.appendChild(translationsList);
+            row.appendChild(translationsCell);
+
+            const topicsCell = document.createElement('td');
+            const topicsList = document.createElement('ul');
+            sentence.topics.forEach(function(topic) {
+                const topicItem = document.createElement('li');
+                topicItem.textContent = topic.topicName;
+                topicsList.appendChild(topicItem);
+            });
+            topicsCell.appendChild(topicsList);
+            row.appendChild(topicsCell);
+
+            const actionsCell = document.createElement('td');
+            const updateButton = document.createElement('button');
+            updateButton.textContent = 'Update';
+            updateButton.classList.add('btn', 'btn-warning', 'm-1');
+            updateButton.setAttribute('sentence-id', sentence.sentenceId);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('btn', 'btn-danger', 'm-1');
+            deleteButton.setAttribute('sentence-id', sentence.sentenceId);
+            deleteButton.addEventListener('click', function() {
+                const sentenceId = this.getAttribute('sentence-id');
+                const deleteUrl = 'http://localhost:8080/api/sentence/' + sentenceId + '/user/1'; // Assuming user ID is 1
+
+                fetch(deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': '*/*',
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Optionally, handle successful deletion
+                    showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
+                    fetchAndDisplaySentences(sortBy, sortDirection);
+                    updateExercises();
+                })
+                .catch(function(error) {
+                    // Optionally, handle error
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+            });
+
+            actionsCell.appendChild(updateButton);
+            actionsCell.appendChild(deleteButton);
+            row.appendChild(actionsCell);
+
+            tableBody.appendChild(row);
+        });
+
+        addUpdateEventListeners();
+    } catch (error) {
+        console.error('Error fetching sentences:', error);
     }
+}
+
+document.getElementById('applyButton').addEventListener('click', function() {
+    var sortBy = document.getElementById('sortBy').value;
+    var sortDirection = document.getElementById('sortDirection').value;
+    fetchAndDisplaySentences(sortBy, sortDirection);
+});
+
 
     function addUpdateEventListeners() {
     const updateButtons = document.querySelectorAll('.btn-warning');
@@ -275,7 +306,7 @@
 
     // Call the function after the DOM content has loaded
     document.addEventListener('DOMContentLoaded', function() {
-        fetchAndDisplaySentences();
+        fetchAndDisplaySentences('CREATE_DATE', 'ASC');;
     });
 
 </script>

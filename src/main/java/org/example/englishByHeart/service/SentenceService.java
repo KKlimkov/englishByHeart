@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -253,6 +254,9 @@ public class SentenceService {
         sentence.setComment(sentenceDto.getComment());
         sentence.setUserLink(sentenceDto.getUserLink());
 
+        boolean isRulesUpdated = false;
+        boolean isTopicsUpdated = false;
+
         // Update rules
         if (sentenceDto.getRulesIds() != null) {
             Set<SentenceRule> newRules = sentenceDto.getRulesIds().stream()
@@ -260,8 +264,12 @@ public class SentenceService {
                             .orElseThrow(() -> new EntityNotFoundException("Rule not found")))
                     .map(rule -> new SentenceRule(sentence, rule))
                     .collect(Collectors.toSet());
-            sentence.getSentenceRules().clear();
-            sentence.getSentenceRules().addAll(newRules);
+
+            if (!sentence.getSentenceRules().equals(newRules)) {
+                sentence.getSentenceRules().clear();
+                sentence.getSentenceRules().addAll(newRules);
+                isRulesUpdated = true;
+            }
         }
 
         // Update topics
@@ -271,12 +279,22 @@ public class SentenceService {
                             .orElseThrow(() -> new EntityNotFoundException("Topic not found")))
                     .map(topic -> new SentenceTopic(sentence, topic))
                     .collect(Collectors.toSet());
-            sentence.getSentenceTopics().clear();
-            sentence.getSentenceTopics().addAll(newTopics);
+
+            if (!sentence.getSentenceTopics().equals(newTopics)) {
+                sentence.getSentenceTopics().clear();
+                sentence.getSentenceTopics().addAll(newTopics);
+                isTopicsUpdated = true;
+            }
+        }
+
+        // Update the updateDate if any changes were made
+        if (isRulesUpdated || isTopicsUpdated) {
+            sentence.setUpdateDate(ZonedDateTime.now());
         }
 
         sentenceRepository.save(sentence);
     }
+
 
     public ResponseEntity<Void> deleteSentenceByIdAndUserId(Long sentenceId, Long userId) {
         Optional<Sentence> sentenceOptional = sentenceRepository.findBySentenceIdAndUserId(sentenceId, userId);
