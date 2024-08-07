@@ -3,11 +3,8 @@ package org.example.englishByHeart.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.example.englishByHeart.controller.CustomResponse;
-import org.example.englishByHeart.dto.SentenceDtoTable;
-import org.example.englishByHeart.dto.SentenceIdResponse;
+import org.example.englishByHeart.dto.*;
 import org.example.englishByHeart.domain.*;
-import org.example.englishByHeart.dto.SentenceDTO;
-import org.example.englishByHeart.dto.TranslationWithRuleDTO;
 import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.SentenceRepository;
@@ -177,7 +174,7 @@ public class SentenceService {
         }
     }
 
-    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction) {
+    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction, String searchWord) {
         List<Sentence> sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
         List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
 
@@ -186,6 +183,11 @@ public class SentenceService {
             List<Topic> topics = topicService.getTopicsBySentenceId(sentence.getSentenceId());
             SentenceDtoTable sentenceDto = new SentenceDtoTable(sentence, translations, topics);
             sentenceDtos.add(sentenceDto);
+        }
+
+        // Filter sentences by search word
+        if (searchWord != null && !searchWord.isEmpty()) {
+            sentenceDtos = sentenceDtos.stream().filter(dto -> containsSearchWord(dto, searchWord)).collect(Collectors.toList());
         }
 
         // Log the dates before sorting
@@ -207,6 +209,37 @@ public class SentenceService {
         }
 
         return sentenceDtos;
+    }
+
+    private boolean containsSearchWord(SentenceDtoTable dto, String searchWord) {
+        String lowerCaseSearchWord = searchWord.toLowerCase();
+
+        // Check learningSentence
+        if (dto.getLearningSentence().toLowerCase().contains(lowerCaseSearchWord)) {
+            return true;
+        }
+
+        // Check topics
+        for (Topic topic : dto.getTopics()) {
+            if (topic.getTopicName().toLowerCase().contains(lowerCaseSearchWord)) {
+                return true;
+            }
+        }
+
+        // Check translations
+        for (TranslationWithRuleDTO translation : dto.getTranslations()) {
+            if (translation.getTranslation().toLowerCase().contains(lowerCaseSearchWord)) {
+                return true;
+            }
+            // Check rules within translations
+            for (RulesAndLinks ruleAndLink : translation.getRulesAndLinks()) {
+                if (ruleAndLink.getRule().toLowerCase().contains(lowerCaseSearchWord)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private Comparator<SentenceDtoTable> getComparatorForSortBy(SortBy sortBy, Sort.Direction direction) {

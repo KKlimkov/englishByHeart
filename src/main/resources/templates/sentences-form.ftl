@@ -23,6 +23,10 @@
                 <option value="DESC">Descending</option>
             </select>
         </div>
+        <div class="mb-3">
+            <label for="searchWord" class="form-label">Search by word:</label>
+            <input type="text" class="form-control" id="searchWord" name="searchWord" autocomplete="off">
+        </div>
         <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
         <table class="table table-bordered">
             <thead>
@@ -151,7 +155,7 @@
 
 
 <script>
-    async function fetchAndDisplaySentences(sortBy, sortDirection) {
+    async function fetchAndDisplaySentences(sortBy, sortDirection, searchWord) {
     try {
         var url = 'http://localhost:8080/api/sentence/getFullSentencesByUserId?userId=1';
         if (sortBy) {
@@ -159,6 +163,9 @@
         }
         if (sortDirection) {
             url += '&mode=' + sortDirection;
+        }
+        if (searchWord) {
+            url += '&searchWord=' + searchWord;
         }
 
         const response = await fetch(url, {
@@ -241,7 +248,7 @@
                     }
                     // Optionally, handle successful deletion
                     showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
-                    fetchAndDisplaySentences(sortBy, sortDirection);
+                    fetchAndDisplaySentences(sortBy, sortDirection,searchWord);
                     updateExercises();
                 })
                 .catch(function(error) {
@@ -266,7 +273,8 @@
 document.getElementById('applyButton').addEventListener('click', function() {
     var sortBy = document.getElementById('sortBy').value;
     var sortDirection = document.getElementById('sortDirection').value;
-    fetchAndDisplaySentences(sortBy, sortDirection);
+    var searchWord = document.getElementById('searchWord').value;
+    fetchAndDisplaySentences(sortBy, sortDirection,searchWord);
 });
 
 

@@ -96,8 +96,11 @@ public class SentenceController {
     @GetMapping("/getFullSentencesByUserId")
     public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId,
                                                                            @RequestParam(required = false) SortBy sortBy,
-                                                                           @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode) {
-        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId, sortBy, mode);
+                                                                           @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode,
+                                                                           @RequestParam(required = false) String searchWord,
+                                                                           @RequestParam int page,
+                                                                           @RequestParam int size) {
+        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId, sortBy, mode, searchWord);
         return new ResponseEntity<>(sentences, HttpStatus.OK);
     }
 
