@@ -4,6 +4,7 @@ import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.domain.Topic;
 import org.example.englishByHeart.domain.Translation;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class SentenceDtoTable {
@@ -14,6 +15,8 @@ public class SentenceDtoTable {
     private String userLink;
     private List<TranslationWithRuleDTO> translations;
     private List<Topic> topics; // Add this line
+    private ZonedDateTime createDate;
+    private ZonedDateTime updateDate;
 
     // Constructor
     public SentenceDtoTable(Sentence sentence, List<TranslationWithRuleDTO> translations, List<Topic> topics) {
@@ -22,6 +25,8 @@ public class SentenceDtoTable {
         this.learningSentence = sentence.getLearningSentence();
         this.comment = sentence.getComment();
         this.userLink = sentence.getUserLink();
+        this.createDate = sentence.getCreateDate();
+        this.updateDate = sentence.getUpdateDate();
         this.translations = translations;
         this.topics = topics; // Add this line
     }
@@ -80,5 +85,21 @@ public class SentenceDtoTable {
 
     public void setTopics(List<Topic> topics) { // Add this setter
         this.topics = topics;
+    }
+
+    public ZonedDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(ZonedDateTime createDate) {
+        this.createDate = createDate;
+    }
+
+    public ZonedDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(ZonedDateTime updateDate) {
+        this.updateDate = updateDate;
     }
 }

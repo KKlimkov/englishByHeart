@@ -12,6 +12,8 @@ import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.SentenceRepository;
 import org.example.englishByHeart.repos.TopicRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,8 @@ public class SentenceService {
 
     @Autowired
     private TopicService topicService;
+
+    private static final Logger logger = LoggerFactory.getLogger(SentenceService.class);
 
     public List<Sentence> getAllSentences() {
         return sentenceRepository.findAll();
@@ -174,12 +178,7 @@ public class SentenceService {
     }
 
     public List<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction) {
-
-        List<Sentence> sentences;
-
-        // Fetch sentences without sorting
-        sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
-
+        List<Sentence> sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
         List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
 
         for (Sentence sentence : sentences) {
@@ -189,10 +188,22 @@ public class SentenceService {
             sentenceDtos.add(sentenceDto);
         }
 
+        // Log the dates before sorting
+        logger.debug("Before sorting:");
+        for (SentenceDtoTable dto : sentenceDtos) {
+            logger.debug("Sentence ID: {}, Create Date: {}, Update Date: {}", dto.getSentenceId(), dto.getCreateDate(), dto.getUpdateDate());
+        }
+
         // Sort in-memory based on nested properties
         if (sortBy != null) {
             Comparator<SentenceDtoTable> comparator = getComparatorForSortBy(sortBy, direction);
             sentenceDtos = sentenceDtos.stream().sorted(comparator).collect(Collectors.toList());
+        }
+
+        // Log the dates after sorting
+        logger.debug("After sorting:");
+        for (SentenceDtoTable dto : sentenceDtos) {
+            logger.debug("Sentence ID: {}, Create Date: {}, Update Date: {}", dto.getSentenceId(), dto.getCreateDate(), dto.getUpdateDate());
         }
 
         return sentenceDtos;
@@ -215,9 +226,18 @@ public class SentenceService {
                         .sorted()
                         .collect(Collectors.joining(", ")));
                 break;
-            default:
-                // Handle other sort options if needed
+            case LEARNING_SENTENCE:
                 comparator = Comparator.comparing(SentenceDtoTable::getLearningSentence);
+                break;
+            case CREATE_DATE:
+                comparator = Comparator.comparing(SentenceDtoTable::getCreateDate, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case UPDATE_DATE:
+                comparator = Comparator.comparing(SentenceDtoTable::getUpdateDate, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            default:
+                // Default case to sort by createDate if no valid sortBy is provided
+                comparator = Comparator.comparing(SentenceDtoTable::getCreateDate, Comparator.nullsLast(Comparator.naturalOrder()));
                 break;
         }
 
