@@ -2,6 +2,7 @@ package org.example.englishByHeart.repos;
 
 import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.Exercise;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
+
+
     @Query(value = "SELECT current_sentences_id FROM exercise WHERE user_id = :userId", nativeQuery = true)
     String getCurrentSentencesIdArrayByUserId(@Param("userId") Long userId);
     List<Exercise> findByUserId(Long userId);

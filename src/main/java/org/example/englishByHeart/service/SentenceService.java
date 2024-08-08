@@ -12,7 +12,7 @@ import org.example.englishByHeart.repos.TopicRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -159,9 +159,7 @@ public class SentenceService {
         } else if (userId != null && sentenceTopics != null && !sentenceTopics.isEmpty()) {
             // Search by userId and sentenceTopics
             return sentenceRepository.findByUserIdAndSentenceTopicsIn(userId, sentenceTopics);
-        } else if (userId != null) {
-            // Search by userId
-            return sentenceRepository.findByUserId(userId, Sort.unsorted());
+
         } else if (sentenceIds != null && !sentenceIds.isEmpty()) {
             // Search by sentenceIds
             return sentenceRepository.findBySentenceIdIn(sentenceIds);
@@ -174,10 +172,16 @@ public class SentenceService {
         }
     }
 
-    public List<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction, String searchWord) {
-        List<Sentence> sentences = sentenceRepository.findByUserId(userId, Sort.unsorted());
-        List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
+    public Page<SentenceDtoTable> getFullSentencesByUserId(Long userId, SortBy sortBy, Sort.Direction direction, String searchWord, int page, int size) {
+        // Create the Pageable instance with sorting
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, getSortField(sortBy)));
 
+        // Fetch paged results from the repository
+        Page<Sentence> sentencePage = sentenceRepository.findByUserId(userId, pageable);
+        List<Sentence> sentences = sentencePage.getContent();
+
+        // Convert to DTOs
+        List<SentenceDtoTable> sentenceDtos = new ArrayList<>();
         for (Sentence sentence : sentences) {
             List<TranslationWithRuleDTO> translations = translationService.getTranslationsBySentenceIdWithRules(sentence.getSentenceId());
             List<Topic> topics = topicService.getTopicsBySentenceId(sentence.getSentenceId());
@@ -190,25 +194,25 @@ public class SentenceService {
             sentenceDtos = sentenceDtos.stream().filter(dto -> containsSearchWord(dto, searchWord)).collect(Collectors.toList());
         }
 
-        // Log the dates before sorting
-        logger.debug("Before sorting:");
-        for (SentenceDtoTable dto : sentenceDtos) {
-            logger.debug("Sentence ID: {}, Create Date: {}, Update Date: {}", dto.getSentenceId(), dto.getCreateDate(), dto.getUpdateDate());
-        }
+        // Return paged results
+        return new PageImpl<>(sentenceDtos, pageable, sentencePage.getTotalElements());
+    }
 
-        // Sort in-memory based on nested properties
-        if (sortBy != null) {
-            Comparator<SentenceDtoTable> comparator = getComparatorForSortBy(sortBy, direction);
-            sentenceDtos = sentenceDtos.stream().sorted(comparator).collect(Collectors.toList());
+    private String getSortField(SortBy sortBy) {
+        switch (sortBy) {
+            case TOPIC_NAME:
+                return "topicName"; // Replace with actual field name if necessary
+            case RULE_NAME:
+                return "ruleName"; // Replace with actual field name if necessary
+            case LEARNING_SENTENCE:
+                return "learningSentence";
+            case CREATE_DATE:
+                return "createDate";
+            case UPDATE_DATE:
+                return "updateDate";
+            default:
+                return "createDate";
         }
-
-        // Log the dates after sorting
-        logger.debug("After sorting:");
-        for (SentenceDtoTable dto : sentenceDtos) {
-            logger.debug("Sentence ID: {}, Create Date: {}, Update Date: {}", dto.getSentenceId(), dto.getCreateDate(), dto.getUpdateDate());
-        }
-
-        return sentenceDtos;
     }
 
     private boolean containsSearchWord(SentenceDtoTable dto, String searchWord) {

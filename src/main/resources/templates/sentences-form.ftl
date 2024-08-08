@@ -45,6 +45,9 @@
             </tbody>
         </table>
     </div>
+    <div id="paginationControls" class="mt-4">
+        <!-- Pagination buttons will be inserted here dynamically -->
+    </div>
     <div id="messageContainerPage" class="container mt-4"></div>
 </div>
 
@@ -155,166 +158,189 @@
 
 
 <script>
-    async function fetchAndDisplaySentences(sortBy, sortDirection, searchWord) {
-    try {
-        var url = 'http://localhost:8080/api/sentence/getFullSentencesByUserId?userId=1';
-        if (sortBy) {
-            url += '&sortBy=' + sortBy;
-        }
-        if (sortDirection) {
-            url += '&mode=' + sortDirection;
-        }
-        if (searchWord) {
-            url += '&searchWord=' + searchWord;
-        }
+    async function fetchAndDisplaySentences(sortBy, sortDirection, searchWord, page, size) {
+       try {
+           var url = 'http://localhost:8080/api/sentence/getFullSentencesByUserId?userId=1';
+           if (sortBy) {
+               url += '&sortBy=' + sortBy;
+           }
+           if (sortDirection) {
+               url += '&mode=' + sortDirection;
+           }
+           if (page !== undefined) {
+               url += '&page=' + page;
+           }
+           if (size !== undefined) {
+               url += '&size=' + size;
+           }
+           if (searchWord) {
+               url += '&searchWord=' + searchWord;
+           }
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': '*/*'
-            }
-        });
-        const sentences = await response.json();
+           const response = await fetch(url, {
+               method: 'GET',
+               headers: {
+                   'Accept': '*/*'
+               }
+           });
 
-        const tableBody = document.getElementById('sentencesTableBody');
-        tableBody.innerHTML = ''; // Clear any existing rows
+           if (!response.ok) {
+               throw new Error('Network response was not ok');
+           }
 
-        sentences.forEach(function(sentence) {
-            const row = document.createElement('tr');
+           const sentences = await response.json();
 
-            const sentenceIdCell = document.createElement('td');
-            sentenceIdCell.textContent = sentence.sentenceId;
-            row.appendChild(sentenceIdCell);
+           const tableBody = document.getElementById('sentencesTableBody');
+           tableBody.innerHTML = ''; // Clear any existing rows
 
-            const learningSentenceCell = document.createElement('td');
-            learningSentenceCell.textContent = sentence.learningSentence;
-            row.appendChild(learningSentenceCell);
+           sentences.content.forEach(function(sentence) {
+               const row = document.createElement('tr');
 
-            const commentCell = document.createElement('td');
-            commentCell.textContent = sentence.comment;
-            row.appendChild(commentCell);
+               // Create and append cells for each sentence property
+               const sentenceIdCell = document.createElement('td');
+               sentenceIdCell.textContent = sentence.sentenceId;
+               row.appendChild(sentenceIdCell);
 
-            const userLinkCell = document.createElement('td');
-            userLinkCell.textContent = sentence.userLink;
-            row.appendChild(userLinkCell);
+               const learningSentenceCell = document.createElement('td');
+               learningSentenceCell.textContent = sentence.learningSentence;
+               row.appendChild(learningSentenceCell);
 
-            const translationsCell = document.createElement('td');
-            const translationsList = document.createElement('ul');
-            sentence.translations.forEach(function(translation) {
-                const translationItem = document.createElement('li');
-                var rulesAndLinks = [];
-                translation.rulesAndLinks.forEach(function(ruleAndLink) {
-                    rulesAndLinks.push(ruleAndLink.rule);
-                });
-                translationItem.textContent = translation.translation + " (" + rulesAndLinks.join(', ') + ")";
-                translationsList.appendChild(translationItem);
-            });
-            translationsCell.appendChild(translationsList);
-            row.appendChild(translationsCell);
+               const commentCell = document.createElement('td');
+               commentCell.textContent = sentence.comment;
+               row.appendChild(commentCell);
 
-            const topicsCell = document.createElement('td');
-            const topicsList = document.createElement('ul');
-            sentence.topics.forEach(function(topic) {
-                const topicItem = document.createElement('li');
-                topicItem.textContent = topic.topicName;
-                topicsList.appendChild(topicItem);
-            });
-            topicsCell.appendChild(topicsList);
-            row.appendChild(topicsCell);
+               const userLinkCell = document.createElement('td');
+               userLinkCell.textContent = sentence.userLink;
+               row.appendChild(userLinkCell);
 
-            const actionsCell = document.createElement('td');
-            const updateButton = document.createElement('button');
-            updateButton.textContent = 'Update';
-            updateButton.classList.add('btn', 'btn-warning', 'm-1');
-            updateButton.setAttribute('sentence-id', sentence.sentenceId);
+               const translationsCell = document.createElement('td');
+               const translationsList = document.createElement('ul');
+               sentence.translations.forEach(function(translation) {
+                   const translationItem = document.createElement('li');
+                   var rulesAndLinks = [];
+                   translation.rulesAndLinks.forEach(function(ruleAndLink) {
+                       rulesAndLinks.push(ruleAndLink.rule);
+                   });
+                   translationItem.textContent = translation.translation + " (" + rulesAndLinks.join(', ') + ")";
+                   translationsList.appendChild(translationItem);
+               });
+               translationsCell.appendChild(translationsList);
+               row.appendChild(translationsCell);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.classList.add('btn', 'btn-danger', 'm-1');
-            deleteButton.setAttribute('sentence-id', sentence.sentenceId);
-            deleteButton.addEventListener('click', function() {
-                const sentenceId = this.getAttribute('sentence-id');
-                const deleteUrl = 'http://localhost:8080/api/sentence/' + sentenceId + '/user/1'; // Assuming user ID is 1
+               const topicsCell = document.createElement('td');
+               const topicsList = document.createElement('ul');
+               sentence.topics.forEach(function(topic) {
+                   const topicItem = document.createElement('li');
+                   topicItem.textContent = topic.topicName;
+                   topicsList.appendChild(topicItem);
+               });
+               topicsCell.appendChild(topicsList);
+               row.appendChild(topicsCell);
 
-                fetch(deleteUrl, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': '*/*',
-                    }
-                })
-                .then(function(response) {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // Optionally, handle successful deletion
-                    showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
-                    fetchAndDisplaySentences(sortBy, sortDirection,searchWord);
-                    updateExercises();
-                })
-                .catch(function(error) {
-                    // Optionally, handle error
-                    console.error('There was a problem with the fetch operation:', error);
-                });
-            });
+               const actionsCell = document.createElement('td');
+               const updateButton = document.createElement('button');
+               updateButton.textContent = 'Update';
+               updateButton.classList.add('btn', 'btn-warning', 'm-1');
+               updateButton.setAttribute('sentence-id', sentence.sentenceId);
 
-            actionsCell.appendChild(updateButton);
-            actionsCell.appendChild(deleteButton);
-            row.appendChild(actionsCell);
+               const deleteButton = document.createElement('button');
+               deleteButton.textContent = 'Delete';
+               deleteButton.classList.add('btn', 'btn-danger', 'm-1');
+               deleteButton.setAttribute('sentence-id', sentence.sentenceId);
+               deleteButton.addEventListener('click', function() {
+                   const sentenceId = this.getAttribute('sentence-id');
+                   const deleteUrl = 'http://localhost:8080/api/sentence/' + sentenceId + '/user/1'; // Assuming user ID is 1
 
-            tableBody.appendChild(row);
-        });
+                   fetch(deleteUrl, {
+                       method: 'DELETE',
+                       headers: {
+                           'Accept': '*/*',
+                       }
+                   })
+                   .then(function(response) {
+                       if (!response.ok) {
+                           throw new Error('Network response was not ok');
+                       }
+                       // Optionally, handle successful deletion
+                       showAlert('messageContainerPage', 'Sentence deleted successfully!', 'Success');
+                       fetchAndDisplaySentences(sortBy, sortDirection, searchWord, page, size);
+                   })
+                   .catch(function(error) {
+                       // Optionally, handle error
+                       console.error('There was a problem with the fetch operation:', error);
+                   });
+               });
 
-        addUpdateEventListeners();
-    } catch (error) {
-        console.error('Error fetching sentences:', error);
-    }
-}
+               actionsCell.appendChild(updateButton);
+               actionsCell.appendChild(deleteButton);
+               row.appendChild(actionsCell);
 
-document.getElementById('applyButton').addEventListener('click', function() {
-    var sortBy = document.getElementById('sortBy').value;
-    var sortDirection = document.getElementById('sortDirection').value;
-    var searchWord = document.getElementById('searchWord').value;
-    fetchAndDisplaySentences(sortBy, sortDirection,searchWord);
-});
+               tableBody.appendChild(row);
+           });
 
+           addUpdateEventListeners();
 
-    function addUpdateEventListeners() {
-    const updateButtons = document.querySelectorAll('.btn-warning');
-    updateButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            console.log('Update button clicked');
-            const sentenceId = this.getAttribute('sentence-id');
-            const url = '/api/sentence/getFullSentenceBySentenceId?sentenceId=' + encodeURIComponent(sentenceId);
+           // Handle pagination
+           const paginationContainer = document.getElementById('paginationControls');
+           paginationContainer.innerHTML = ''; // Clear any existing buttons
 
-            try {
-                console.log('Fetching sentence data for ID:', sentenceId);
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const sentenceData = await response.json();
-                console.log('Sentence data fetched:', sentenceData);
-                fillUpdateModal(sentenceData);
+           for (var i = 0; i < sentences.totalPages; i++) {
+               const pageButton = document.createElement('button');
+               pageButton.textContent = i + 1;
+               pageButton.classList.add('btn', 'btn-secondary', 'm-1');
+               pageButton.addEventListener('click', function() {
+                   fetchAndDisplaySentences(sortBy, sortDirection, searchWord, this.textContent - 1, size);
+               });
+               paginationContainer.appendChild(pageButton);
+           }
+       } catch (error) {
+           console.error('Error fetching sentences:', error);
+       }
+   }
 
-                // Show the update modal
-                const updateModal = new bootstrap.Modal(document.getElementById('updateSentenceModal'));
-                updateModal.show();
-                console.log('Update modal displayed');
-            } catch (error) {
-                console.error('Error fetching sentence data:', error);
-            }
-        });
-    });
-}
+   document.getElementById('applyButton').addEventListener('click', function() {
+       var sortBy = document.getElementById('sortBy').value;
+       var sortDirection = document.getElementById('sortDirection').value;
+       var searchWord = document.getElementById('searchWord').value;
+       fetchAndDisplaySentences(sortBy, sortDirection, searchWord, 0, 50);
+   });
 
-    // Call the function after the DOM content has loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchAndDisplaySentences('CREATE_DATE', 'ASC');;
-    });
+   function addUpdateEventListeners() {
+       const updateButtons = document.querySelectorAll('.btn-warning');
+       updateButtons.forEach(button => {
+           button.addEventListener('click', async function() {
+               console.log('Update button clicked');
+               const sentenceId = this.getAttribute('sentence-id');
+               const url = '/api/sentence/getFullSentenceBySentenceId?sentenceId=' + encodeURIComponent(sentenceId);
+
+               try {
+                   console.log('Fetching sentence data for ID:', sentenceId);
+                   const response = await fetch(url, {
+                       method: 'GET',
+                       headers: {
+                           'Accept': 'application/json'
+                       }
+                   });
+                   if (!response.ok) {
+                       throw new Error('Network response was not ok');
+                   }
+                   const sentenceData = await response.json();
+                   console.log('Sentence data fetched:', sentenceData);
+                   fillUpdateModal(sentenceData);
+
+                   // Show the update modal
+                   const updateModal = new bootstrap.Modal(document.getElementById('updateSentenceModal'));
+                   updateModal.show();
+                   console.log('Update modal displayed');
+               } catch (error) {
+                   console.error('Error fetching sentence data:', error);
+               }
+           });
+       });
+   }
+
+   document.addEventListener('DOMContentLoaded', function() {
+       fetchAndDisplaySentences('CREATE_DATE', 'ASC', '', 0, 50);
+   });
 
 </script>

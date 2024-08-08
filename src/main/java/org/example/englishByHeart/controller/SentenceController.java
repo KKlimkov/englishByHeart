@@ -7,6 +7,7 @@ import org.example.englishByHeart.service.SentenceService;
 import org.example.englishByHeart.domain.Sentence;
 import org.example.englishByHeart.dto.SentenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -94,13 +95,13 @@ public class SentenceController {
     }
 
     @GetMapping("/getFullSentencesByUserId")
-    public ResponseEntity<List<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId,
+    public ResponseEntity<Page<SentenceDtoTable>> getFullSentencesByUserId(@RequestParam Long userId,
                                                                            @RequestParam(required = false) SortBy sortBy,
                                                                            @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode,
                                                                            @RequestParam(required = false) String searchWord,
                                                                            @RequestParam int page,
                                                                            @RequestParam int size) {
-        List<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId, sortBy, mode, searchWord);
+        Page<SentenceDtoTable> sentences = sentenceService.getFullSentencesByUserId(userId, sortBy, mode, searchWord, page, size);
         return new ResponseEntity<>(sentences, HttpStatus.OK);
     }
 

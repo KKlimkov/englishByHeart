@@ -6,7 +6,8 @@ public enum SortBy {
     RULE_NAME("rule"),
     RULE_LINK("link"),
     TOPIC_NAME("topicName"),
-    LEARNING_SENTENCE("learningSentence");
+    LEARNING_SENTENCE("learningSentence"),
+    EXERCISE_NAME("exerciseName");
 
     private final String field;
 

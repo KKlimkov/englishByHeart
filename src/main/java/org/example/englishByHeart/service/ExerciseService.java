@@ -261,6 +261,7 @@ public class ExerciseService {
         return response.getBody().stream().map(Rule::getRule).collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Exercise> updateExercises(Long userId, String mode) {
         List<Exercise> exercises = exerciseRepository.findByUserId(userId);
         if (exercises.isEmpty()) {
@@ -276,11 +277,13 @@ public class ExerciseService {
             } else if ("RULE".equalsIgnoreCase(mode)) {
                 updateExerciseRules(exercise);
             }
+            exercise.setHasChanged(true);
         }
 
         return exerciseRepository.saveAll(exercises);
     }
 
+    @Transactional
     private void updateExerciseSentences(Exercise exercise) {
         Set<Long> topicIds = Arrays.stream(exercise.getTopicsIds()).map(Long::valueOf).collect(Collectors.toSet());
         Set<Long> ruleIds = Arrays.stream(exercise.getRulesIds()).map(Long::valueOf).collect(Collectors.toSet());
@@ -313,6 +316,7 @@ public class ExerciseService {
         exercise.setHasChanged(true);
     }
 
+    @Transactional
     private void updateExerciseTopics(Exercise exercise) {
         List<Long> topicIds = Arrays.stream(exercise.getTopicsIds())
                 .map(Long::valueOf)
@@ -329,6 +333,7 @@ public class ExerciseService {
         updateExerciseSentences(exercise);
     }
 
+    @Transactional
     private void updateExerciseRules(Exercise exercise) {
         List<Long> ruleIds = Arrays.stream(exercise.getRulesIds())
                 .map(Long::valueOf)
