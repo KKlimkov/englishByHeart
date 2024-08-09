@@ -3,9 +3,11 @@ package org.example.englishByHeart.controller;
 import jakarta.validation.Valid;
 import org.example.englishByHeart.domain.Exercise;
 import org.example.englishByHeart.dto.*;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.example.englishByHeart.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -105,9 +107,11 @@ public class ExerciseController {
     public ResponseEntity<List<ExerciseResponse>> getExercisesByUserId(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long exerciseId,
-            @RequestParam(required = false) Boolean isActive
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "ASC") Sort.Direction mode
     ) {
-        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId, exerciseId,isActive);
+        List<ExerciseResponse> exercises = exerciseService.getExercisesByUserId(userId, exerciseId, isActive, sortBy, mode);
         return ResponseEntity.ok(exercises);
     }
 

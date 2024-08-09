@@ -6,6 +6,24 @@
         <button type="button" class="btn btn-primary" id="continueExerciseBtn">Continue current exercise</button>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExerciseModal">Add new exercise</button>
     </form>
+    <div class="mb-3">
+        <label for="sortBy" class="form-label">Sort By:</label>
+        <select id="sortBy" class="form-select">
+            <option value="CREATE_DATE">Create Date</option>
+            <option value="UPDATE_DATE">Update Date</option>
+            <option value="RULE_NAME">Rule_Name</option>
+            <option value="TOPIC_NAME">TOPIC_NAME</option>
+            <option value="EXERCISE_NAME">NAME</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="sortDirection" class="form-label">Direction:</label>
+        <select id="sortDirection" class="form-select">
+            <option value="ASC">Ascending</option>
+            <option value="DESC">Descending</option>
+        </select>
+    </div>
+    <button type="button" id="applyButton" class="btn btn-primary">Apply</button>
     <div id="exercisesContainer" class="mt-4">
         <h2>Exercises List</h2>
         <div class="row" id="exercisesList">

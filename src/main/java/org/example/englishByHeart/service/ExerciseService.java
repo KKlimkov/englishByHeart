@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.example.englishByHeart.domain.*;
 import org.example.englishByHeart.dto.*;
+import org.example.englishByHeart.enums.SortBy;
 import org.example.englishByHeart.repos.ExerciseRepository;
 import org.example.englishByHeart.repos.RuleRepository;
 import org.example.englishByHeart.repos.TopicRepository;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -108,7 +110,7 @@ public class ExerciseService {
     }
 
     public List<Exercise> updateExercisesByUserId(Long userId, List<Long> currentSentences) {
-        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+        List<Exercise> exercises = exerciseRepository.findByUserId(userId, Sort.unsorted());
         if (exercises.isEmpty()) {
             // No exercises found for the given user ID
             return Collections.emptyList();
@@ -192,8 +194,12 @@ public class ExerciseService {
         return response;
     }
 
-    public List<ExerciseResponse> getExercisesByUserId(Long userId, Long exerciseId, Boolean isActive) {
-        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseIdAndActive(userId, exerciseId, isActive);
+    public List<ExerciseResponse> getExercisesByUserId(Long userId, Long exerciseId, Boolean isActive, SortBy sortBy, Sort.Direction direction) {
+        if (sortBy == null) {
+            sortBy = SortBy.EXERCISE_NAME; // or any default value you prefer
+        }
+
+        List<Exercise> exercises = exerciseRepository.findByUserIdAndExerciseIdAndActive(userId, exerciseId, isActive, Sort.by(direction, sortBy.getField()));
         List<ExerciseResponse> exerciseResponses = new ArrayList<>();
 
         for (Exercise exercise : exercises) {
@@ -263,7 +269,7 @@ public class ExerciseService {
 
     @Transactional
     public List<Exercise> updateExercises(Long userId, String mode) {
-        List<Exercise> exercises = exerciseRepository.findByUserId(userId);
+        List<Exercise> exercises = exerciseRepository.findByUserId(userId, Sort.unsorted());
         if (exercises.isEmpty()) {
             logger.warn("No exercises found for user ID: " + userId);
             return Collections.emptyList();

@@ -18,7 +18,7 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
 
     @Query(value = "SELECT current_sentences_id FROM exercise WHERE user_id = :userId", nativeQuery = true)
     String getCurrentSentencesIdArrayByUserId(@Param("userId") Long userId);
-    List<Exercise> findByUserId(Long userId);
+    List<Exercise> findByUserId(Long userId, Sort sort);
 
     @Query("SELECT e FROM Exercise e WHERE (:userId IS NULL OR e.userId = :userId) AND (:exerciseId IS NULL OR e.exerciseId = :exerciseId)")
     List<Exercise> findByUserIdAndExerciseId(
@@ -30,8 +30,15 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<Exercise> findByUserIdAndExerciseIdAndActive(
             @Param("userId") Long userId,
             @Param("exerciseId") Long exerciseId,
-            @Param("isActive") Boolean isActive
+            @Param("isActive") Boolean isActive,
+            Sort sort
     );
+
+    @Query("SELECT e FROM Exercise e JOIN e.topics t WHERE (:userId IS NULL OR e.userId = :userId) AND (:exerciseId IS NULL OR e.exerciseId = :exerciseId) AND (:isActive IS NULL OR e.isActive = :isActive) ORDER BY t.name ASC")
+    List<Exercise> findByUserIdAndExerciseIdAndActiveOrderByTopicName(Long userId, Long exerciseId, Boolean isActive);
+
+    @Query("SELECT e FROM Exercise e JOIN e.rules r WHERE (:userId IS NULL OR e.userId = :userId) AND (:exerciseId IS NULL OR e.exerciseId = :exerciseId) AND (:isActive IS NULL OR e.isActive = :isActive) ORDER BY r.name ASC")
+    List<Exercise> findByUserIdAndExerciseIdAndActiveOrderByRuleName(Long userId, Long exerciseId, Boolean isActive);
 
     @Modifying
     @Transactional
